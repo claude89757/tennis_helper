@@ -1,0 +1,9 @@
+/.idea
+/venv
+*.pyc
+test*
+!test_dags
+private.env
+*.log
+/data_example
+1.csv
