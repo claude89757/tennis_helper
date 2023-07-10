@@ -1,38 +1,26 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+@Time    : 2023/7/10 21:41
+@Author  : claudexie
+@File    : common.py
+@Software: PyCharm
+"""
 import os
 import requests
 import time
-import calendar
 import math
 import random
 import json
 import hashlib
 import datetime
-import shelve
+import calendar
 
 from typing import List
-
-from weida import get_rule_list_from_weida
-from sms import send_sms_for_news
 
 # 读取指定环境变量的值
 ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
 SIGN_KEY = os.environ.get("SIGN_KEY")
-
-PROXY_TEXT = os.environ.get("PROXY")
-
-DSH_COURT_NAME_INFOS = {100003: '1号场地',
-                        100004: '2号场地',
-                        100005: '3号场地',
-                        100006: '4号场地',
-                        100007: '5号场地',
-                        100008: '6号场地',
-                        100009: '7号场地',
-                        100010: '8号场地'}
-# 场地代号
-SALES_ITEM_ID = "100000"
-SALES_ID = "100220"
-ITEM_NAME = "大沙河"
 
 
 def gen_nonce(timestamp: int):
@@ -129,7 +117,8 @@ def find_available_slots(booked_slots, start_time="07:00", end_time="22:30"):
     return available_slots
 
 
-def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list) -> dict:
+def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list,
+                                sales_item_id: str, sales_id: str) -> dict:
     """
     获取可预订的场地信息
     """
@@ -144,12 +133,12 @@ def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list) 
         timestamp = math.trunc(time.time() * 1000)
         nonce = gen_nonce(timestamp)
         params = {
-            "salesItemId": SALES_ITEM_ID,
+            "salesItemId": sales_item_id,
             "curDate": str(check_data),
             "venueGroupId": "",
             "_time": str(timestamp)
         }
-        param_str = f"salesItemId={SALES_ITEM_ID}&curDate={check_data}&venueGroupId=&_time={str(timestamp)}"  # 仅用于签名
+        param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&_time={str(timestamp)}"  # 仅用于签名
         signature = signature_for_get(str(timestamp), nonce.replace('-', ''), param_str=param_str)
         headers = {
             "Host": "isz.ydmap.cn",
@@ -167,7 +156,7 @@ def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list) 
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X) AppleWebKit/605.1.15 "
                           "(KHTML, like Gecko) "
                           "Mobile/15E148/openweb=paschybrid/SZSMT_IOS,VERSION:4.5.0",
-            "referer": F"https://isz.ydmap.cn/booking/schedule/{SALES_ID}?salesItemId={SALES_ITEM_ID}",
+            "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
             "sec-fetch-dest": "empty"
         }
         url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
@@ -191,7 +180,7 @@ def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list) 
             print(f"failed for {proxy}: {error}")
             continue
     print(f"response: {response}")
-    print(f"response: {response.text}")
+    # print(f"response: {response.text}")
     if got_response:
         if response.status_code == 200:
             if response.json()['code'] == 0:
@@ -252,47 +241,14 @@ def sort_key(item):
     return int(item.split("号")[0])
 
 
-if __name__ == '__main__':
-    run_start_time = time.time()
-    # 每天0点-7点不巡检， 其他时间巡检
-    now = datetime.datetime.now().time()
-    if datetime.time(0, 0) <= now < datetime.time(7, 0):
-        print('Skipping task execution between 0am and 7am')
-        exit()
-    else:
-        print('Executing task at {}'.format(datetime.datetime.now()))
-
-    # 获取公网HTTPS代理
-    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
-    response = requests.get(url)
-    # 将文本内容按行分割，并去除每行两端的空格
-    text = response.text.strip()
-    print(text)
-    proxy_list = [line.strip() for line in text.split()]
-    print(proxy_list)
-
-    # 查询空闲的球场信息
-    available_tennis_court_slice_infos = {}
-    for index in range(0, 7):
-        check_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
-        print(f"checking {check_date}")
-        available_tennis_court_slice_infos[check_date] = []
-        free_tennis_court_infos = get_free_tennis_court_infos(check_date, ACCESS_TOKEN, proxy_list)
-        available_tennis_court_slice_infos[check_date] = free_tennis_court_infos
-        time.sleep(5)
-    print(f"available_tennis_court_slice_infos: {available_tennis_court_slice_infos}")
-
-    # 获取推送规则
-    rule_list = get_rule_list_from_weida(ITEM_NAME)
-    print(f"rule_list: {len(rule_list)}")
-    for rule in rule_list:
-        print(rule)
-    print("-----------------------------------------")
-
+def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
+    """
+    查找出命中规则的时间段, 并打印详细的场地信息
+    """
     # 推送可预定时间段的消息列表，并特别标注晚上时间段的场地
-    msg_list = [f"{ITEM_NAME}网球场可预定时间段"]
+    msg_list = [f"网球场可预定时间段"]
     found_court_infos = []
-    for date, free_slot_infos in available_tennis_court_slice_infos.items():
+    for date, free_slot_infos in available_slice_infos.items():
         # 检查是否有符合日期的推送规则
         filter_rule_list = []
         for rule in rule_list:
@@ -328,7 +284,6 @@ if __name__ == '__main__':
                     # 有推送规则，详细继续检查时间段
                     cur_start_time = slot[0]
                     cur_end_time = slot[1]
-
                     hit_rule_list = []
                     for rule in filter_rule_list:
                         watch_start_time = rule['start_time']
@@ -361,7 +316,9 @@ if __name__ == '__main__':
                         for rule in hit_rule_list:
                             date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
                             formatted_date = date_obj.strftime('%m-%d')
-                            found_court_infos.append({"phone": rule['phone'],
+                            found_court_infos.append({"rule_info": rule,
+                                                      "_id": rule['_id'],
+                                                      "phone": rule['phone'],
                                                       "date": f"{formatted_date} {weekday_cn}",
                                                       "court_index": court_name,
                                                       "start_time": slot[0],
@@ -385,48 +342,4 @@ if __name__ == '__main__':
     print("打印场地的可预订信息============================================")
     print(msg)
     print("============================================")
-
-    # 汇总信息，并发送短信
-    print(f"found_court_infos: {found_court_infos}")
-    phone_slot_infos = {}
-    for court_info in found_court_infos:
-        if court_info['court_index'] == 102930:
-            # 香蜜的6号场只能电话预定，这里先剔除
-            continue
-        else:
-            pass
-        print(court_info)
-        key = f"{court_info['phone']}_{court_info['date']}"
-        if phone_slot_infos.get(key):
-            phone_slot_infos[key].append([court_info['start_time'], court_info['end_time']])
-        else:
-            phone_slot_infos[key] = [[court_info['start_time'], court_info['end_time']]]
-    if not phone_slot_infos:
-        print(F"无需要通知的场地信息")
-    else:
-        # 打开本地文件缓存
-        script_name = os.path.splitext(os.path.basename(__file__))[0]  # 获取当前脚本的文件名
-        cache = shelve.open(f'{script_name}_cache.db')
-        print(f"phone_slot_infos: {phone_slot_infos}")
-        for phone_date, slot_list in phone_slot_infos.items():
-            print(f"sending {phone_date} sms of {slot_list}")
-            merge_slot_list = merge_time_ranges(slot_list)
-            print(f"merge_slot_list: {merge_slot_list}")
-            cache_key = f"{phone_date}_{merge_slot_list[0][0]}_{merge_slot_list[0][0]}"
-            if phone_date in cache:
-                print(f"{cache_key} has already been sent, skipping...")
-                continue
-            else:
-                # 执行任务
-                phone = phone_date.split('_')[0]
-                date = phone_date.split('_')[1]
-                send_sms_for_news([phone], [date, ITEM_NAME, merge_slot_list[0][0], merge_slot_list[0][1]])
-            # 更新本地文件缓存
-            cache[phone_date] = 1
-        # 关闭本地文件缓存
-        cache.close()
-
-    # 计算执行时间
-    run_end_time = time.time()
-    execution_time = run_end_time - run_start_time
-    print(f"执行时间：{execution_time}秒")
+    return found_court_infos

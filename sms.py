@@ -98,7 +98,7 @@ def send_sms_for_news(phone_num_list: list, param_list: list):
         resp = client.SendSms(req)
 
         # 输出json格式的字符串回包
-        print(resp.to_json_string(indent=2))
+        return resp.to_json_string(indent=2)
 
     except TencentCloudSDKException as err:
         print(err)

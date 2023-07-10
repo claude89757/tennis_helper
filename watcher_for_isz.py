@@ -1,0 +1,163 @@
+# -*- coding: utf-8 -*-
+import os
+import argparse
+import requests
+import time
+import datetime
+import shelve
+
+from config import CD_INDEX_INFOS
+from sms import send_sms_for_news
+from weda import get_rule_list_from_weida
+from weda import update_record_info_by_id
+from common import merge_time_ranges
+from common import get_free_tennis_court_infos
+from common import get_hit_court_infos
+
+# 读取指定环境变量的值
+ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
+SIGN_KEY = os.environ.get("SIGN_KEY")
+
+
+if __name__ == '__main__':
+    # 梦开始地方
+    run_start_time = time.time()
+
+    # 创建命令行解析器
+    parser = argparse.ArgumentParser(description='Help Message')
+
+    # 添加命令行参数
+    parser.add_argument('--item_name', type=str, help='Item Name')
+    parser.add_argument('--sales_id', type=str, help='Sales ID')
+    parser.add_argument('--sales_item_id', type=str, help='Sales Item ID')
+    parser.add_argument('--watch_days', type=int, help='Watch Days')
+    parser.add_argument('--send_sms', type=int, help='Send SMS')
+
+    # 解析命令行参数
+    args = parser.parse_args()
+
+    # 检查必需的参数是否输入
+    if not all([args.item_name, args.sales_id, args.sales_item_id, args.watch_days, args.send_sms]):
+        parser.print_help()
+        exit()
+    else:
+        # 处理命令行参数
+        print(args.item_name)
+        print(args.sales_id)
+        print(args.sales_item_id)
+        print(args.watch_days)
+        print(args.send_sms)
+
+    # 每天0点-7点不巡检， 其他时间巡检
+    now = datetime.datetime.now().time()
+    if datetime.time(0, 0) <= now < datetime.time(7, 0):
+        print('Skipping task execution between 0am and 7am')
+        exit()
+    else:
+        print('Executing task at {}'.format(datetime.datetime.now()))
+
+    # 从weda的数据库，获取通知规则
+    rule_list = get_rule_list_from_weida(CD_INDEX_INFOS.get(args.item_name))
+    print(f"rule_list: {len(rule_list)}")
+    for rule in rule_list:
+        print(rule)
+    if not rule_list:
+        print(f"该场地无人关注，不触发巡检")
+        exit()
+    else:
+        pass
+    print("-----------------------------------------")
+
+    # 获取公网HTTPS代理
+    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
+    response = requests.get(url)
+    text = response.text.strip()
+    print(text)
+    proxy_list = [line.strip() for line in text.split()]
+    print(proxy_list)
+
+    # 查询空闲的球场信息
+    available_tennis_court_slice_infos = {}
+    for index in range(0, args.watch_days):
+        check_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
+        print(f"checking {check_date}")
+        available_tennis_court_slice_infos[check_date] = []
+        free_tennis_court_infos = get_free_tennis_court_infos(check_date, ACCESS_TOKEN, proxy_list,
+                                                              sales_id=args.sales_id, sales_item_id=args.sales_item_id)
+        available_tennis_court_slice_infos[check_date] = free_tennis_court_infos
+        time.sleep(5)
+    print(f"available_tennis_court_slice_infos: {available_tennis_court_slice_infos}")
+
+    # 获取命中规则的场地信息
+    found_court_infos = get_hit_court_infos(available_tennis_court_slice_infos, rule_list)
+    print(f"found_court_infos: {found_court_infos}")
+
+    # 确认是否发生短信
+    if not args.send_sms:
+        print(f"不发生短信，仅测试打印")
+        exit()
+    else:
+        pass
+
+    # 汇总场地信息，并发送短信
+    phone_slot_infos = {}
+    rule_infos = {}
+    for court_info in found_court_infos:
+        if court_info['court_index'] == 102930:
+            # 香蜜的6号场只能电话当日预定，这里先剔除
+            continue
+        elif court_info['court_index'] in [104300, 104301, 104302, 104475]:
+            # 黄木岗的训练墙剔除
+            continue
+        else:
+            pass
+        print(court_info)
+        key = f"{court_info['phone']}_{court_info['date']}"
+        if phone_slot_infos.get(key):
+            phone_slot_infos[key].append([court_info['start_time'], court_info['end_time']])
+            rule_infos[key].append(court_info['rule_info'])
+        else:
+            phone_slot_infos[key] = [[court_info['start_time'], court_info['end_time']]]
+            rule_infos[key] = [court_info['rule_info']]
+    if not phone_slot_infos:
+        print(F"无需要通知的场地信息")
+    else:
+        # 打开本地文件缓存，用于缓存标记已经发送过的短信，不重复发生
+        cache = shelve.open(f'{args.item_name}_cache')
+        print(f"phone_slot_infos: {phone_slot_infos}")
+        for phone_date, slot_list in phone_slot_infos.items():
+            print(f"sending {phone_date} sms of {slot_list}")
+            merge_slot_list = merge_time_ranges(slot_list)  # 可能有多个时间段，短信只发送第一个时间段
+            print(f"merge_slot_list: {merge_slot_list}")
+            cache_key = f"{phone_date}_{merge_slot_list[0][0]}_{merge_slot_list[0][0]}"
+            if phone_date in cache:
+                print(f"{cache_key} has already been sent, skipping...")
+                continue
+            else:
+                # 执行任务
+                phone = phone_date.split('_')[0]
+                date = phone_date.split('_')[1]
+                sms_res = send_sms_for_news([phone],
+                                            [date, args.item_name, merge_slot_list[0][0], merge_slot_list[0][1]])
+                print(sms_res)
+                if "send success" in sms_res:
+                    print("短信发送成功, 刷新数据库计数")
+                    # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
+                    rule_info_list = rule_infos.get(phone_date)
+                    cur_today_send_num = rule_info_list[0].get('jrtzcs', 0)
+                    cur_total_send_num = rule_info_list[0].get('zjtzcs', 0)
+                    cur_today_send_num += 1
+                    cur_total_send_num += 1
+                    update_record_info_by_id(rule_info_list[0]['_id'], {"jrtzcs": cur_today_send_num,
+                                                                        "zjtzcs": cur_total_send_num})
+                else:
+                    print("短信发送失败！！！！！")
+            # 更新本地文件缓存
+            cache[phone_date] = 1
+        # 关闭本地文件缓存
+        cache.close()
+
+    # 计算执行时间
+    run_end_time = time.time()
+    execution_time = run_end_time - run_start_time
+    print(f"执行时间：{execution_time}秒")
