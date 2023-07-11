@@ -44,7 +44,7 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
                     f"/{env_type}/{datasource_name}"
     query_params = {
         "$count": 'true',
-        "$top": 10000,
+        "$top": 100000,
     }
     query_headers = {
         "Content-Type": "application/json",
@@ -140,6 +140,18 @@ def update_record_info_by_id(record_id: str, payload: dict = None):
         raise Exception(query_response.text)
 
 
+def get_today_active_rule_list():
+    """
+    从微搭数据源获取用户的推送规则
+    :parm: cd_index 场地代号，映射见全局变量
+    :return:
+    """
+    print(f"get_today_active_rule_list")
+    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(jrtzcs gt 0)")
+    print(f"rule_list: {len(rule_list)}")
+    return rule_list
+
+
 # testing
 if __name__ == '__main__':
-    print(update_record_info_by_id("5da2e2bc64abf741000093aa5f0ab5b3", {'jrtzcs': 321}))
+    print(get_rule_list_from_weida(1))

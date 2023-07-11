@@ -162,7 +162,7 @@ def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list,
         url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
         print(url)
         print(params)
-        print(headers)
+        # print(headers)
         proxy = proxy_list[index]
         print(f"trying for {index} time for {proxy}")
         try:
@@ -267,7 +267,7 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
         date_and_weekday = f'{date}（{weekday_cn}）'
         msg_list.append(f"{date_and_weekday}")
         check_date_slot_list = []
-        # 对每个时间段的场地进行检查，看看是否有符合条件的时间段
+        # 检查是否有符合条件的时间段
         for court_name, slots in free_slot_infos.items():
             print(f"slots: {slots}")
             # 将列表转换为元组，并将元组转换为集合，实现去重

@@ -62,10 +62,31 @@ if __name__ == '__main__':
     for rule in rule_list:
         print(rule)
     if not rule_list:
-        print(f"该场地无人关注，不触发巡检")
+        print(f"该场地无人订阅，不触发巡检")
         exit()
     else:
-        pass
+        # 标记这些订阅的状态：运行中或者已过期
+        for rule in rule_list:
+            # 获取今天的日期
+            today = datetime.date.today()
+            # 将今天的日期作为check_date
+            check_date = datetime.datetime.combine(today, datetime.datetime.min.time())
+            # 使用check_date来判断订阅的状态
+            rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
+            rule_end_date = datetime.datetime.strptime(rule['end_date'], "%Y-%m-%d")
+            print(f"{today} {rule['start_date']} {rule['end_date']}之间")
+            if rule_start_date <= check_date <= rule_end_date:
+                # 运行中
+                print(f"运行中: {rule}")
+                update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
+            elif check_date > rule_end_date:
+                # 已过期
+                print(f"已过期: {rule}")
+                update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 运行中
+            else:
+                # 未生效
+                print(f"未生效: {rule}")
+            time.sleep(0.1)
     print("-----------------------------------------")
 
     # 获取公网HTTPS代理
