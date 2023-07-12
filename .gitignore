@@ -7,3 +7,4 @@ private.env
 *.log
 /data_example
 1.csv
+*.db

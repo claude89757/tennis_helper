@@ -25,3 +25,6 @@ TENCENT_CLOUD_SECRET_KEY=""
 
 # reset count for sms
 0 1 * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/reset_count_for_sms.py >> /home/lighthouse/tennis_helper/logs/reset_count_for_sms_$(date +\%Y-\%m-\%d).log 2>&1
+
+# git pull for github
+0 * * * * /bin/bash /home/lighthouse/tennis_helper/git_pull.sh
