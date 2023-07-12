@@ -7,6 +7,7 @@ import datetime
 import shelve
 
 from config import CD_INDEX_INFOS
+from config import CD_TIME_RANGE_INFOS
 from sms import send_sms_for_news
 from weda import get_rule_list_from_weida
 from weda import update_record_info_by_id
@@ -103,7 +104,8 @@ if __name__ == '__main__':
         check_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         print(f"checking {check_date}")
         available_tennis_court_slice_infos[check_date] = []
-        free_tennis_court_infos = get_free_tennis_court_infos(check_date, ACCESS_TOKEN, proxy_list,
+        time_range = CD_TIME_RANGE_INFOS.get(args.item_name)
+        free_tennis_court_infos = get_free_tennis_court_infos(check_date, ACCESS_TOKEN, proxy_list, time_range=time_range,
                                                               sales_id=args.sales_id, sales_item_id=args.sales_item_id)
         available_tennis_court_slice_infos[check_date] = free_tennis_court_infos
         time.sleep(5)

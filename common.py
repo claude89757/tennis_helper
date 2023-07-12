@@ -93,15 +93,15 @@ def str_to_timestamp(date_str: str):
     return int(datetime.datetime.strptime(date_str, '%Y-%m-%d').timestamp() * 1000)
 
 
-def find_available_slots(booked_slots, start_time="07:00", end_time="22:30"):
+def find_available_slots(booked_slots, time_range):
     """
     根据已预定的时间段，查询可预定的时间段
     """
     booked_slots = sorted(booked_slots, key=lambda x: x[0])  # 按开始时间排序
     available_slots = []
 
-    current_time = datetime.datetime.strptime(start_time, "%H:%M")
-    end_time = datetime.datetime.strptime(end_time, "%H:%M")
+    current_time = datetime.datetime.strptime(time_range['start_time'], "%H:%M")
+    end_time = datetime.datetime.strptime(time_range['end_time'], "%H:%M")
 
     for slot in booked_slots:
         slot_start = datetime.datetime.strptime(slot[0], "%H:%M")
@@ -117,7 +117,7 @@ def find_available_slots(booked_slots, start_time="07:00", end_time="22:30"):
     return available_slots
 
 
-def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list,
+def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list, time_range: dict,
                                 sales_item_id: str, sales_id: str) -> dict:
     """
     获取可预订的场地信息
@@ -194,7 +194,15 @@ def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list,
                         booked_court_infos[data['venueId']] = [[start_time, end_time]]
                 available_slots_infos = {}
                 for venue_id, booked_slots in booked_court_infos.items():
-                    available_slots = find_available_slots(booked_slots)
+                    if venue_id in [104300, 104301, 104302, 104475]:
+                        # 黄木岗的训练墙剔除
+                        continue
+                    elif venue_id in [102930]:
+                        # 香蜜6号当日线下预定，剔除
+                        continue
+                    else:
+                        pass
+                    available_slots = find_available_slots(booked_slots, time_range)
                     available_slots_infos[venue_id] = available_slots
                 return available_slots_infos
             else:

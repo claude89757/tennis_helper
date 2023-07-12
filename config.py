@@ -64,5 +64,19 @@ CD_INDEX_INFOS = {
     "黄冈公园": 10,
 }
 
+CD_TIME_RANGE_INFOS = {
+    "大沙河": {"start_time": "07:00", "end_time": "22:30"},
+    "深云文体": {"start_time": "09:00", "end_time": "22:30"},
+    "深圳湾": {"start_time": "09:30", "end_time": "22:30"},
+    "香蜜体育": {"start_time": "07:00", "end_time": "22:30"},
+    "莲花体育": {"start_time": "07:00", "end_time": "22:30"},
+    "简上": {"start_time": "08:00", "end_time": "22:00"},
+    "黄木岗": {"start_time": "07:00", "end_time": "22:30"},
+    "华侨城": {"start_time": "07:00", "end_time": "22:00"},
+    "福田中心": {"start_time": "06:00", "end_time": "22:30"},
+    "黄冈公园": {"start_time": "06:00", "end_time": "22:30"},
+}
+
+
 WEDA_ENV = "prod"
 WEDA_USER_DATASOURCE = "vip_jz6a5g3"
