@@ -110,6 +110,7 @@ if __name__ == '__main__':
         check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         check_date = datetime.datetime.strptime(check_date_str, "%Y-%m-%d")
         if min_rule_check_date <= check_date <= max_rule_check_date:
+            # 只查询被订阅的日期的信息
             print(f"checking {check_date_str}")
         else:
             # skip
