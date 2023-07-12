@@ -140,6 +140,44 @@ def update_record_info_by_id(record_id: str, payload: dict = None):
         raise Exception(query_response.text)
 
 
+def create_record(payload: dict):
+    """
+    更新数据源记录
+    """
+    # 换取AccessToken
+    token_url = f"https://lowcode-8gsauxtn5fe06776.ap-shanghai.tcb-api.tencentcloudapi.com" \
+                f"/auth/v1/token/clientCredential"
+    token_headers = {
+        "Content-Type": "application/json",
+        "Authorization":
+            f"Basic {base64.b64encode(f'{TENCENT_CLOUD_SECRET_ID}:{TENCENT_CLOUD_SECRET_KEY}'.encode()).decode()}"
+    }
+    token_data = {
+        "grant_type": "client_credentials"
+    }
+    print(token_url)
+    token_response = requests.post(token_url, headers=token_headers, json=token_data)
+    access_token = token_response.json()["access_token"]
+
+    # 更新数据
+    query_url = f"https://lowcode-8gsauxtn5fe06776.ap-shanghai.tcb-api.tencentcloudapi.com/weda/odata/v1" \
+                f"/{WEDA_ENV}/sms_38mzmt2"
+
+    query_headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}"
+    }
+    print(query_url)
+    print(payload)
+    query_response = requests.post(query_url, headers=query_headers, json=payload)
+    print(query_response.status_code)
+    print(query_response.text)
+    if query_response.status_code == 201:
+        return query_response.json()
+    else:
+        raise Exception(query_response.text)
+
+
 def get_today_active_rule_list():
     """
     从微搭数据源获取用户的推送规则
@@ -154,4 +192,6 @@ def get_today_active_rule_list():
 
 # testing
 if __name__ == '__main__':
-    print(get_rule_list_from_weida(1))
+    #print(get_rule_list_from_weida(1))
+    create_record({"phone": "18688539560", "sms_text": f"test",
+                   "status": "test"})

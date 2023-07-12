@@ -11,6 +11,7 @@ from config import CD_TIME_RANGE_INFOS
 from sms import send_sms_for_news
 from weda import get_rule_list_from_weida
 from weda import update_record_info_by_id
+from weda import create_record
 from common import merge_time_ranges
 from common import get_free_tennis_court_infos
 from common import get_hit_court_infos
@@ -184,10 +185,21 @@ if __name__ == '__main__':
                     cur_total_send_num = rule_info_list[0].get('zjtzcs', 0)
                     cur_today_send_num += 1
                     cur_total_send_num += 1
-                    update_record_info_by_id(rule_info_list[0]['_id'], {"jrtzcs": cur_today_send_num,
-                                                                        "zjtzcs": cur_total_send_num})
+                    try:
+                        update_record_info_by_id(rule_info_list[0]['_id'], {"jrtzcs": cur_today_send_num,
+                                                                            "zjtzcs": cur_total_send_num})
+                    except Exception as error:
+                        print(f"error: {error}")
                 else:
                     print("短信发送失败！！！！！")
+                # 记录短信到weda数据库
+                try:
+                    create_record({"phone": phone, "sms_text": f"{date} {args.item_name} 可预定时间: "
+                                                               f"{merge_slot_list[0][0]}~{merge_slot_list[0][1]}",
+                                   "status": sms_res['Response']['SendStatusSet'][0]['Message']})
+                except Exception as error:
+                    print(f"error: {error}")
+            time.sleep(1)
             # 更新本地文件缓存
             cache[phone_date] = 1
         # 关闭本地文件缓存
