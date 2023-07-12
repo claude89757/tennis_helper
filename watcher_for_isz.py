@@ -59,6 +59,7 @@ if __name__ == '__main__':
 
     # 从weda的数据库，获取通知规则
     rule_list = get_rule_list_from_weida(CD_INDEX_INFOS.get(args.item_name))
+    rule_date_list = []
     print(f"rule_list: {len(rule_list)}")
     for rule in rule_list:
         print(rule)
@@ -80,6 +81,8 @@ if __name__ == '__main__':
                 # 运行中
                 print(f"运行中: {rule}")
                 update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
+                rule_date_list.append(rule_start_date)
+                rule_date_list.append(rule_end_date)
             elif check_date > rule_end_date:
                 # 已过期
                 print(f"已过期: {rule}")
@@ -100,14 +103,23 @@ if __name__ == '__main__':
 
     # 查询空闲的球场信息
     available_tennis_court_slice_infos = {}
+    min_rule_check_date = min(rule_date_list)
+    max_rule_check_date = max(rule_date_list)
+    print(f"rule check date: from {min_rule_check_date} to {max_rule_check_date}")
     for index in range(0, args.watch_days):
-        check_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
-        print(f"checking {check_date}")
-        available_tennis_court_slice_infos[check_date] = []
+        check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
+        check_date = datetime.datetime.strptime(check_date_str, "%Y-%m-%d")
+        if min_rule_check_date <= check_date <= max_rule_check_date:
+            print(f"checking {check_date_str}")
+        else:
+            # skip
+            print(f"skip checking {check_date_str}")
+            continue
+        available_tennis_court_slice_infos[check_date_str] = []
         time_range = CD_TIME_RANGE_INFOS.get(args.item_name)
-        free_tennis_court_infos = get_free_tennis_court_infos(check_date, ACCESS_TOKEN, proxy_list, time_range=time_range,
+        free_tennis_court_infos = get_free_tennis_court_infos(check_date_str, ACCESS_TOKEN, proxy_list, time_range=time_range,
                                                               sales_id=args.sales_id, sales_item_id=args.sales_item_id)
-        available_tennis_court_slice_infos[check_date] = free_tennis_court_infos
+        available_tennis_court_slice_infos[check_date_str] = free_tennis_court_infos
         time.sleep(5)
     print(f"available_tennis_court_slice_infos: {available_tennis_court_slice_infos}")
 
