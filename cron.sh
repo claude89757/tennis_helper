@@ -21,10 +21,10 @@ TENCENT_CLOUD_SECRET_KEY=""
 
 
 # delete old logs everyday
-0 1 * * * find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +3 -delete
+0 1 * * * find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +3 -delete /home/lighthouse/tennis_helper/logs/delete_log_$(date +\%Y-\%m-\%d).log 2>&1
 
 # reset count for sms
 0 1 * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/reset_count_for_sms.py >> /home/lighthouse/tennis_helper/logs/reset_count_for_sms_$(date +\%Y-\%m-\%d).log 2>&1
 
 # git pull for github
-0 * * * * /bin/bash /home/lighthouse/tennis_helper/git_pull.sh
+0 * * * * /bin/bash /home/lighthouse/tennis_helper/git_pull.sh /home/lighthouse/tennis_helper/logs/git_pull_$(date +\%Y-\%m-\%d).log 2>&1
