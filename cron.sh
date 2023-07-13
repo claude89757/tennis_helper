@@ -21,7 +21,7 @@ KS_TOKEN=""
 */5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "北站公园" --sales_id "102911" --sales_item_id "101145" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/bzgy_$(date +\%Y-\%m-\%d).log 2>&1
 
 # run tennis tools for hjd
-*/1 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "HJD" --item_name "金地威新" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/jdwx_$(date +\%Y-\%m-\%d).log 2>&1
+*/3 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "HJD" --item_name "金地威新" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/jdwx_$(date +\%Y-\%m-\%d).log 2>&1
 
 # run tennis tools for tns
 */3 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "TNS" --item_name "泰尼斯香蜜" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/tns_$(date +\%Y-\%m-\%d).log 2>&1
