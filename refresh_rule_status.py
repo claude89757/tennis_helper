@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         print(f"{court_name} 可预定日期: {check_date_str_list} 正在更新订阅状态...")
         # 获取订阅列表
-        rule_list = get_rule_list_from_weida(court_index)
+        rule_list = get_rule_list_from_weida(court_index)  # 非过期的订阅列表
         rule_date_list = []
         print_with_timestamp(f"rule_list: {len(rule_list)}")
         for rule in rule_list:
@@ -60,9 +60,12 @@ if __name__ == '__main__':
                 if check_start_date <= rule_end_date and check_end_date >= rule_start_date:
                     # 日期范围有交集, 运行中
                     print(f"运行中: {rule}")
-                    update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
-                    rule_date_list.append(rule_start_date)
-                    rule_date_list.append(rule_end_date)
+                    if rule['status'] == 2:
+                        pass
+                    else:
+                        update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
+                        rule_date_list.append(rule_start_date)
+                        rule_date_list.append(rule_end_date)
                 elif check_start_date > rule_end_date:
                     # 已过期
                     print(f"已过期: {rule}")
