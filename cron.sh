@@ -37,3 +37,6 @@ KS_TOKEN=""
 
 # git pull for github
 0 * * * * /bin/bash /home/lighthouse/tennis_helper/git_pull.sh /home/lighthouse/tennis_helper/logs/git_pull_$(date +\%Y-\%m-\%d).log 2>&1
+
+# refresh rule status
+*/5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/refresh_rule_status.py  >> /home/lighthouse/tennis_helper/logs/refresh_rule_status_$(date +\%Y-\%m-\%d).log 2>&1

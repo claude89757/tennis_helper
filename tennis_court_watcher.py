@@ -18,7 +18,7 @@ from config import CD_INDEX_INFOS
 from config import CD_TIME_RANGE_INFOS
 
 from sms import send_sms_for_news
-from weda import get_rule_list_from_weida
+from weda import get_active_rule_list
 from weda import update_record_info_by_id
 from weda import create_record
 from common import merge_time_ranges
@@ -82,35 +82,23 @@ if __name__ == '__main__':
     print(f"check_date_list: {check_date_list}")
 
     # 从微搭的数据库，获取订阅规则列表
-    rule_list = get_rule_list_from_weida(CD_INDEX_INFOS.get(args.court_name))
+    active_rule_list = get_active_rule_list(CD_INDEX_INFOS.get(args.court_name))
     rule_date_list = []
-    print_with_timestamp(f"rule_list: {len(rule_list)}")
-    for rule in rule_list:
+    print_with_timestamp(f"active_rule_list: {len(active_rule_list)}")
+    for rule in active_rule_list:
         print(rule)
-    if not rule_list:
+    if not active_rule_list:
         print_with_timestamp(f"该场地无人订阅，不触发巡检")
         exit()
     else:
-        # 标记这些订阅的状态：运行中、已过期、未生效
-        for rule in rule_list:
+        # 打印运行中的规则
+        for rule in active_rule_list:
             # 判断订阅的状态，根据日期范围是否有交集
             rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
             rule_end_date = datetime.datetime.strptime(rule['end_date'], "%Y-%m-%d")
             print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}之间")
-            if check_start_date <= rule_end_date and check_end_date >= rule_start_date:
-                # 日期范围有交集, 运行中
-                print(f"运行中: {rule}")
-                update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
-                rule_date_list.append(rule_start_date)
-                rule_date_list.append(rule_end_date)
-            elif check_start_date > rule_end_date:
-                # 已过期
-                print(f"已过期: {rule}")
-                update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
-            else:
-                # 未生效
-                print(f"未生效: {rule}")
-            time.sleep(0.1)
+            rule_date_list.append(rule_start_date)
+            rule_date_list.append(rule_end_date)
     print("-----------------------------------------")
 
     # 获取公网HTTPS代理列表
@@ -156,7 +144,7 @@ if __name__ == '__main__':
     print_with_timestamp(f"available_tennis_court_slice_infos: {len(available_tennis_court_slice_infos)}")
 
     # 获取命中规则的各时间段的场地信息
-    found_court_infos = get_hit_court_infos(available_tennis_court_slice_infos, rule_list)
+    found_court_infos = get_hit_court_infos(available_tennis_court_slice_infos, active_rule_list)
     print(f"found_court_infos: {found_court_infos}")
 
     # 确认是否发短信
