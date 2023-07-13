@@ -51,27 +51,28 @@ if __name__ == '__main__':
         if not rule_list:
             print_with_timestamp(f"该场地无人订阅，不触发")
         else:
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             # 标记这些订阅的状态：运行中、已过期、未生效
             for rule in rule_list:
                 # 判断订阅的状态，根据日期范围是否有交集
                 rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
                 rule_end_date = datetime.datetime.strptime(rule['end_date'], "%Y-%m-%d")
-                print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}之间")
+                print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
                 if check_start_date <= rule_end_date and check_end_date >= rule_start_date:
                     # 日期范围有交集, 运行中
-                    print(f"运行中: {rule}")
                     if rule['status'] == 2:
                         pass
                     else:
+                        print(f"未生效 > 运行中: {rule}")
                         update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
                         rule_date_list.append(rule_start_date)
                         rule_date_list.append(rule_end_date)
                 elif check_start_date > rule_end_date:
                     # 已过期
-                    print(f"已过期: {rule}")
+                    print(f"运行中 > 已过期: {rule}")
                     update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
                 else:
                     # 未生效
-                    print(f"未生效: {rule}")
+                    pass
                 time.sleep(0.1)
         print("-----------------------------------------")

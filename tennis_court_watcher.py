@@ -88,7 +88,7 @@ if __name__ == '__main__':
             # 判断订阅的状态，根据日期范围是否有交集
             rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
             rule_end_date = datetime.datetime.strptime(rule['end_date'], "%Y-%m-%d")
-            print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}之间")
+            print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
             rule_date_list.append(rule_start_date)
             rule_date_list.append(rule_end_date)
     # 每天0点-7点不巡检，其他时间巡检
