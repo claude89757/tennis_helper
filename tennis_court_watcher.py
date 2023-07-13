@@ -36,14 +36,6 @@ KS_TOKEN = os.environ.get("KS_TOKEN")  # 酷尚网球的token可能会过期...
 
 
 if __name__ == '__main__':
-    # 每天0点-7点不巡检，其他时间巡检
-    now = datetime.datetime.now().time()
-    if datetime.time(0, 0) <= now < datetime.time(7, 0):
-        print_with_timestamp('Skipping task execution between 0am and 7am')
-        exit()
-    else:
-        print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
-
     # 网球场守望者开始时间
     run_start_time = time.time()
 
@@ -99,7 +91,14 @@ if __name__ == '__main__':
             print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}之间")
             rule_date_list.append(rule_start_date)
             rule_date_list.append(rule_end_date)
-    print("-----------------------------------------")
+    # 每天0点-7点不巡检，其他时间巡检
+    now = datetime.datetime.now().time()
+    if datetime.time(0, 0) <= now < datetime.time(7, 0):
+        print_with_timestamp('Skipping task execution between 0am and 7am')
+        exit()
+    else:
+        print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
+    print_with_timestamp(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
     # 获取公网HTTPS代理列表
     url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
