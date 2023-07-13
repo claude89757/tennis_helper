@@ -8,5 +8,4 @@
 - cron.sh: 定时任务的相关配置命令
 - sms.py: 腾讯云短信服务相关的函数
 - weda.py: 腾讯云微搭服务相关的函数
-- watcher_for_xm.py: 香蜜场地巡检的主函数
-- watcher_for_xm.py: 大沙河场地巡检的主函数
+- tennis_court_watcher.py: 网球场守望者的主函数

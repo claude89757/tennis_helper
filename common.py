@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 @Time    : 2023/7/10 21:41
-@Author  : claudexie
+@Author  : claude89757
 @File    : common.py
 @Software: PyCharm
 """
@@ -117,8 +117,8 @@ def find_available_slots(booked_slots, time_range):
     return available_slots
 
 
-def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list, time_range: dict,
-                                sales_item_id: str, sales_id: str) -> dict:
+def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range: dict,
+                                        sales_item_id: str, sales_id: str) -> dict:
     """
     获取可预订的场地信息
     """
@@ -626,3 +626,11 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
     print(msg)
     print("============================================")
     return found_court_infos
+
+
+def print_with_timestamp(*args, **kwargs):
+    """
+    打印函数带上当前时间戳
+    """
+    timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
+    print(timestamp, *args, **kwargs)

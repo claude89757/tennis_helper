@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 @Time    : 2023/7/4 15:24
-@Author  : claudexie
+@Author  : claude89757
 @File    : send_text.py
 @Software: PyCharm
 """
