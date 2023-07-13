@@ -40,7 +40,7 @@ if __name__ == '__main__':
     now = datetime.datetime.now().time()
     if datetime.time(0, 0) <= now < datetime.time(7, 0):
         print_with_timestamp('Skipping task execution between 0am and 7am')
-        exit()
+        # exit() test
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
