@@ -63,7 +63,6 @@ CD_INDEX_INFOS = {
     "福田中心": 9,
     "黄冈公园": 10,
     "北站公园": 11,
-
 }
 
 CD_TIME_RANGE_INFOS = {
