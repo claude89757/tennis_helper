@@ -196,7 +196,7 @@ if __name__ == '__main__':
                 try:
                     create_record({"phone": phone, "sms_text": f"{date} {args.item_name} 可预定时间: "
                                                                f"{merge_slot_list[0][0]}~{merge_slot_list[0][1]}",
-                                   "status": sms_res['Response']['SendStatusSet'][0]['Message']})
+                                   "status": sms_res['SendStatusSet'][0]['Message']})
                 except Exception as error:
                     print(f"error: {error}")
             time.sleep(1)
