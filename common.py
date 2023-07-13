@@ -413,35 +413,37 @@ def get_free_tennis_court_infos_for_ks(date: str, token: str, proxy_list: list) 
     random.shuffle(index_list)
     print(index_list)
     for index in index_list:
-        params = {
-            "gymId": "1479063349546192897",
-            "sportsType": "1",
-            "reserveDate": date
+        data = {
+            "date": date,
+            "token": token,
+            "tempStoreId": "10",
+            "companyId": ""
         }
         headers = {
-            "Host": "gateway.gemdalesports.com",
-            "referer": "https://servicewechat.com/wxf7ae96551d92f600/34/page-frame.html",
+            "Host": "api.suncoolsports.com",
+            "referer": "https://servicewechat.com/wx702009499d3e30ec/20/page-frame.html",
             "xweb_xhr": "1",
-            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-                          "(KHTML, like Gecko) Chrome/"
-                          "98.0.4758.102 Safari/537.36 MicroMessenger/6.8.0(0x16080000)"
-                          " NetType/WIFI MiniProgramEnv/Mac MacWechat/WMPF XWEB/30626",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "*/*",
-            "Sec-Fetch-Site": "cross-site",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Dest": "empty"
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/98.0.4758.102 Safari/537.36 MicroMessenger/6.8.0(0x16080000) NetType/WIFI "
+                          "MiniProgramEnv/Mac MacWechat/WMPF XWEB/30626",
+            "form-type": "routine",
+            "content-type": "application/json",
+            "accept": "*/*",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "accept-language": "zh-CN,zh",
         }
-        url = "https://gateway.gemdalesports.com/inside-frontend/api/field/fieldReserve"
+        url = "https://api.suncoolsports.com/u-spacelist"
         print(url)
-        print(params)
+        print(data)
         # print(headers)
         proxy = proxy_list[index]
         print(f"trying for {index} time for {proxy}")
         try:
             proxies = {"https": proxy}
-            response = requests.get(url, headers=headers, params=params, proxies=proxies, verify=False, timeout=30)
+            response = requests.post(url, headers=headers, data=json.dumps(data), proxies=proxies,
+                                     verify=False, timeout=30)
             if response.status_code == 200:
                 print(f"success for {proxy}")
                 got_response = True
