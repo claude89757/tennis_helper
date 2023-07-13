@@ -9,3 +9,5 @@
 - sms.py: 腾讯云短信服务相关的函数
 - weda.py: 腾讯云微搭服务相关的函数
 - tennis_court_watcher.py: 网球场守望者的主函数
+- reset_count_for_sms: 每条订阅的今日短信提示次数置零
+- refresh_rule_status: 更新订阅的状态
