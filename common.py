@@ -382,7 +382,7 @@ def get_free_tennis_court_infos_for_tns(date: str, proxy_list: list) -> dict:
     print(f"response: {response}")
     # print(f"response: {response.text}")
     if got_response:
-        if response.json()['data'].get('array'):
+        if response.json()['data'].get('store'):
             available_slots_infos = {}
             for file_info in response.json()['data']['store']:
                 available_slots = []
