@@ -21,7 +21,7 @@ TENCENT_CLOUD_SECRET_KEY=""
 */5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/watcher_for_isz.py --item_name "北站公园" --sales_id "102911" --sales_item_id "101145" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/bzgy_$(date +\%Y-\%m-\%d).log 2>&1
 
 # run tennis tools for hjd
-*/1 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/watcher_for_hjd.py --item_name "金地威新" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/bzgy_$(date +\%Y-\%m-\%d).log 2>&1
+*/1 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/watcher_for_hjd.py --item_name "金地威新" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/jdwx_$(date +\%Y-\%m-\%d).log 2>&1
 
 
 # delete old logs everyday

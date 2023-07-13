@@ -152,7 +152,7 @@ def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list, 
             "entry-tag": "",
             "signature": signature,
             "sec-fetch-mode": "cors",
-            "access-token": access_token,
+            # "access-token": access_token,  # get请求不需要
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X) AppleWebKit/605.1.15 "
                           "(KHTML, like Gecko) "
                           "Mobile/15E148/openweb=paschybrid/SZSMT_IOS,VERSION:4.5.0",
@@ -231,7 +231,6 @@ def get_free_tennis_court_infos_for_hjd(date: str, proxy_list: list) -> dict:
         }
         headers = {
             "Host": "gateway.gemdalesports.com",
-            # "Authorization": "Basic aW5zaWRlLW1pbmk6MTIzNDU2",
             "referer": "https://servicewechat.com/wxf7ae96551d92f600/34/page-frame.html",
             "xweb_xhr": "1",
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
