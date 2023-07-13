@@ -62,6 +62,8 @@ CD_INDEX_INFOS = {
     "华侨城": 8,
     "福田中心": 9,
     "黄冈公园": 10,
+    "北站公园": 11,
+
 }
 
 CD_TIME_RANGE_INFOS = {
@@ -75,6 +77,7 @@ CD_TIME_RANGE_INFOS = {
     "华侨城": {"start_time": "07:00", "end_time": "22:00"},
     "福田中心": {"start_time": "06:00", "end_time": "22:30"},
     "黄冈公园": {"start_time": "06:00", "end_time": "22:30"},
+    "北站公园": {"start_time": "00:00", "end_time": "23:59"},
 }
 
 
