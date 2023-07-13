@@ -23,6 +23,8 @@ TENCENT_CLOUD_SECRET_KEY=""
 # run tennis tools for hjd
 */1 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/watcher_for_hjd.py --item_name "金地威新" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/jdwx_$(date +\%Y-\%m-\%d).log 2>&1
 
+# run tennis tools for hjd
+*/3 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/watcher_for_tns.py --item_name "泰尼斯香蜜" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/tns_$(date +\%Y-\%m-\%d).log 2>&1
 
 # delete old logs everyday
 0 1 * * * find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +3 -delete /home/lighthouse/tennis_helper/logs/delete_log_$(date +\%Y-\%m-\%d).log 2>&1

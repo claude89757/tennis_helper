@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 import argparse
 import requests
 import time
@@ -12,7 +11,7 @@ from weda import get_rule_list_from_weida
 from weda import update_record_info_by_id
 from weda import create_record
 from common import merge_time_ranges
-from common import get_free_tennis_court_infos_for_hjd
+from common import get_free_tennis_court_infos_for_tns
 from common import get_hit_court_infos
 
 
@@ -109,7 +108,7 @@ if __name__ == '__main__':
             print(f"skip checking {check_date_str}")
             continue
         available_tennis_court_slice_infos[check_date_str] = []
-        free_tennis_court_infos = get_free_tennis_court_infos_for_hjd(check_date_str, proxy_list)
+        free_tennis_court_infos = get_free_tennis_court_infos_for_tns(check_date_str, proxy_list)
         available_tennis_court_slice_infos[check_date_str] = free_tennis_court_infos
         time.sleep(5)
     print(f"available_tennis_court_slice_infos: {available_tennis_court_slice_infos}")

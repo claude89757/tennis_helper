@@ -291,6 +291,117 @@ def get_free_tennis_court_infos_for_hjd(date: str, proxy_list: list) -> dict:
         raise Exception(f"all proxies failed")
 
 
+def get_free_tennis_court_infos_for_tns(date: str, proxy_list: list) -> dict:
+    """
+    从弘金地获取可预订的场地信息,
+    """
+    # 时间段的映射表
+    slot_map = {
+        0: ['07:00', '07:30'],
+        1: ['07:30', '08:00'],
+        2: ['08:00', '08:30'],
+        3: ['08:30', '09:00'],
+        4: ['09:00', '09:30'],
+        5: ['09:30', '10:00'],
+        6: ['10:00', '10:30'],
+        7: ['10:30', '11:00'],
+        8: ['11:00', '11:30'],
+        9: ['11:30', '12:00'],
+        10: ['12:00', '12:30'],
+        11: ['12:30', '13:00'],
+        12: ['13:00', '13:30'],
+        13: ['13:30', '14:00'],
+        14: ['14:00', '14:30'],
+        15: ['14:30', '15:00'],
+        16: ['15:00', '15:30'],
+        17: ['15:30', '16:00'],
+        18: ['16:00', '16:30'],
+        19: ['16:30', '17:00'],
+        20: ['17:00', '17:30'],
+        21: ['17:30', '18:00'],
+        22: ['18:00', '18:30'],
+        23: ['18:30', '19:00'],
+        24: ['19:00', '19:30'],
+        25: ['19:30', '20:00'],
+        26: ['20:00', '20:30'],
+        27: ['20:30', '21:00'],
+        28: ['21:00', '21:30'],
+        29: ['21:30', '22:00'],
+        30: ['22:00', '22:30'],
+        31: ['22:30', '23:00'],
+        32: ['23:00', '23:30'],
+        33: ['23:30', '00:00']
+    }
+    got_response = False
+    response = None
+    index_list = list(range(len(proxy_list)))
+    # 打乱列表的顺序
+    random.shuffle(index_list)
+    print(index_list)
+    for index in index_list:
+        payload = {
+            "id": "3203",
+            "time": date
+        }
+        headers = {
+            "Host": "chaapi.dzxwbj.com",
+            "xweb_xhr": "1",
+            "referer": "https://servicewechat.com/wx337fddd4f7149756/3/page-frame.html",
+            "adminid": "633",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/98.0.4758.102 Safari/537.36 MicroMessenger/6.8.0(0x16080000) NetType/WIFI"
+                          " MiniProgramEnv/Mac MacWechat/WMPF XWEB/30626",
+            "content-type": "application/json",
+            "accept": "*/*",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "accept-language": "zh-CN,zh",
+        }
+        url = "https://chaapi.dzxwbj.com/Chang/timeListchang"
+        print(url)
+        print(payload)
+        # print(headers)
+        proxy = proxy_list[index]
+        print(f"trying for {index} time for {proxy}")
+        try:
+            proxies = {"https": proxy}
+            response = requests.post(url, headers=headers, data=json.dumps(payload), proxies=proxies,
+                                     verify=False, timeout=30)
+            if response.status_code == 200:
+                print(f"success for {proxy}")
+                got_response = True
+                time.sleep(1)
+                break
+            else:
+                print(f"failed for {proxy}: {response}")
+                continue
+        except Exception as error:  # pylint: disable=broad-except
+            print(f"failed for {proxy}: {error}")
+            continue
+    print(f"response: {response}")
+    # print(f"response: {response.text}")
+    if got_response:
+        if response.json()['data'].get('array'):
+            available_slots_infos = {}
+            for file_info in response.json()['data']['store']:
+                available_slots = []
+                for index in range(file_info['list']):
+                    slot_info = file_info['list'][index]
+                    slot = slot_map[index]
+                    if slot_info['status'] == 0:
+                        available_slots.append(slot)
+                    else:
+                        pass
+                available_slots_infos[file_info['name']] = merge_time_ranges(available_slots)
+            return available_slots_infos
+        else:
+            raise Exception(response.text)
+
+    else:
+        raise Exception(f"all proxies failed")
+
+
 def merge_time_ranges(data: List[List[str]]) -> List[List[str]]:
     """
     将时间段合并
