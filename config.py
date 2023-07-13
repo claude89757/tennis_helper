@@ -63,6 +63,7 @@ CD_INDEX_INFOS = {
     "福田中心": 9,
     "黄冈公园": 10,
     "北站公园": 11,
+    "金地威新": 12,
 }
 
 CD_TIME_RANGE_INFOS = {
@@ -77,6 +78,7 @@ CD_TIME_RANGE_INFOS = {
     "福田中心": {"start_time": "06:00", "end_time": "22:30"},
     "黄冈公园": {"start_time": "06:00", "end_time": "22:30"},
     "北站公园": {"start_time": "00:00", "end_time": "23:59"},
+    "金地威新": {"start_time": "08:00", "end_time": "22:00"},
 }
 
 

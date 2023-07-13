@@ -7,18 +7,13 @@ import datetime
 import shelve
 
 from config import CD_INDEX_INFOS
-from config import CD_TIME_RANGE_INFOS
 from sms import send_sms_for_news
 from weda import get_rule_list_from_weida
 from weda import update_record_info_by_id
 from weda import create_record
 from common import merge_time_ranges
-from common import get_free_tennis_court_infos
+from common import get_free_tennis_court_infos_for_hjd
 from common import get_hit_court_infos
-
-# 读取指定环境变量的值
-ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
-SIGN_KEY = os.environ.get("SIGN_KEY")
 
 
 if __name__ == '__main__':
@@ -30,8 +25,6 @@ if __name__ == '__main__':
 
     # 添加命令行参数
     parser.add_argument('--item_name', type=str, help='Item Name')
-    parser.add_argument('--sales_id', type=str, help='Sales ID')
-    parser.add_argument('--sales_item_id', type=str, help='Sales Item ID')
     parser.add_argument('--watch_days', type=int, help='Watch Days')
     parser.add_argument('--send_sms', type=int, help='Send SMS')
 
@@ -39,14 +32,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # 检查必需的参数是否输入
-    if not all([args.item_name, args.sales_id, args.sales_item_id, args.watch_days, args.send_sms]):
+    if not all([args.item_name, args.watch_days, args.send_sms]):
         parser.print_help()
         exit()
     else:
         # 处理命令行参数
         print(args.item_name)
-        print(args.sales_id)
-        print(args.sales_item_id)
         print(args.watch_days)
         print(args.send_sms)
 
@@ -118,10 +109,7 @@ if __name__ == '__main__':
             print(f"skip checking {check_date_str}")
             continue
         available_tennis_court_slice_infos[check_date_str] = []
-        time_range = CD_TIME_RANGE_INFOS.get(args.item_name)
-        free_tennis_court_infos = get_free_tennis_court_infos(check_date_str, ACCESS_TOKEN, proxy_list,
-                                                              time_range=time_range,
-                                                              sales_id=args.sales_id, sales_item_id=args.sales_item_id)
+        free_tennis_court_infos = get_free_tennis_court_infos_for_hjd(check_date_str, proxy_list)
         available_tennis_court_slice_infos[check_date_str] = free_tennis_court_infos
         time.sleep(5)
     print(f"available_tennis_court_slice_infos: {available_tennis_court_slice_infos}")

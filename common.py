@@ -213,6 +213,85 @@ def get_free_tennis_court_infos(date: str, access_token: str, proxy_list: list, 
         raise Exception(f"all proxies failed")
 
 
+def get_free_tennis_court_infos_for_hjd(date: str, proxy_list: list) -> dict:
+    """
+    从弘金地获取可预订的场地信息,
+    """
+    got_response = False
+    response = None
+    index_list = list(range(len(proxy_list)))
+    # 打乱列表的顺序
+    random.shuffle(index_list)
+    print(index_list)
+    for index in index_list:
+        params = {
+            "gymId": "1479063349546192897",
+            "sportsType": "1",
+            "reserveDate": date
+        }
+        headers = {
+            "Host": "gateway.gemdalesports.com",
+            # "Authorization": "Basic aW5zaWRlLW1pbmk6MTIzNDU2",
+            "referer": "https://servicewechat.com/wxf7ae96551d92f600/34/page-frame.html",
+            "xweb_xhr": "1",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/"
+                          "98.0.4758.102 Safari/537.36 MicroMessenger/6.8.0(0x16080000)"
+                          " NetType/WIFI MiniProgramEnv/Mac MacWechat/WMPF XWEB/30626",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "*/*",
+            "Sec-Fetch-Site": "cross-site",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty"
+        }
+        url = "https://gateway.gemdalesports.com/inside-frontend/api/field/fieldReserve"
+        print(url)
+        print(params)
+        # print(headers)
+        proxy = proxy_list[index]
+        print(f"trying for {index} time for {proxy}")
+        try:
+            proxies = {"https": proxy}
+            response = requests.get(url, headers=headers, params=params, proxies=proxies, verify=False, timeout=30)
+            if response.status_code == 200:
+                print(f"success for {proxy}")
+                got_response = True
+                time.sleep(1)
+                break
+            else:
+                print(f"failed for {proxy}: {response}")
+                continue
+        except Exception as error:  # pylint: disable=broad-except
+            print(f"failed for {proxy}: {error}")
+            continue
+    print(f"response: {response}")
+    # print(f"response: {response.text}")
+    if got_response:
+        if response.json()['data'].get('array'):
+            available_slots_infos = {}
+            for file_info in response.json()['data']['array']:
+                available_slots = []
+                for slot in file_info['daySource']:
+                    if slot['occupy']:
+                        # 将字符串转换为时间对象
+                        time_obj = datetime.datetime.strptime(slot['startTime'], "%H:%M")
+                        # 将时间对象加上一小时
+                        new_time_obj = time_obj + datetime.timedelta(hours=1)
+                        # 将时间对象转换为字符串
+                        end_time_str = new_time_obj.strftime("%H:%M")
+                        available_slots.append([slot['startTime'], end_time_str])
+                    else:
+                        pass
+                available_slots_infos[file_info['fieldName']] = merge_time_ranges(available_slots)
+            return available_slots_infos
+        else:
+            raise Exception(response.text)
+
+    else:
+        raise Exception(f"all proxies failed")
+
+
 def merge_time_ranges(data: List[List[str]]) -> List[List[str]]:
     """
     将时间段合并
@@ -223,6 +302,11 @@ def merge_time_ranges(data: List[List[str]]) -> List[List[str]]:
     Returns:
         合并后的时间段列表，每个时间段由开始时间和结束时间组成，格式为[['07:00', '09:00'], ['09:00', '16:00'], ...]
     """
+    if not data:
+        return data
+    else:
+        pass
+    print(f"merging {data}")
     # 将时间段转换为分钟数，并按照开始时间排序
     data_in_minutes = sorted([(int(start[:2]) * 60 + int(start[3:]), int(end[:2]) * 60 + int(end[3:]))
                               for start, end in data])
@@ -241,7 +325,7 @@ def merge_time_ranges(data: List[List[str]]) -> List[List[str]]:
 
     # 将分钟数转换为时间段
     result = [[f'{start // 60:02d}:{start % 60:02d}', f'{end // 60:02d}:{end % 60:02d}'] for start, end in merged_data]
-
+    print(f"merged {result}")
     return result
 
 
