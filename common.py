@@ -386,7 +386,7 @@ def get_free_tennis_court_infos_for_tns(date: str, proxy_list: list) -> dict:
             available_slots_infos = {}
             for file_info in response.json()['data']['store']:
                 available_slots = []
-                for index in range(file_info['list']):
+                for index in range(len(file_info['list'])):
                     slot_info = file_info['list'][index]
                     slot = slot_map[index]
                     if slot_info['status'] == 0:
