@@ -402,6 +402,85 @@ def get_free_tennis_court_infos_for_tns(date: str, proxy_list: list) -> dict:
         raise Exception(f"all proxies failed")
 
 
+def get_free_tennis_court_infos_for_ks(date: str, token: str, proxy_list: list) -> dict:
+    """
+    从弘金地获取可预订的场地信息,
+    """
+    got_response = False
+    response = None
+    index_list = list(range(len(proxy_list)))
+    # 打乱列表的顺序
+    random.shuffle(index_list)
+    print(index_list)
+    for index in index_list:
+        params = {
+            "gymId": "1479063349546192897",
+            "sportsType": "1",
+            "reserveDate": date
+        }
+        headers = {
+            "Host": "gateway.gemdalesports.com",
+            "referer": "https://servicewechat.com/wxf7ae96551d92f600/34/page-frame.html",
+            "xweb_xhr": "1",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/"
+                          "98.0.4758.102 Safari/537.36 MicroMessenger/6.8.0(0x16080000)"
+                          " NetType/WIFI MiniProgramEnv/Mac MacWechat/WMPF XWEB/30626",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "*/*",
+            "Sec-Fetch-Site": "cross-site",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty"
+        }
+        url = "https://gateway.gemdalesports.com/inside-frontend/api/field/fieldReserve"
+        print(url)
+        print(params)
+        # print(headers)
+        proxy = proxy_list[index]
+        print(f"trying for {index} time for {proxy}")
+        try:
+            proxies = {"https": proxy}
+            response = requests.get(url, headers=headers, params=params, proxies=proxies, verify=False, timeout=30)
+            if response.status_code == 200:
+                print(f"success for {proxy}")
+                got_response = True
+                time.sleep(1)
+                break
+            else:
+                print(f"failed for {proxy}: {response}")
+                continue
+        except Exception as error:  # pylint: disable=broad-except
+            print(f"failed for {proxy}: {error}")
+            continue
+    print(f"response: {response}")
+    # print(f"response: {response.text}")
+    if got_response:
+        if response.json()['data'].get('children'):
+            available_slots_infos = {}
+            for file_info in response.json()['data']['children']:
+                start_time = str(file_info['time']).split('~')[0]
+                end_time = str(file_info['time']).split('~')[1]
+                for data in file_info['children']:
+                    if data['active'] == 1:
+                        if available_slots_infos.get(data['name']):
+                            available_slots_infos[data['name']].append([start_time, end_time])
+                        else:
+                            available_slots_infos[data['name']] = [[start_time, end_time]]
+                    else:
+                        pass
+            # 合并时间段
+            merged_available_slots_infos = {}
+            for item_name, slot_list in available_slots_infos.items():
+                merged_available_slots_infos[item_name] = merge_time_ranges(slot_list)
+            return merged_available_slots_infos
+        else:
+            raise Exception(response.text)
+
+    else:
+        raise Exception(f"all proxies failed")
+
+
 def merge_time_ranges(data: List[List[str]]) -> List[List[str]]:
     """
     将时间段合并

@@ -67,6 +67,8 @@ CD_INDEX_INFOS = {
     "金地威新": 12,
     # 泰尼斯
     "泰尼斯香蜜": 13,
+    # 酷尚网球
+    "总裁俱乐部": 14,
 }
 
 CD_TIME_RANGE_INFOS = {
@@ -83,6 +85,7 @@ CD_TIME_RANGE_INFOS = {
     "北站公园": {"start_time": "00:00", "end_time": "23:59"},
     "金地威新": {"start_time": "08:00", "end_time": "22:00"},
     "泰尼斯香蜜": {"start_time": "07:00", "end_time": "23:59"},
+    "总裁俱乐部": {"start_time": "06:00", "end_time": "23:00"},
 }
 
 

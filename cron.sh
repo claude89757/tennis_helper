@@ -6,6 +6,7 @@ ACCESS_TOKEN=""
 SIGN_KEY=""
 TENCENT_CLOUD_SECRET_ID=""
 TENCENT_CLOUD_SECRET_KEY=""
+KS_TOKEN=""
 
 # run tennis tools for isz
 */5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/watcher_for_isz.py --item_name "大沙河" --sales_id "100220" --sales_item_id "100000" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/dsh_$(date +\%Y-\%m-\%d).log 2>&1
@@ -25,6 +26,9 @@ TENCENT_CLOUD_SECRET_KEY=""
 
 # run tennis tools for tns
 */3 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/watcher_for_tns.py --item_name "泰尼斯香蜜" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/tns_$(date +\%Y-\%m-\%d).log 2>&1
+
+# run tennis tools for kswq
+*/3 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/watcher_for_ks.py --item_name "总裁俱乐部" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/ks_$(date +\%Y-\%m-\%d).log 2>&1
 
 # delete old logs everyday
 0 1 * * * find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +3 -delete /home/lighthouse/tennis_helper/logs/delete_log_$(date +\%Y-\%m-\%d).log 2>&1
