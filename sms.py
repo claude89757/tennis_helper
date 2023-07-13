@@ -7,6 +7,7 @@
 @Software: PyCharm
 """
 import os
+import json
 
 from tencentcloud.common import credential
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
@@ -98,7 +99,7 @@ def send_sms_for_news(phone_num_list: list, param_list: list):
         resp = client.SendSms(req)
 
         # 输出json格式的字符串回包
-        return resp.to_json_string(indent=2)
+        return json.loads(resp.to_json_string(indent=2))
 
     except TencentCloudSDKException as err:
         print(err)
@@ -106,4 +107,6 @@ def send_sms_for_news(phone_num_list: list, param_list: list):
 
 # testing
 if __name__ == '__main__':
-    send_sms_for_news(["+8618688539560"], param_list=["08-03", "大沙河", "21:00", "20:00"])
+    phone = "xxxxx"
+    sms_res = send_sms_for_news(["xxxxx"], param_list=["08-03", "大沙河", "21:00", "20:00"])
+    print(sms_res)
