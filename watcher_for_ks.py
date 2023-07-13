@@ -15,7 +15,7 @@ from common import merge_time_ranges
 from common import get_free_tennis_court_infos_for_ks
 from common import get_hit_court_infos
 
-KS_TOKEN = os.environ.get("KS_TOKEN")
+KS_TOKEN = os.environ.get("KS_TOKEN")  # 这个token可能会过期...
 
 if __name__ == '__main__':
     # 梦开始地方
