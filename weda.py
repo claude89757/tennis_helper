@@ -128,6 +128,8 @@ def get_active_rule_list(cd_index: int):
             "_id": rule['_id'],
             "name": rule['name'],
             "phone": rule['phone'],
+            "createdAt": rule['createdAt'],
+            "SVIP": rule['SVIP'],
             "start_date": start_date,
             "end_date": end_date,
             "start_time": start_time,

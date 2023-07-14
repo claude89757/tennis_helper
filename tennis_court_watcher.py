@@ -7,7 +7,6 @@
 @Software: PyCharm
 """
 
-import os
 import argparse
 import requests
 import time
@@ -202,59 +201,86 @@ if __name__ == '__main__':
         else:
             phone_slot_infos[key] = [[court_info['start_time'], court_info['end_time']]]
             rule_infos[key] = [court_info['rule_info']]
+    # 对命中的规则列表进行排序，仅最新创建的优先生效
+    for phone_date, rule_list in rule_infos.items():
+        rule_infos[phone_date] = sorted(rule_list, key=lambda x: x['createdAt'], reverse=False)
+    print(f"rule_infos: {rule_infos}")
 
     # 根据手机发送短信提醒
     if not phone_slot_infos:
         print_with_timestamp(F"无需要通知的场地信息")
     else:
         # 打开本地文件缓存，用于缓存标记已经发送过的短信，不重复发生
+        # 梳理需要发送的短信列表
+        up_for_send_sms_list = []
         cache = shelve.open(f'{args.court_name}_cache')
-        print(f"phone_slot_infos: {len(phone_slot_infos)}")
         for phone_date, slot_list in phone_slot_infos.items():
-            print(f"sending {phone_date} sms...")
             merge_slot_list = merge_time_ranges(slot_list)  # 聚合后，可能还有多个时间段，短信只发送第一个时间段
             print(f"raw_slot_list: {slot_list}")
             print(f"merged_slot_list: {merge_slot_list}")
             cache_key = f"{phone_date}_{merge_slot_list[0][0]}_{merge_slot_list[0][0]}"  # 每个时间段仅提醒一次
-            if phone_date in cache:
+            if cache_key in cache:
                 print(f"{cache_key} has already been sent, skipping...")
                 continue
             else:
-                # 执行任务
+                # 加入待发送短信队里
+                rule_info_list = rule_infos.get(phone_date)
                 phone = phone_date.split('_')[0]
                 date = phone_date.split('_')[1]
-                sms_res = send_sms_for_news([phone],
-                                            [date, args.court_name, merge_slot_list[0][0], merge_slot_list[0][1]])
-                print(sms_res)
-                if "send success" in str(sms_res):
-                    print("短信发送成功, 刷新数据库计数")
-                    # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
-                    rule_info_list = rule_infos.get(phone_date)
-                    cur_today_send_num = rule_info_list[0].get('jrtzcs', 0)
-                    cur_total_send_num = rule_info_list[0].get('zjtzcs', 0)
-                    cur_today_send_num += 1
-                    cur_total_send_num += 1
-                    try:
-                        update_record_info_by_id(rule_info_list[0]['_id'], {"jrtzcs": cur_today_send_num,
-                                                                            "zjtzcs": cur_total_send_num})
-                    except Exception as error:
-                        print(f"error: {error}")
-                else:
-                    print("短信发送失败")
-                # 记录短信到weda数据库
-                try:
-                    create_record({"phone": phone, "sms_text": f"{date} {args.court_name} 可预定时间: "
-                                                               f"{merge_slot_list[0][0]}~{merge_slot_list[0][1]}",
-                                   "status": sms_res['SendStatusSet'][0]['Message']})
-                except Exception as error:
-                    print(f"error: {error}")
-            time.sleep(1)
+                start_time = merge_slot_list[0][0]
+                end_time = merge_slot_list[0][1]
+                up_for_send_sms_list.append({"phone": phone,
+                                             "date": date,
+                                             "court_name": args.court_name,
+                                             "start_time": start_time,
+                                             "end_time": end_time,
+                                             "rule_start_date": rule_info_list[0]['start_date'],
+                                             "rule_end_date": rule_info_list[0]['end_date']})
             # 更新本地文件缓存
-            cache[phone_date] = 1
+            cache[cache_key] = 1
         # 关闭本地文件缓存
         cache.close()
+
+        # 根据优先级策略，发送短信
+        sorted_up_for_send_sms_list = sorted(up_for_send_sms_list,
+                                             key=lambda x: datetime.datetime.strptime(x['rule_end_date'], '%Y-%m-%d'),
+                                             reverse=False)
+        send_sms_start_time = time.time()
+        for sms_info in sorted_up_for_send_sms_list:
+            print(f"sending {sms_info}...")
+            phone = sms_info['phone']
+            date = sms_info['date']
+            court_name = sms_info['court_name']
+            start_time = sms_info['start_time']
+            end_time = sms_info['end_time']
+            rule_info_list = rule_infos.get(f"{phone}_{date}")
+            sms_res = send_sms_for_news([phone], [date, court_name, start_time, end_time])
+            print(sms_res)
+            if "send success" in str(sms_res):
+                print_with_timestamp("短信发送成功, 刷新数据库计数")
+                # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
+                cur_today_send_num = rule_info_list[0].get('jrtzcs', 0)
+                cur_total_send_num = rule_info_list[0].get('zjtzcs', 0)
+                cur_today_send_num += 1
+                cur_total_send_num += 1
+                try:
+                    update_record_info_by_id(rule_info_list[0]['_id'], {"jrtzcs": cur_today_send_num,
+                                                                        "zjtzcs": cur_total_send_num})
+                except Exception as error:
+                    print(f"error: {error}")
+            else:
+                print_with_timestamp("短信发送失败")
+            # 记录短信到weda数据库
+            try:
+                create_record({"phone": phone, "sms_text": f"{date} {court_name} 可预定时间: {start_time}~{end_time}",
+                               "status": sms_res['SendStatusSet'][0]['Message']})
+            except Exception as error:
+                print_with_timestamp(f"error: {error}")
+        send_sms_end_time = time.time()
+        send_sms_cost_time = send_sms_end_time - send_sms_start_time
+        print_with_timestamp(f"Send SMS cost time：{send_sms_cost_time} s")
 
     # 计算整体加班运行耗时
     run_end_time = time.time()
     execution_time = run_end_time - run_start_time
-    print(f"Cost time：{execution_time} s")
+    print_with_timestamp(f"Total cost time：{execution_time} s")
