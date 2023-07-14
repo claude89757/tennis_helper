@@ -21,7 +21,7 @@ from typing import List
 # 读取指定环境变量的值
 ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
 SIGN_KEY = os.environ.get("SIGN_KEY")
-
+KS_TOKEN = os.environ.get("KS_TOKEN")  # 酷尚网球的token可能会过期...
 
 def gen_nonce(timestamp: int):
     """
@@ -402,7 +402,7 @@ def get_free_tennis_court_infos_for_tns(date: str, proxy_list: list) -> dict:
         raise Exception(f"all proxies failed")
 
 
-def get_free_tennis_court_infos_for_ks(date: str, token: str, proxy_list: list) -> dict:
+def get_free_tennis_court_infos_for_ks(date: str, proxy_list: list) -> dict:
     """
     从弘金地获取可预订的场地信息,
     """
@@ -415,7 +415,7 @@ def get_free_tennis_court_infos_for_ks(date: str, token: str, proxy_list: list) 
     for index in index_list:
         data = {
             "date": date,
-            "token": token,
+            "token": KS_TOKEN,
             "tempStoreId": "10",
             "companyId": ""
         }
@@ -539,10 +539,11 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
             rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
             rule_end_date = datetime.datetime.strptime(rule['end_date'], "%Y-%m-%d")
             if rule_start_date <= check_date <= rule_end_date:
-                print(f"{date}在{rule['start_date']}和{rule['end_date']}之间")
+                # print(f"{date}在{rule['start_date']}和{rule['end_date']}之间")
                 filter_rule_list.append(rule)
             else:
-                print(f"{date}不在{rule['start_date']}和{rule['end_date']}之间")
+                # print(f"{date}不在{rule['start_date']}和{rule['end_date']}之间")
+                pass
 
         weekday = calendar.day_name[datetime.datetime.strptime(date, '%Y-%m-%d').date().weekday()]
         weekday_cn = {'Monday': '星期一', 'Tuesday': '星期二', 'Wednesday': '星期三', 'Thursday': '星期四',
@@ -552,12 +553,12 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
         check_date_slot_list = []
         # 检查是否有符合条件的时间段
         for court_name, slots in free_slot_infos.items():
-            print(f"slots: {slots}")
+            # print(f"slots: {slots}")
             # 将列表转换为元组，并将元组转换为集合，实现去重
             unique_data = set(tuple(item) for item in slots)
             # 将元组转换为列表，并按照第一个元素和第二个元素进行排序
             sorted_slot_list = sorted([list(item) for item in unique_data], key=lambda x: (x[0], x[1]))
-            print(f"sorted_slot_list: {sorted_slot_list}")
+            # print(f"sorted_slot_list: {sorted_slot_list}")
             tag_slot_list = []
             for slot in sorted_slot_list:
                 if not filter_rule_list:
@@ -581,12 +582,12 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
                         # 计算交集的时间长度
                         duration = end_time - start_time
                         if duration >= datetime.timedelta(minutes=60):
-                            print("两个时间范围有交集，且交集的时间大于等于60分钟")
+                            # print("两个时间范围有交集，且交集的时间大于等于60分钟")
                             # 检查场地的结束时间比当前时间晚2小时以上
                             time_str = f"{date} {cur_end_time}"
                             time_obj = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M")
                             if time_obj > datetime.datetime.now() + datetime.timedelta(hours=2):
-                                print(f"{time_str}比当前时间大于2小时, 来得及去打球")
+                                # print(f"{time_str}比当前时间大于2小时, 来得及去打球")
                                 hit_rule_list.append(rule)
                             else:
                                 # print(f"{time_str}比当前时间小于等于2小时， 来不及去打球")

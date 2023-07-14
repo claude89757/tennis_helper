@@ -13,6 +13,7 @@ import requests
 import time
 import datetime
 import shelve
+import asyncio
 
 from config import CD_INDEX_INFOS
 from config import CD_TIME_RANGE_INFOS
@@ -29,10 +30,41 @@ from common import get_free_tennis_court_infos_for_hjd
 from common import get_free_tennis_court_infos_for_tns
 from common import get_free_tennis_court_infos_for_ks
 
-# 读取环境变量的值
-ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
-SIGN_KEY = os.environ.get("SIGN_KEY")
-KS_TOKEN = os.environ.get("KS_TOKEN")  # 酷尚网球的token可能会过期...
+
+async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, input_proxy_list: list,
+                                      input_time_range: list = None,
+                                      input_sales_item_id: str = None,
+                                      input_sales_id: str = None):
+    """
+    根据提供的app_name参数，调用相应的函数来获取空闲的网球场信息。
+    Args:
+        app_name (str): 应用名称，根据这个参数决定调用哪个函数
+        input_check_date_str (str): 检查日期，字符串格式
+        input_proxy_list (list): 代理列表
+        input_time_range (list): 场地时间范围
+        input_sales_id(str): isz专用
+        input_sales_item_id(str): isz专用
+    Returns:
+        Future: 一个Future对象，可以在协程中等待这个对象
+
+    Raises:
+        Exception: 如果app_name的值不是预期的值，抛出一个异常
+    """
+    loop = asyncio.get_event_loop()
+    if app_name == "ISZ":
+        return await loop.run_in_executor(None, get_free_tennis_court_infos_for_isz, input_check_date_str,
+                                          input_proxy_list, input_time_range, input_sales_item_id, input_sales_id, )
+    elif app_name == "HJD":
+        return await loop.run_in_executor(None, get_free_tennis_court_infos_for_hjd, input_check_date_str,
+                                          input_proxy_list)
+    elif app_name == "TNS":
+        return await loop.run_in_executor(None, get_free_tennis_court_infos_for_tns, input_check_date_str,
+                                          input_proxy_list)
+    elif app_name == "KS":
+        return await loop.run_in_executor(None, get_free_tennis_court_infos_for_ks, input_check_date_str,
+                                          input_proxy_list)
+    else:
+        raise Exception(f"未支持的APP: {app_name}")
 
 
 if __name__ == '__main__':
@@ -46,11 +78,11 @@ if __name__ == '__main__':
     parser.add_argument('--sales_id', type=str, help='Sales ID for isz', required=False)
     parser.add_argument('--sales_item_id', type=str, help='Sales Item ID for isz', required=False)
     parser.add_argument('--watch_days', type=int, help='Watch Days')
-    parser.add_argument('--send_sms', type=int, help='Send SMS')
+    parser.add_argument('--send_sms', type=int, help='Send SMS', required=False)
     # 解析命令行参数
     args = parser.parse_args()
     # 检查必需的参数是否输入
-    if not all([args.app_name, args.court_name, args.watch_days, args.send_sms]):
+    if not all([args.app_name, args.court_name, args.watch_days]):
         parser.print_help()
         exit()
     else:
@@ -58,7 +90,6 @@ if __name__ == '__main__':
         print(args.app_name)
         print(args.court_name)
         print(args.watch_days)
-        print(args.send_sms)
 
     # 当前可巡检的日期范围
     check_date_list = []
@@ -108,39 +139,37 @@ if __name__ == '__main__':
     print_with_timestamp(f"proxy_list: {proxy_list}")
 
     # 查询空闲的球场信息
+    get_start_time = time.time()
     available_tennis_court_slice_infos = {}
     rule_check_start_date = min(rule_date_list)
     rule_check_end_date = max(rule_date_list)
     print(f"rule check date: from {rule_check_start_date} to {rule_check_end_date}")
+    # 采用协程方式查询各日期的场地信息
+    tasks = []
+    loop = asyncio.get_event_loop()
     for index in range(0, args.watch_days):
-        # 判断日期是否查询
         check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         check_date = datetime.datetime.strptime(check_date_str, "%Y-%m-%d")
         if rule_check_start_date <= check_date <= rule_check_end_date:
-            # 只查询被订阅的日期的信息
             print(f"checking {check_date_str}")
+            time_range = CD_TIME_RANGE_INFOS.get(args.court_name)
+            task = loop.create_task(get_free_tennis_court_infos(args.app_name, check_date_str, proxy_list,
+                                                                input_time_range=time_range,
+                                                                input_sales_item_id=args.sales_item_id,
+                                                                input_sales_id=args.sales_id))
+            tasks.append(task)
         else:
-            # 未被订阅的日期不查询
             print(f"skip checking {check_date_str}")
-            continue
-        # 根据不同的APP，选择不同的函数获取网球场信息
-        time_range = CD_TIME_RANGE_INFOS.get(args.court_name)  # 网球场营业时间范围
-        if args.app_name == "ISZ":
-            free_tennis_court_infos = get_free_tennis_court_infos_for_isz(check_date_str, proxy_list,
-                                                                          time_range=time_range,
-                                                                          sales_id=args.sales_id,
-                                                                          sales_item_id=args.sales_item_id)
-        elif args.app_name == "HJD":
-            free_tennis_court_infos = get_free_tennis_court_infos_for_hjd(check_date_str, proxy_list)
-        elif args.app_name == "TNS":
-            free_tennis_court_infos = get_free_tennis_court_infos_for_tns(check_date_str, proxy_list)
-        elif args.app_name == "KS":
-            free_tennis_court_infos = get_free_tennis_court_infos_for_ks(check_date_str, KS_TOKEN, proxy_list)
-        else:
-            raise Exception(f"未支持的APP: {args.app_name}")
-        available_tennis_court_slice_infos[check_date_str] = free_tennis_court_infos
-        time.sleep(1)
+    results = loop.run_until_complete(asyncio.gather(*tasks))
+    for i, index in enumerate(range(0, args.watch_days)):
+        check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
+        available_tennis_court_slice_infos[check_date_str] = results[i]
+    # 计算查询运行时间
+    run_time = time.time() - get_start_time
+    print(f"程序运行时间: {run_time:.2f}秒")
+    # 输出结果
     print_with_timestamp(f"available_tennis_court_slice_infos: {len(available_tennis_court_slice_infos)}")
+    print_with_timestamp(f"available_tennis_court_slice_infos: {available_tennis_court_slice_infos}")
 
     # 获取命中规则的各时间段的场地信息
     found_court_infos = get_hit_court_infos(available_tennis_court_slice_infos, active_rule_list)
@@ -225,7 +254,7 @@ if __name__ == '__main__':
         # 关闭本地文件缓存
         cache.close()
 
-    # 计算运行耗时
+    # 计算整体加班运行耗时
     run_end_time = time.time()
     execution_time = run_end_time - run_start_time
     print(f"Cost time：{execution_time} s")
