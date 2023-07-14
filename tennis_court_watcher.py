@@ -165,7 +165,7 @@ if __name__ == '__main__':
         available_tennis_court_slice_infos[check_date_str] = results[i]
     # 计算查询运行时间
     run_time = time.time() - get_start_time
-    print(f"程序运行时间: {run_time:.2f}秒")
+    print(f"查询耗时: {run_time:.2f}秒")
     # 输出结果
     print_with_timestamp(f"available_tennis_court_slice_infos: {len(available_tennis_court_slice_infos)}")
     print_with_timestamp(f"available_tennis_court_slice_infos: {available_tennis_court_slice_infos}")
@@ -278,7 +278,7 @@ if __name__ == '__main__':
                 print_with_timestamp(f"error: {error}")
         send_sms_end_time = time.time()
         send_sms_cost_time = send_sms_end_time - send_sms_start_time
-        print_with_timestamp(f"Send SMS cost time：{send_sms_cost_time} s")
+        print_with_timestamp(f"发送短信耗时：{send_sms_cost_time: 2f} s")
 
     # 计算整体加班运行耗时
     run_end_time = time.time()
