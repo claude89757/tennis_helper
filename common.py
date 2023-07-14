@@ -17,11 +17,13 @@ import datetime
 import calendar
 
 from typing import List
+from config import COURT_NAME_INFOS
 
 # 读取指定环境变量的值
 ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
 SIGN_KEY = os.environ.get("SIGN_KEY")
 KS_TOKEN = os.environ.get("KS_TOKEN")  # 酷尚网球的token可能会过期...
+
 
 def gen_nonce(timestamp: int):
     """
@@ -604,7 +606,7 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
                                                       "_id": rule['_id'],
                                                       "phone": rule['phone'],
                                                       "date": f"{formatted_date} {weekday_cn}",
-                                                      "court_index": court_name,
+                                                      "court_index": COURT_NAME_INFOS.get(court_name, court_name),
                                                       "start_time": slot[0],
                                                       "end_time": slot[1]})
 
