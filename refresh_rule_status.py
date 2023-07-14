@@ -20,7 +20,7 @@ from common import print_with_timestamp
 if __name__ == '__main__':
     # 每天0点-7点不巡检，其他时间巡检
     now = datetime.datetime.now().time()
-    if datetime.time(0, 0) <= now < datetime.time(7, 0):
+    if datetime.time(0, 0) <= now < datetime.time(8, 0):
         print_with_timestamp('Skipping task execution between 0am and 7am')
         # exit() test
     else:
@@ -71,6 +71,8 @@ if __name__ == '__main__':
                     # 已过期
                     print(f"运行中 > 已过期: {rule}")
                     update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
+                    # 短信提示用户
+                    
                 else:
                     # 未生效
                     pass
