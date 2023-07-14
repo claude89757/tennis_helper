@@ -19,12 +19,11 @@ TENCENT_CLOUD_SECRET_ID = os.environ.get("TENCENT_CLOUD_SECRET_ID")
 TENCENT_CLOUD_SECRET_KEY = os.environ.get("TENCENT_CLOUD_SECRET_KEY")
 
 
-def send_sms_for_news(phone_num_list: list, param_list: list):
+def send_sms_for_news(phone_num_list: list, param_list: list, template_id: str = '1856675'):
     """
     发生短信通知
     """
     sign_name = "网球场预定助手小程序"
-    template_id = "1856675"
     try:
         # 必要步骤：
         # 实例化一个认证对象，入参需要传入腾讯云账户密钥对secretId，secretKey。
