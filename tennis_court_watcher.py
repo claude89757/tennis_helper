@@ -197,7 +197,7 @@ if __name__ == '__main__':
                 sms_res = send_sms_for_news([phone],
                                             [date, args.court_name, merge_slot_list[0][0], merge_slot_list[0][1]])
                 print(sms_res)
-                if "send success" in sms_res:
+                if "send success" in str(sms_res):
                     print("短信发送成功, 刷新数据库计数")
                     # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
                     rule_info_list = rule_infos.get(phone_date)
