@@ -218,7 +218,7 @@ if __name__ == '__main__':
             merge_slot_list = merge_time_ranges(slot_list)  # 聚合后，可能还有多个时间段，短信只发送第一个时间段
             print(f"raw_slot_list: {slot_list}")
             print(f"merged_slot_list: {merge_slot_list}")
-            cache_key = f"{phone_date}_{merge_slot_list[0][0]}_{merge_slot_list[0][0]}"  # 每个时间段仅提醒一次
+            cache_key = f"{phone_date}_{merge_slot_list[0][0]}_{merge_slot_list[0][1]}"  # 每个时间段仅提醒一次
             if cache_key in cache:
                 print(f"{cache_key} has already been sent, skipping...")
                 continue
