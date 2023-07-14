@@ -93,7 +93,7 @@ if __name__ == '__main__':
             rule_date_list.append(rule_end_date)
     # 每天0点-7点不巡检，其他时间巡检
     now = datetime.datetime.now().time()
-    if datetime.time(0, 0) <= now < datetime.time(7, 0):
+    if datetime.time(0, 0) <= now < datetime.time(8, 0):
         print_with_timestamp('Skipping task execution between 0am and 7am')
         exit()
     else:
