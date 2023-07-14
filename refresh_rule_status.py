@@ -60,7 +60,7 @@ if __name__ == '__main__':
                 print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
                 if check_start_date <= rule_end_date and check_end_date >= rule_start_date:
                     # 日期范围有交集, 运行中
-                    if rule.get("status") and rule['status'] == 2:
+                    if rule.get("status") and rule['status'] == '2':
                         pass
                     else:
                         print(f"未生效 > 运行中: {rule}")
