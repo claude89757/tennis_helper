@@ -89,6 +89,7 @@ def get_rule_list_from_weida(cd_index: int):
             "_id": rule['_id'],
             "name": rule['name'],
             "phone": rule['phone'],
+            "status": rule['status'],
             "start_date": start_date,
             "end_date": end_date,
             "start_time": start_time,
