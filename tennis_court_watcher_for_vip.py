@@ -272,7 +272,7 @@ if __name__ == '__main__':
                 print_with_timestamp("短信发送失败")
             # 记录短信到weda数据库
             try:
-                create_record({"phone": phone, "sms_text": f"{date} {court_name} 可预定时间: {start_time}~{end_time}",
+                create_record({"phone": phone, "sms_text": f"【*】{date} {court_name} 可预定时间: {start_time}~{end_time}",
                                "status": sms_res['SendStatusSet'][0]['Message']})
             except Exception as error:
                 print_with_timestamp(f"error: {error}")
