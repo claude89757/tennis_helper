@@ -267,7 +267,7 @@ if __name__ == '__main__':
                     update_record_info_by_id(rule_info_list[0]['_id'], {"jrtzcs": cur_today_send_num,
                                                                         "zjtzcs": cur_total_send_num})
                 except Exception as error:
-                    print(f"error: {error}")
+                    print_with_timestamp(f"send sms error: {error}")
             else:
                 print_with_timestamp("短信发送失败")
             # 记录短信到weda数据库
@@ -275,7 +275,7 @@ if __name__ == '__main__':
                 create_record({"phone": phone, "sms_text": f"{date} {court_name} 可预定时间: {start_time}~{end_time}",
                                "status": sms_res['SendStatusSet'][0]['Message']})
             except Exception as error:
-                print_with_timestamp(f"error: {error}")
+                print_with_timestamp(f"record sms error: {error}")
         send_sms_end_time = time.time()
         send_sms_cost_time = send_sms_end_time - send_sms_start_time
         print_with_timestamp(f"发送短信耗时：{send_sms_cost_time: 2f} s")
