@@ -45,3 +45,6 @@ KS_TOKEN=""
 
 # refresh rule status
 */3 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/refresh_rule_status.py  >> /home/lighthouse/tennis_helper/logs/refresh_rule_status_$(date +\%Y-\%m-\%d).log 2>&1
+
+# inform rules expired
+0 10 * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/inform_rule_expired.py >> /home/lighthouse/tennis_helper/logs/inform_rule_expired_$(date +\%Y-\%m-\%d).log 2>&1
