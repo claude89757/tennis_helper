@@ -100,7 +100,7 @@ def get_rule_list_from_weida(cd_index: int):
     return filter_rule_list
 
 
-def get_active_rule_list(cd_index: int):
+def get_active_rule_list(cd_index: int, is_vip: bool = False):
     """
     从微搭数据源获取用户的推送规则
     :parm: cd_index 场地代号，映射见全局变量
@@ -109,8 +109,12 @@ def get_active_rule_list(cd_index: int):
     print(f"getting rule for {cd_index}")
     beijing_tz = pytz.timezone('Asia/Shanghai')  # 北京时区
     filter_rule_list = []
-    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') and status eq '2' "
-                                                                     f"and user_level ne '2' and user_level ne '3'")
+    if is_vip:
+        rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') and status eq '2' "
+                                                                         f"and user_level eq '2'")
+    else:
+        rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') and status eq '2' "
+                                                                         f"and user_level ne '2' and user_level ne '3'")
     for rule in rule_list:
         print(rule)
         # 转换时间格式
@@ -124,59 +128,15 @@ def get_active_rule_list(cd_index: int):
         minutes = (rule['end_time'] // (1000 * 60)) % 60
         seconds = (rule['end_time'] // 1000) % 60
         end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
+        # 对日期和时间进行转义
+        rule['start_date'] = start_date
+        rule['end_date'] = end_date
+        rule['start_time'] = start_time
+        rule['end_time'] = end_time
 
-        filter_rule_list.append({
-            "_id": rule['_id'],
-            "name": rule['name'],
-            "phone": rule['phone'],
-            "createdAt": rule['createdAt'],
-            "user_level": rule['user_level'],
-            "start_date": start_date,
-            "end_date": end_date,
-            "start_time": start_time,
-            "end_time": end_time,
-        })
-    print(f"filter_rule_list: {filter_rule_list}")
-    print(f"filter_rule_list: {len(filter_rule_list)}")
-    return filter_rule_list
+        # 转义后的订阅
+        filter_rule_list.append(rule)
 
-
-def get_active_vip_rule_list(cd_index: int):
-    """
-    从微搭数据源获取用户的推送规则
-    :parm: cd_index 场地代号，映射见全局变量
-    :return:
-    """
-    print(f"getting rule for {cd_index}")
-    beijing_tz = pytz.timezone('Asia/Shanghai')  # 北京时区
-    filter_rule_list = []
-    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') and status eq '2' "
-                                                                     f"and user_level eq '2'")
-    for rule in rule_list:
-        print(rule)
-        # 转换时间格式
-        start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
-        end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
-        hours = rule['start_time'] // (1000 * 60 * 60)
-        minutes = (rule['start_time'] // (1000 * 60)) % 60
-        seconds = (rule['start_time'] // 1000) % 60
-        start_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
-        hours = rule['end_time'] // (1000 * 60 * 60)
-        minutes = (rule['end_time'] // (1000 * 60)) % 60
-        seconds = (rule['end_time'] // 1000) % 60
-        end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
-
-        filter_rule_list.append({
-            "_id": rule['_id'],
-            "name": rule['name'],
-            "phone": rule['phone'],
-            "createdAt": rule['createdAt'],
-            "user_level": rule['user_level'],
-            "start_date": start_date,
-            "end_date": end_date,
-            "start_time": start_time,
-            "end_time": end_time,
-        })
     print(f"filter_rule_list: {filter_rule_list}")
     print(f"filter_rule_list: {len(filter_rule_list)}")
     return filter_rule_list

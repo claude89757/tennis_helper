@@ -215,16 +215,35 @@ if __name__ == '__main__':
         up_for_send_sms_list = []
         cache = shelve.open(f'{args.court_name}_cache')
         for phone_date, slot_list in phone_slot_infos.items():
+            rule_info_list = rule_infos.get(phone_date)  # 一个手机号，可能命中多个订阅
             merge_slot_list = merge_time_ranges(slot_list)  # 聚合后，可能还有多个时间段，短信只发送第一个时间段
             print(f"raw_slot_list: {slot_list}")
             print(f"merged_slot_list: {merge_slot_list}")
+            # 剔除不符合要求的时间段，过大或者过小
+            filter_merge_slot_list = []
+            for slot in merge_slot_list:
+                time1 = datetime.datetime.strptime(slot[0], '%H:%M')
+                time2 = datetime.datetime.strptime(slot[1], '%H:%M')
+                # 计算时间差
+                duration = time2 - time1
+                # 将时间差转换为小时数的浮点数
+                hours = duration.total_seconds() / 3600
+                if hours >= 6:
+                    # 这类场地默认没人需要打， 过滤
+                    pass
+                elif hours < int(rule_info_list[0].get('duration', 2)):  # 默认仅2小时以上的场地
+                    pass
+                else:
+                    filter_merge_slot_list.append(slot)
+
             cache_key = f"{phone_date}_{merge_slot_list[0][0]}_{merge_slot_list[0][1]}"  # 每个时间段仅提醒一次
             if cache_key in cache:
                 print(f"{cache_key} has already been sent, skipping...")
                 continue
+            elif not filter_merge_slot_list:
+                print(f"{cache_key} too short slot duration, skipping ...")
             else:
                 # 加入待发送短信队里
-                rule_info_list = rule_infos.get(phone_date)
                 phone = phone_date.split('_')[0]
                 date = phone_date.split('_')[1]
                 start_time = merge_slot_list[0][0]

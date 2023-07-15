@@ -18,7 +18,7 @@ from config import CD_INDEX_INFOS
 from config import CD_TIME_RANGE_INFOS
 
 from sms import send_sms_for_news
-from weda import get_active_vip_rule_list
+from weda import get_active_rule_list
 from weda import update_record_info_by_id
 from weda import create_record
 from common import merge_time_ranges
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     print(f"check_date_list: {check_date_list}")
 
     # 从微搭的数据库，获取订阅规则列表
-    active_rule_list = get_active_vip_rule_list(CD_INDEX_INFOS.get(args.court_name))
+    active_rule_list = get_active_rule_list(CD_INDEX_INFOS.get(args.court_name), is_vip=True)
     rule_date_list = []
     print_with_timestamp(f"active_rule_list: {len(active_rule_list)}")
     for rule in active_rule_list:
