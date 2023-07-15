@@ -21,9 +21,9 @@ KS_TOKEN=""
 */5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "北站公园" --sales_id "102911" --sales_item_id "101145" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/bzgy_$(date +\%Y-\%m-\%d).log 2>&1
 
 # (vip) run tennis tools for isz
-*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "黄木岗" --sales_id "101333" --sales_item_id "100344" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/hmg_$(date +\%Y-\%m-\%d).log 2>&1
-*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "香蜜体育" --sales_id "101332" --sales_item_id "100341" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/xm_$(date +\%Y-\%m-\%d).log 2>&1
-*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "莲花体育" --sales_id "101335" --sales_item_id "100347" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/lh_$(date +\%Y-\%m-\%d).log 2>&1
+*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "黄木岗" --sales_id "101333" --sales_item_id "100344" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_hmg_$(date +\%Y-\%m-\%d).log 2>&1
+*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "香蜜体育" --sales_id "101332" --sales_item_id "100341" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_xm_$(date +\%Y-\%m-\%d).log 2>&1
+*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "莲花体育" --sales_id "101335" --sales_item_id "100347" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_lh_$(date +\%Y-\%m-\%d).log 2>&1
 
 # run tennis tools for hjd
 */3 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "HJD" --item_name "金地威新" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/jdwx_$(date +\%Y-\%m-\%d).log 2>&1
