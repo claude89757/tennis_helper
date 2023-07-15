@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 @Time    : 2023/7/14 00:41
-@Author  : claudexie
+@Author  : claude89757
 @File    : refresh_rule_status.py
 @Software: PyCharm
 """
