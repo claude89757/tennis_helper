@@ -231,7 +231,7 @@ if __name__ == '__main__':
                 if hours >= 6:
                     # 这类场地默认没人需要打， 过滤
                     pass
-                elif hours < int(rule_info_list[0].get('duration', 2)):  # 默认仅2小时以上的场地
+                elif hours < int(rule_info_list[0].get('duration', 1)):  # 默认仅2小时以上的场地
                     pass
                 else:
                     filter_merge_slot_list.append(slot)
