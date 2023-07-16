@@ -70,7 +70,8 @@ def get_rule_list_from_weida(cd_index: int):
     print(f"getting rule for {cd_index}")
     beijing_tz = pytz.timezone('Asia/Shanghai')  # 北京时区
     filter_rule_list = []
-    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') and status ne '3'")
+    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') "
+                                                                     f"and status ne '3' and status ne '4'")
     for rule in rule_list:
         print(rule)
         # 转换时间格式
@@ -84,17 +85,14 @@ def get_rule_list_from_weida(cd_index: int):
         minutes = (rule['end_time'] // (1000 * 60)) % 60
         seconds = (rule['end_time'] // 1000) % 60
         end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
+        # 对日期和时间进行转义
+        rule['start_date'] = start_date
+        rule['end_date'] = end_date
+        rule['start_time'] = start_time
+        rule['end_time'] = end_time
 
-        filter_rule_list.append({
-            "_id": rule['_id'],
-            "name": rule['name'],
-            "phone": rule['phone'],
-            "status": rule['status'],
-            "start_date": start_date,
-            "end_date": end_date,
-            "start_time": start_time,
-            "end_time": end_time,
-        })
+        # 转义后的订阅
+        filter_rule_list.append(rule)
     print(f"filter_rule_list: {filter_rule_list}")
     print(f"filter_rule_list: {len(filter_rule_list)}")
     return filter_rule_list

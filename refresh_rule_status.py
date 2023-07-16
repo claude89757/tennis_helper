@@ -26,7 +26,7 @@ if __name__ == '__main__':
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
-    # 从微搭的数据库，获取订阅规则列表，并更新状态
+    # 从微搭的数据库，获取订阅规则列表，根据订阅日期更新订阅状态
     for court_name, court_index in CD_INDEX_INFOS.items():
         # 当前可巡检的日期范围
         check_date_list = []
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         print(f"{court_name} 可预定日期: {check_date_str_list} 正在更新订阅状态...")
         # 获取订阅列表
-        rule_list = get_rule_list_from_weida(court_index)  # 非过期的订阅列表
+        rule_list = get_rule_list_from_weida(court_index)  # 非过期\重复的订阅列表
         rule_date_list = []
         print_with_timestamp(f"rule_list: {len(rule_list)}")
         for rule in rule_list:
@@ -53,6 +53,7 @@ if __name__ == '__main__':
         else:
             print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             # 标记这些订阅的状态：运行中、已过期、未生效
+            phone_active_rule_infos = {}
             for rule in rule_list:
                 # 判断订阅的状态，根据日期范围是否有交集
                 rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
@@ -67,14 +68,42 @@ if __name__ == '__main__':
                         update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
                         rule_date_list.append(rule_start_date)
                         rule_date_list.append(rule_end_date)
+                    # 记录运行中的规则
+                    if phone_active_rule_infos.get(rule['phone']):
+                        phone_active_rule_infos[rule['phone']].append(rule)
+                    else:
+                        phone_active_rule_infos[rule['phone']] = [rule]
                 elif check_start_date > rule_end_date:
                     # 已过期
                     print(f"运行中 > 已过期: {rule}")
                     update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
                     # 短信提示用户
-                    
                 else:
                     # 未生效
                     pass
                 time.sleep(0.1)
+
+            # 重复的订阅进行标记
+            for phone, rules in phone_active_rule_infos.items():
+                sorted_rules = sorted(rules, key=lambda x: x['createdAt'], reverse=False)
+                if len(sorted_rules) > 1:
+                    date_range_rule_infos = {}
+                    for rule in sorted_rules:
+                        date_range = f"{rule['start_date']}_{rule['end_date']}"
+                        if date_range_rule_infos.get(date_range):
+                            date_range_rule_infos[date_range].append(rule)
+                        else:
+                            date_range_rule_infos[date_range] = [rule]
+                    for date_range, same_date_range_rules in date_range_rule_infos.items():
+                        if len(same_date_range_rules) == 1:
+                            pass
+                        else:
+                            # 同样日期范围的，仅生效最新创建的一条
+                            for rule in same_date_range_rules[1:]:
+                                print(f"运行中 > 重复订阅: {rule}")
+                                update_record_info_by_id(rule['_id'], {"status": '4'})  # 状态: 已过期
+                else:
+                    # 仅1条订阅，无需关注
+                    pass
+
         print("-----------------------------------------")
