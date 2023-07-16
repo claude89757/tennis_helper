@@ -304,7 +304,7 @@ if __name__ == '__main__':
             try_send_sms_list.append([phone,
                                       f"{date} {court_name} 可预定时间: {start_time}~{end_time}",
                                       sms_res['SendStatusSet'][0]['Message']])
-
+            time.sleep(1)
         send_sms_end_time = time.time()
         send_sms_cost_time = send_sms_end_time - send_sms_start_time
         print_with_timestamp(f"发送短信耗时：{send_sms_cost_time: 2f} s")

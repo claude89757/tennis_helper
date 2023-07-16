@@ -269,6 +269,9 @@ if __name__ == '__main__':
                                              key=lambda x: datetime.datetime.strptime(x['rule_end_date'], '%Y-%m-%d'),
                                              reverse=False)
         send_sms_start_time = time.time()
+        rule_today_send_count_infos = {}
+        rule_total_send_count_infos = {}
+        try_send_sms_list = []
         for sms_info in sorted_up_for_send_sms_list:
             print(f"sending {sms_info}...")
             phone = sms_info['phone']
@@ -281,27 +284,48 @@ if __name__ == '__main__':
             print(sms_res)
             if "send success" in str(sms_res):
                 print_with_timestamp("短信发送成功, 刷新数据库计数")
-                # # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
-                # cur_today_send_num = rule_info_list[0].get('jrtzcs', 0)
-                # cur_total_send_num = rule_info_list[0].get('zjtzcs', 0)
-                # cur_today_send_num += 1
-                # cur_total_send_num += 1
-                # try:
-                #     update_record_info_by_id(rule_info_list[0]['_id'], {"jrtzcs": cur_today_send_num,
-                #                                                         "zjtzcs": cur_total_send_num})
-                # except Exception as error:
-                #     print(f"error: {error}")
+                # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
+                if rule_today_send_count_infos.get(rule_info_list[0]['_id']):
+                    rule_today_send_count_infos[rule_info_list[0]['_id']] += 1
+                    rule_total_send_count_infos[rule_info_list[0]['_id']] += 1
+                else:
+                    if rule_info_list[0].get('jrtzcs'):
+                        cur_today_send_num = rule_info_list[0].get('jrtzcs')
+                    else:
+                        cur_today_send_num = 0
+                    if rule_info_list[0].get('zjtzcs'):
+                        cur_total_send_num = rule_info_list[0].get('zjtzcs')
+                    else:
+                        cur_total_send_num = 0
+                    rule_today_send_count_infos[rule_info_list[0]['_id']] = cur_today_send_num
+                    rule_total_send_count_infos[rule_info_list[0]['_id']] = cur_total_send_num
             else:
                 print_with_timestamp("短信发送失败")
-            # 记录短信到weda数据库
-            try:
-                create_record({"phone": phone, "sms_text": f"【*】{date} {court_name} 可预定时间: {start_time}~{end_time}",
-                               "status": sms_res['SendStatusSet'][0]['Message']})
-            except Exception as error:
-                print_with_timestamp(f"error: {error}")
+            try_send_sms_list.append([phone,
+                                      f"{date} {court_name} 可预定时间: {start_time}~{end_time}",
+                                      sms_res['SendStatusSet'][0]['Message']])
         send_sms_end_time = time.time()
         send_sms_cost_time = send_sms_end_time - send_sms_start_time
         print_with_timestamp(f"发送短信耗时：{send_sms_cost_time: 2f} s")
+
+        # 记录短信到weda数据库
+        for sms_info in try_send_sms_list:
+            try:
+                create_record({"phone": sms_info[0], "sms_text": sms_info[1], "status": sms_info[2]})
+            except Exception as error:
+                print_with_timestamp(f"record sms error: {error}")
+
+        # 刷新订阅的计数器
+        for rule_id, send_count in rule_today_send_count_infos.items():
+            try:
+                update_record_info_by_id(rule_id, {"jrtzcs": send_count})
+            except Exception as error:
+                print_with_timestamp(f"record rule_today_send_count_infos error: {error}")
+        for rule_id, send_count in rule_total_send_count_infos.items():
+            try:
+                update_record_info_by_id(rule_id, {"zjtzcs": send_count})
+            except Exception as error:
+                print_with_timestamp(f"record rule_total_send_count_infos error: {error}")
 
     # 计算整体加班运行耗时
     run_end_time = time.time()
