@@ -281,16 +281,16 @@ if __name__ == '__main__':
             print(sms_res)
             if "send success" in str(sms_res):
                 print_with_timestamp("短信发送成功, 刷新数据库计数")
-                # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
-                cur_today_send_num = rule_info_list[0].get('jrtzcs', 0)
-                cur_total_send_num = rule_info_list[0].get('zjtzcs', 0)
-                cur_today_send_num += 1
-                cur_total_send_num += 1
-                try:
-                    update_record_info_by_id(rule_info_list[0]['_id'], {"jrtzcs": cur_today_send_num,
-                                                                        "zjtzcs": cur_total_send_num})
-                except Exception as error:
-                    print(f"error: {error}")
+                # # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
+                # cur_today_send_num = rule_info_list[0].get('jrtzcs', 0)
+                # cur_total_send_num = rule_info_list[0].get('zjtzcs', 0)
+                # cur_today_send_num += 1
+                # cur_total_send_num += 1
+                # try:
+                #     update_record_info_by_id(rule_info_list[0]['_id'], {"jrtzcs": cur_today_send_num,
+                #                                                         "zjtzcs": cur_total_send_num})
+                # except Exception as error:
+                #     print(f"error: {error}")
             else:
                 print_with_timestamp("短信发送失败")
             # 记录短信到weda数据库
