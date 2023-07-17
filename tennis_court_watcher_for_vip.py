@@ -290,25 +290,27 @@ if __name__ == '__main__':
             start_time = sms_info['start_time']
             end_time = sms_info['end_time']
             rule_info_list = rule_infos.get(f"{phone}_{date}")
+            valid_rule = rule_info_list[0]
             sms_res = send_sms_for_news([phone], [date, court_name, start_time, end_time])
             print(sms_res)
             if "send success" in str(sms_res):
+                rule_id = valid_rule['_id']
                 print_with_timestamp("短信发送成功, 刷新数据库计数")
                 # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
-                if rule_info_list[0]['_id'] in rule_today_send_count_infos.keys():
-                    rule_today_send_count_infos[rule_info_list[0]['_id']] += 1
-                    rule_total_send_count_infos[rule_info_list[0]['_id']] += 1
+                if rule_id in rule_today_send_count_infos.keys():
+                    rule_today_send_count_infos[rule_id] += 1
+                    rule_total_send_count_infos[rule_id] += 1
                 else:
-                    if rule_info_list[0].get('jrtzcs'):
-                        cur_today_send_num = rule_info_list[0].get('jrtzcs')
+                    if valid_rule.get('jrtzcs'):
+                        cur_today_send_num = valid_rule.get('jrtzcs')
                     else:
-                        cur_today_send_num = 0
+                        cur_today_send_num = 1
                     if rule_info_list[0].get('zjtzcs'):
-                        cur_total_send_num = rule_info_list[0].get('zjtzcs')
+                        cur_total_send_num = valid_rule.get('zjtzcs')
                     else:
-                        cur_total_send_num = 0
-                    rule_today_send_count_infos[rule_info_list[0]['_id']] = cur_today_send_num
-                    rule_total_send_count_infos[rule_info_list[0]['_id']] = cur_total_send_num
+                        cur_total_send_num = 1
+                    rule_today_send_count_infos[rule_id] = cur_today_send_num
+                    rule_total_send_count_infos[rule_id] = cur_total_send_num
             else:
                 print_with_timestamp("短信发送失败")
             try_send_sms_list.append([phone,
