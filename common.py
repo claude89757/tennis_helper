@@ -215,6 +215,102 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
         raise Exception(f"all proxies failed")
 
 
+def get_free_tennis_court_infos_for_zjclub(date: str, proxy_list: list, time_range: dict,
+                                           sales_item_id: str = "100586", sales_id: str = "102042") -> dict:
+    """
+    获取可预订的场地信息
+    """
+    got_response = False
+    response = None
+    index_list = list(range(len(proxy_list)))
+    # 打乱列表的顺序
+    random.shuffle(index_list)
+    print(index_list)
+    for index in index_list:
+        check_data = str_to_timestamp(date)
+        timestamp = math.trunc(time.time() * 1000)
+        nonce = gen_nonce(timestamp)
+        params = {
+            "salesItemId": sales_item_id,
+            "curDate": str(check_data),
+            "venueGroupId": "",
+            "_time": str(timestamp)
+        }
+        param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&_time={str(timestamp)}"  # 仅用于签名
+        signature = signature_for_get(str(timestamp), nonce.replace('-', ''), param_str=param_str)
+        headers = {
+            "Host": "isz.ydmap.cn",
+            "accept": "application/json, text/plain, */*",
+            "openid-token": "",
+            "nonce": nonce.replace('-', ''),
+            "timestamp": str(timestamp),
+            "sec-fetch-site": "same-origin",
+            "x-requested-with": "XMLHttpRequest",
+            "accept-language": "zh-CN,zh-Hans;q=0.9",
+            "entry-tag": "",
+            "signature": signature,
+            "sec-fetch-mode": "cors",
+            # "access-token": access_token,  # get请求不需要
+            "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X) AppleWebKit/605.1.15 "
+                          "(KHTML, like Gecko) "
+                          "Mobile/15E148/openweb=paschybrid/SZSMT_IOS,VERSION:4.5.0",
+            "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
+            "sec-fetch-dest": "empty"
+        }
+        url = "https://zjclub.ydmap.cn/srv100292/api/pub/sport/venue/getVenueOrderList"
+        print(url)
+        print(params)
+        # print(headers)
+        proxy = proxy_list[index]
+        print(f"trying for {index} time for {proxy}")
+        try:
+            proxies = {"https": proxy}
+            response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=30)
+            if response.status_code == 200:
+                print(f"success for {proxy}")
+                got_response = True
+                time.sleep(1)
+                break
+            else:
+                print(f"failed for {proxy}: {response}")
+                continue
+        except Exception as error:  # pylint: disable=broad-except
+            print(f"failed for {proxy}: {error}")
+            continue
+    print(f"response: {response}")
+    print(f"response: {response.text}")
+    if got_response:
+        if response.status_code == 200:
+            if response.json()['code'] == 0:
+                booked_court_infos = {}
+                for data in response.json()['data']:
+                    start_time = timestamp_to_clock(data['startTime'])
+                    end_time = timestamp_to_clock(data['endTime'])
+                    if booked_court_infos.get(data['venueId']):
+                        booked_court_infos[data['venueId']].append([start_time, end_time])
+                    else:
+                        booked_court_infos[data['venueId']] = [[start_time, end_time]]
+                available_slots_infos = {}
+                for venue_id, booked_slots in booked_court_infos.items():
+                    if venue_id in [104300, 104301, 104302, 104475]:
+                        # 黄木岗的训练墙剔除
+                        continue
+                    elif venue_id in [102930]:
+                        # 香蜜6号当日线下预定，剔除
+                        continue
+                    else:
+                        pass
+                    available_slots = find_available_slots(booked_slots, time_range)
+                    available_slots_infos[venue_id] = available_slots
+                return available_slots_infos
+            else:
+                raise Exception(response.text)
+        else:
+            raise Exception(response.text)
+    else:
+        raise Exception(f"all proxies failed")
+
+
 def get_free_tennis_court_infos_for_hjd(date: str, proxy_list: list) -> dict:
     """
     从弘金地获取可预订的场地信息,

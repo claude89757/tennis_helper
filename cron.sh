@@ -20,6 +20,9 @@ KS_TOKEN=""
 */5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "黄冈公园" --sales_id "100241" --sales_item_id "100003" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/hqgy_$(date +\%Y-\%m-\%d).log 2>&1
 */5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "北站公园" --sales_id "102911" --sales_item_id "101145" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/bzgy_$(date +\%Y-\%m-\%d).log 2>&1
 
+# run tennis tools for zjclub
+*/5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ZJCLUB" --court_name "郑洁俱乐部" --sales_id "102042" --sales_item_id "100586" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/zjclub_$(date +\%Y-\%m-\%d).log 2>&1
+
 # (vip) run tennis tools for isz
 */2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "黄木岗" --sales_id "101333" --sales_item_id "100344" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_hmg_$(date +\%Y-\%m-\%d).log 2>&1
 */2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "香蜜体育" --sales_id "101332" --sales_item_id "100341" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_xm_$(date +\%Y-\%m-\%d).log 2>&1

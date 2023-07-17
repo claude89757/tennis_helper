@@ -28,6 +28,7 @@ from common import get_free_tennis_court_infos_for_isz
 from common import get_free_tennis_court_infos_for_hjd
 from common import get_free_tennis_court_infos_for_tns
 from common import get_free_tennis_court_infos_for_ks
+from common import get_free_tennis_court_infos_for_zjclub
 
 
 async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, input_proxy_list: list,
@@ -62,6 +63,9 @@ async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, 
     elif app_name == "KS":
         return await loop.run_in_executor(None, get_free_tennis_court_infos_for_ks, input_check_date_str,
                                           input_proxy_list)
+    elif app_name == "ZJCLUB":
+        return await loop.run_in_executor(None, get_free_tennis_court_infos_for_zjclub, input_check_date_str,
+                                          input_proxy_list, input_time_range, input_sales_item_id, input_sales_id, )
     else:
         raise Exception(f"未支持的APP: {app_name}")
 
@@ -121,6 +125,7 @@ if __name__ == '__main__':
             print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
             rule_date_list.append(rule_start_date)
             rule_date_list.append(rule_end_date)
+
     # 每天0点-7点不巡检，其他时间巡检
     now = datetime.datetime.now().time()
     if datetime.time(0, 0) <= now < datetime.time(8, 0):
@@ -146,6 +151,7 @@ if __name__ == '__main__':
     # 采用协程方式查询各日期的场地信息
     tasks = []
     loop = asyncio.get_event_loop()
+    skip_check_date_list = []
     for index in range(0, args.watch_days):
         check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         check_date = datetime.datetime.strptime(check_date_str, "%Y-%m-%d")
@@ -159,10 +165,14 @@ if __name__ == '__main__':
             tasks.append(task)
         else:
             print(f"skip checking {check_date_str}")
+            skip_check_date_list.append(check_date_str)
     results = loop.run_until_complete(asyncio.gather(*tasks))
     for i, index in enumerate(range(0, args.watch_days)):
         check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
-        available_tennis_court_slice_infos[check_date_str] = results[i]
+        if check_date_str in skip_check_date_list:
+            pass
+        else:
+            available_tennis_court_slice_infos[check_date_str] = results[i]
     # 计算查询运行时间
     run_time = time.time() - get_start_time
     print(f"查询耗时: {run_time:.2f}秒")
