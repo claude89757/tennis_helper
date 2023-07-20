@@ -13,6 +13,8 @@ import datetime
 from config import CD_INDEX_INFOS
 from config import CD_ACTIVE_DAY_INFOS
 from weda import get_rule_list_from_weida
+from weda import get_vip_user_list
+from weda import get_active_rule_list_by_phone
 from weda import update_record_info_by_id
 from common import print_with_timestamp
 
@@ -105,5 +107,14 @@ if __name__ == '__main__':
                 else:
                     # 仅1条订阅，无需关注
                     pass
+
+            # 标记是否为VIP的订阅
+            for vip_user in get_vip_user_list():
+                user_rule_list = get_active_rule_list_by_phone(vip_user['phone'])
+                for rule in user_rule_list:
+                    if not rule.get('user_level') or (rule.get('user_level') and rule['user_level'] != 2):
+                        update_record_info_by_id(rule['_id'], {"user_level": "2"})
+                    else:
+                        pass
 
         print("-----------------------------------------")

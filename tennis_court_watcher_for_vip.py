@@ -314,7 +314,7 @@ if __name__ == '__main__':
             else:
                 print_with_timestamp("短信发送失败")
             try_send_sms_list.append([phone,
-                                      f"{date} {court_name} 可预定时间: {start_time}~{end_time}",
+                                      f"* {date} {court_name} 可预定时间: {start_time}~{end_time}",
                                       sms_res['SendStatusSet'][0]['Message']])
             time.sleep(1)
         send_sms_end_time = time.time()

@@ -181,6 +181,15 @@ def get_all_rule_list():
     return filter_rule_list
 
 
+def get_vip_user_list():
+    """
+    从微搭数据源获取付费用户列表
+    :return:
+    """
+    rule_list = query_data_by_filter(WEDA_ENV, "svip_user_flj50jl")
+    return rule_list
+
+
 def update_record_info_by_id(record_id: str, payload: dict = None):
     """
     更新数据源记录
@@ -272,8 +281,42 @@ def get_today_active_rule_list():
     return rule_list
 
 
+def get_active_rule_list_by_phone(phone: str):
+    """
+    从微搭数据源获取用户的推送规则
+    :parm: cd_index 场地代号，映射见全局变量
+    :return:
+    """
+    beijing_tz = pytz.timezone('Asia/Shanghai')  # 北京时区
+    filter_rule_list = []
+    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"phone eq '{phone}' and status eq '2' ")
+    for rule in rule_list:
+        print(rule)
+        # 转换时间格式
+        start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
+        end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
+        hours = rule['start_time'] // (1000 * 60 * 60)
+        minutes = (rule['start_time'] // (1000 * 60)) % 60
+        seconds = (rule['start_time'] // 1000) % 60
+        start_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
+        hours = rule['end_time'] // (1000 * 60 * 60)
+        minutes = (rule['end_time'] // (1000 * 60)) % 60
+        seconds = (rule['end_time'] // 1000) % 60
+        end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
+        # 对日期和时间进行转义
+        rule['start_date'] = start_date
+        rule['end_date'] = end_date
+        rule['start_time'] = start_time
+        rule['end_time'] = end_time
+
+        # 转义后的订阅
+        filter_rule_list.append(rule)
+
+    print(f"filter_rule_list: {filter_rule_list}")
+    print(f"filter_rule_list: {len(filter_rule_list)}")
+    return filter_rule_list
+
+
 # testing
 if __name__ == '__main__':
-    #print(get_rule_list_from_weida(1))
-    create_record({"phone": "18688539560", "sms_text": f"test",
-                   "status": "test"})
+    pass
