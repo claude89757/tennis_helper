@@ -31,9 +31,11 @@ def get_access_token():
         token_data = {
             "grant_type": "client_credentials"
         }
+        print(token_headers)
         print(token_url)
         token_response = requests.post(token_url, headers=token_headers, json=token_data)
         access_token = token_response.json()["access_token"]
+    print(f"access_token: {access_token}")
     os.environ["WEDA_ACCESS_TOKEN"] = access_token
     return access_token
 
@@ -305,4 +307,4 @@ def get_active_rule_list_by_phone(phone: str):
 
 # testing
 if __name__ == '__main__':
-    query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE)
+    get_access_token()

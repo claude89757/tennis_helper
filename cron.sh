@@ -43,6 +43,9 @@ WEDA_ACCESS_TOKEN=""
 */5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "TNS" --court_name "泰尼斯香蜜" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/tns_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for kswq
 */5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "KS" --court_name "总裁俱乐部" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/ks_$(date +\%Y-\%m-\%d).log 2>&1
+# run tennis tools for wcjq
+*/5 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "WCJT" --court_name "梅林文体" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/mlwt_$(date +\%Y-\%m-\%d).log 2>&1
+
 
 # run tennis tools for isz (vip)
 */2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "大沙河" --sales_id "100220" --sales_item_id "100000" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_dsh_$(date +\%Y-\%m-\%d).log 2>&1
@@ -64,3 +67,5 @@ WEDA_ACCESS_TOKEN=""
 */2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "TNS" --court_name "泰尼斯香蜜" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_tns_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for kswq(vip)
 */2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "KS" --court_name "总裁俱乐部" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_ks_$(date +\%Y-\%m-\%d).log 2>&1
+# run tennis tools for wcjq
+*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "WCJT" --court_name "梅林文体" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_mlwt_$(date +\%Y-\%m-\%d).log 2>&1

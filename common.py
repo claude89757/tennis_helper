@@ -581,6 +581,92 @@ def get_free_tennis_court_infos_for_ks(date: str, proxy_list: list) -> dict:
         raise Exception(f"all proxies failed")
 
 
+def get_free_tennis_court_infos_for_wcjt(date: str, proxy_list: list = None) -> dict:
+    """
+    从弘金地获取可预订的场地信息,
+    """
+    got_response = False
+    response = None
+    index_list = list(range(len(proxy_list)))
+    # 打乱列表的顺序
+    random.shuffle(index_list)
+    print(index_list)
+    for index in index_list:
+        data = {
+            "action": "GetSeatMap",
+            "CardTypeId": "208",
+            "ArenaId": "3",
+            "DateTime": date,
+            "IsPrivilege": "0"
+        }
+        headers = {
+            "Host": "mlwtzxwx.x-saas.com",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/98.0.4758.102 Safari/537.36 NetType/WIFI MicroMessenger/6.8.0(0x16080000) "
+                          "MacWechat/3.8.1(0x13080110) XWEB/30626 Flue",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Origin": "http://mlwtzxwx.x-saas.com",
+            "Referer": "http://mlwtzxwx.x-saas.com/Booking/ArenaBooking.aspx?ArenaId=3&IsSee=1",
+            "Accept-Language": "zh-CN,zh",
+        }
+        url = "http://mlwtzxwx.x-saas.com/Booking/Booking.ashx?ajaxGuid=0720174245636"
+        print(url)
+        print(data)
+        # print(headers)
+        proxy = proxy_list[index]
+        print(f"trying for {index} time for {proxy}")
+        try:
+            proxies = {"https": proxy}
+            if proxy_list:
+                response = requests.post(url, headers=headers, data=data, proxies=proxies,
+                                         timeout=30)
+            else:
+                response = requests.post(url, headers=headers, data=data,
+                                         timeout=30)
+            if response.status_code == 200:
+                print(f"success for {proxy}")
+                got_response = True
+                time.sleep(1)
+                break
+            else:
+                print(f"failed for {proxy}: {response}")
+                continue
+        except Exception as error:  # pylint: disable=broad-except
+            print(f"failed for {proxy}: {error}")
+            continue
+    print(f"response: {response}")
+    # print(f"response: {response.text}")
+    if got_response:
+        if response.json().get('data'):
+            available_slots_infos = {}
+            for data in response.json()['data']:
+                start_time = data['SchemeTime']
+                time_obj = datetime.datetime.strptime(start_time, "%H:%M")  # 将字符串转换为datetime对象
+                new_time_obj = time_obj + datetime.timedelta(hours=1)  # 将时间加一小时
+                end_time = new_time_obj.strftime("%H:%M")  # 将datetime对象转换为字符串
+                for seat in data['Seats']:
+                    seat_name = seat['SeatName']
+                    if seat['SeatStatus'] == 0:
+                        if available_slots_infos.get(seat_name):
+                            available_slots_infos[seat_name].append([start_time, end_time])
+                        else:
+                            available_slots_infos[seat_name] = [[start_time, end_time]]
+                    else:
+                        pass
+            # 合并时间段
+            merged_available_slots_infos = {}
+            for item_name, slot_list in available_slots_infos.items():
+                merged_available_slots_infos[item_name] = merge_time_ranges(slot_list)
+            return merged_available_slots_infos
+        else:
+            raise Exception(response.text)
+
+    else:
+        raise Exception(f"all proxies failed")
+
+
 def merge_time_ranges(data: List[List[str]]) -> List[List[str]]:
     """
     将时间段合并

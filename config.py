@@ -71,6 +71,7 @@ CD_INDEX_INFOS = {
     "总裁俱乐部": 14,
     # 郑洁俱乐部
     "郑洁俱乐部": 15,
+    "梅林文体": 16,
 }
 
 CD_ACTIVE_DAY_INFOS = {
@@ -93,6 +94,8 @@ CD_ACTIVE_DAY_INFOS = {
     "总裁俱乐部": 7,
     # 郑洁俱乐部
     "郑洁俱乐部": 2,
+    # 梅林文体
+    "梅林文体": 7,
 }
 
 
@@ -112,6 +115,7 @@ CD_TIME_RANGE_INFOS = {
     "泰尼斯香蜜": {"start_time": "07:00", "end_time": "23:59"},
     "总裁俱乐部": {"start_time": "06:00", "end_time": "23:00"},
     "郑洁俱乐部": {"start_time": "08:00", "end_time": "22:00"},
+    "梅林文体": {"start_time": "07:00", "end_time": "23:00"},
 }
 
 
