@@ -34,45 +34,6 @@ def get_access_token():
         print(token_url)
         token_response = requests.post(token_url, headers=token_headers, json=token_data)
         access_token = token_response.json()["access_token"]
-
-    # 验证token是否可用，不可用重新获取一次
-    query_url = f"https://lowcode-8gsauxtn5fe06776.ap-shanghai.tcb-api.tencentcloudapi.com/weda/odata/v1/batch" \
-                f"/{WEDA_ENV}/{WEDA_USER_DATASOURCE}"
-    query_params = {
-        "$count": 'true',
-        "$top": 1,
-    }
-    query_headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {access_token}"
-    }
-    print(query_url)
-    print(query_params)
-    query_response = requests.get(query_url, headers=query_headers, params=query_params)
-    print(query_response.status_code)
-    print(query_response.text)
-    if query_response.status_code == 200:
-        if query_response.json().get('code') == "INVALID_ACCESS_TOKEN":
-            # 重新获取AccessToken
-            token_url = f"https://lowcode-8gsauxtn5fe06776.ap-shanghai.tcb-api.tencentcloudapi.com" \
-                        f"/auth/v1/token/clientCredential"
-            token_headers = {
-                "Content-Type": "application/json",
-                "Authorization":
-                    f"Basic "
-                    f"{base64.b64encode(f'{TENCENT_CLOUD_SECRET_ID}:{TENCENT_CLOUD_SECRET_KEY}'.encode()).decode()}"
-            }
-            token_data = {
-                "grant_type": "client_credentials"
-            }
-            print(token_url)
-            token_response = requests.post(token_url, headers=token_headers, json=token_data)
-            access_token = token_response.json()["access_token"]
-        else:
-            pass
-    else:
-        # token异常，重新获取一次
-        raise Exception(query_response.text)
     os.environ["WEDA_ACCESS_TOKEN"] = access_token
     return access_token
 
