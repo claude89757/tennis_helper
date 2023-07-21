@@ -26,7 +26,7 @@ if __name__ == '__main__':
             phone_rule_infos[phone].append(rule)
         else:
             phone_rule_status_infos[phone] = [status]
-            phone_rule_status_infos[phone] = [rule]
+            phone_rule_infos[phone] = [rule]
 
     # 判断哪些用户的全部订阅都过期，如果是，发送短信提醒
     inform_phone_list = []
