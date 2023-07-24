@@ -42,8 +42,8 @@ if __name__ == '__main__':
                 pass
             else:
                 # 未通知过，需要通知
-                # sms_res = send_sms_for_news([phone], [f"{len(rule_status_set)} 个"], template_id="1863727")
-                # print(sms_res)
+                sms_res = send_sms_for_news([phone], [f"{len(rule_status_set)} 个"], template_id="1863727")
+                print(sms_res)
                 inform_phone_list.append(phone)
                 # 标记已通知过
                 for rule in phone_rule_infos[phone]:
