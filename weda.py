@@ -178,18 +178,14 @@ def get_all_rule_list():
         seconds = (rule['end_time'] // 1000) % 60
         end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
 
-        filter_rule_list.append({
-            "_id": rule['_id'],
-            "name": rule['name'],
-            "phone": rule['phone'],
-            "createdAt": rule['createdAt'],
-            "status": rule['status'],
-            "user_level": rule['user_level'],
-            "start_date": start_date,
-            "end_date": end_date,
-            "start_time": start_time,
-            "end_time": end_time,
-        })
+        # 对日期和时间进行转义
+        rule['start_date'] = start_date
+        rule['end_date'] = end_date
+        rule['start_time'] = start_time
+        rule['end_time'] = end_time
+
+        # 转义后的订阅
+        filter_rule_list.append(rule)
     # print(f"filter_rule_list: {filter_rule_list}")
     print(f"filter_rule_list: {len(filter_rule_list)}")
     return filter_rule_list
