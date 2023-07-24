@@ -218,10 +218,10 @@ def update_record_info_by_id(record_id: str, payload: dict = None):
         "Authorization": f"Bearer {access_token}"
     }
     print(query_url)
-    print(payload)
+    # print(payload)
     query_response = requests.patch(query_url, headers=query_headers, json=payload)
     print(query_response.status_code)
-    print(query_response.text)
+    # print(query_response.text)
     if query_response.status_code == 200:
         if query_response.json().get('updateCount') and query_response.json().get('updateCount') > 0:
             return query_response.json()['updateCount']

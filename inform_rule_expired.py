@@ -34,6 +34,7 @@ if __name__ == '__main__':
         if len(set(rule_status_set)) == 1 and rule_status_set[0] == '3':
             is_send_before = set()
             for rule in phone_rule_infos[phone]:
+                print(rule)
                 is_send_before.add(str(rule.get('tzgq')))
             print(f"is_send_before: {is_send_before}")
             if len(is_send_before) == 1 and list(is_send_before)[0] == '2':
