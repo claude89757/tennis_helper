@@ -77,6 +77,7 @@ async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, 
 if __name__ == '__main__':
     # 网球场守望者开始时间
     run_start_time = time.time()
+    print_with_timestamp("start to check...")
 
     # 创建命令行解析器, 添加命令行参数
     parser = argparse.ArgumentParser(description='Help Message')
@@ -108,15 +109,15 @@ if __name__ == '__main__':
         check_date_list.append(check_date)
     check_start_date = min(check_date_list)
     check_end_date = max(check_date_list)
-    print(f"check_date_str_list: {check_date_str_list}")
-    print(f"check_date_list: {check_date_list}")
+    print_with_timestamp(f"check_date_str_list: {check_date_str_list}")
+    print_with_timestamp(f"check_date_list: {check_date_list}")
 
     # 从微搭的数据库，获取订阅规则列表
     active_rule_list = get_active_rule_list(CD_INDEX_INFOS.get(args.court_name), is_vip=True)
     rule_date_list = []
     print_with_timestamp(f"active_rule_list: {len(active_rule_list)}")
     for rule in active_rule_list:
-        print(rule)
+        print_with_timestamp(rule)
     if not active_rule_list:
         print_with_timestamp(f"该场地无人订阅，不触发巡检")
         exit()
@@ -151,7 +152,7 @@ if __name__ == '__main__':
     available_tennis_court_slice_infos = {}
     rule_check_start_date = min(rule_date_list)
     rule_check_end_date = max(rule_date_list)
-    print(f"rule check date: from {rule_check_start_date} to {rule_check_end_date}")
+    # print(f"rule check date: from {rule_check_start_date} to {rule_check_end_date}")
     # 采用协程方式查询各日期的场地信息
     tasks = []
     loop = asyncio.get_event_loop()
@@ -218,7 +219,7 @@ if __name__ == '__main__':
     # 对命中的规则列表进行排序，仅最新创建的优先生效
     for phone_date, rule_list in rule_infos.items():
         rule_infos[phone_date] = sorted(rule_list, key=lambda x: x['createdAt'], reverse=False)
-    print(f"rule_infos: {rule_infos}")
+    # print(f"rule_infos: {rule_infos}")
 
     # 根据手机发送短信提醒
     if not phone_slot_infos:
@@ -231,8 +232,8 @@ if __name__ == '__main__':
         for phone_date, slot_list in phone_slot_infos.items():
             rule_info_list = rule_infos.get(phone_date)  # 一个手机号，可能命中多个订阅
             merge_slot_list = merge_time_ranges(slot_list)  # 聚合后，可能还有多个时间段，短信只发送第一个时间段
-            print(f"raw_slot_list: {slot_list}")
-            print(f"merged_slot_list: {merge_slot_list}")
+            # print(f"raw_slot_list: {slot_list}")
+            # print(f"merged_slot_list: {merge_slot_list}")
             # 剔除不符合要求的时间段，过大或者过小
             filter_merge_slot_list = []
             for slot in merge_slot_list:
