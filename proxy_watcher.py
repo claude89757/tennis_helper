@@ -9,8 +9,6 @@
 import requests
 import concurrent.futures
 
-from datetime import datetime
-
 
 def generate_proxies():
     """
@@ -44,7 +42,7 @@ def check_proxy(proxy_url):
     """
     try:
         # 检查HTTPS代理
-        response = requests.get("https://baidu.ydmap.cn/", proxies={"https": proxy_url}, timeout=5)
+        response = requests.get("https://www.baidu.com/", proxies={"https": proxy_url}, timeout=5)
         if response.status_code == 200:
             print(f"HTTPS Proxy {proxy_url} is working")
             return proxy_url
@@ -52,7 +50,7 @@ def check_proxy(proxy_url):
         pass
     try:
         # 检查HTTPS代理
-        response = requests.get("https://baidu.ydmap.cn/", proxies={"https": "https://" + proxy_url}, timeout=5)
+        response = requests.get("https://www.baidu.com/", proxies={"https": "https://" + proxy_url}, timeout=5)
         if response.status_code == 200:
             print(f"HTTPS Proxy https://{proxy_url} is working")
             return "https://" + proxy_url
@@ -74,14 +72,14 @@ def task_check_proxies():
             try:
                 result = future.result()
                 if result is not None:
-                    timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-                    proxy_with_timestamp = {"proxy": result, "timestamp": timestamp}
-                    available_proxies.append(proxy_with_timestamp)
+                    available_proxies.append(result)
                     print(f"available_proxies: {len(available_proxies)}")
             except Exception as exc:
                 print(f"{proxy} generated an exception: {exc}")
+    print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    for proxy in available_proxies:
+        print(proxy)
 
 
 if __name__ == '__main__':
-    # 每天0点-7点不巡检，其他时间巡检
-    pass
+    task_check_proxies()

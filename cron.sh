@@ -23,6 +23,9 @@ WEDA_ACCESS_TOKEN=""
 # inform rules expired
 0 10 * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/inform_rule_expired.py >> /home/lighthouse/tennis_helper/logs/inform_rule_expired_$(date +\%Y-\%m-\%d).log 2>&1
 
+# check https proxy
+0 12 * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/proxy_watch_$(date +\%Y-\%m-\%d).log 2>&1
+
 # run tennis tools for isz
 */6 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "大沙河" --sales_id "100220" --sales_item_id "100000" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/dsh_$(date +\%Y-\%m-\%d).log 2>&1
 */6 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "香蜜体育" --sales_id "101332" --sales_item_id "100341" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/xm_$(date +\%Y-\%m-\%d).log 2>&1
