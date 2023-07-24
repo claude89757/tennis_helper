@@ -7,6 +7,7 @@
 @Software: PyCharm
 """
 import requests
+import datetime
 import concurrent.futures
 
 
@@ -77,8 +78,10 @@ def task_check_proxies():
             except Exception as exc:
                 print(f"{proxy} generated an exception: {exc}")
     print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    for proxy in available_proxies:
-        print(proxy)
+    check_date_str = datetime.datetime.now().strftime('%Y-%m-%d')
+    with open(f"https_proxies_{check_date_str}.txt", "w") as file:
+        for proxy in available_proxies:
+            file.write(proxy + "\n")
 
 
 if __name__ == '__main__':
