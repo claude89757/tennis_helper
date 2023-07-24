@@ -180,7 +180,7 @@ if __name__ == '__main__':
             available_tennis_court_slice_infos[check_date_str] = results[i]
     # 计算查询运行时间
     run_time = time.time() - get_start_time
-    print(f"查询耗时: {run_time:.2f}秒")
+    print_with_timestamp(f"查询耗时: {run_time:.2f}秒")
     # 输出结果
     print_with_timestamp(f"available_tennis_court_slice_infos: {len(available_tennis_court_slice_infos)}")
     print_with_timestamp(f"available_tennis_court_slice_infos: {available_tennis_court_slice_infos}")
@@ -243,7 +243,7 @@ if __name__ == '__main__':
                 duration = time2 - time1
                 # 将时间差转换为小时数的浮点数
                 hours = duration.total_seconds() / 3600
-                if hours >= 6:
+                if hours >= 5:
                     # 这类场地默认没人需要打， 过滤
                     pass
                 elif rule_info_list[0].get('duration') and hours < int(rule_info_list[0].get('duration')):
