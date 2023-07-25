@@ -158,7 +158,7 @@ if __name__ == '__main__':
     # print(f"rule check date: from {rule_check_start_date} to {rule_check_end_date}")
     # 采用协程方式查询各日期的场地信息
     last_check_date_str = (datetime.datetime.now() +
-                           datetime.timedelta(days=len(args.watch_days)-1)).strftime('%Y-%m-%d')
+                           datetime.timedelta(days=args.watch_days-1)).strftime('%Y-%m-%d')
     tasks = []
     loop = asyncio.get_event_loop()
     skip_check_date_list = []
