@@ -127,20 +127,23 @@ if __name__ == '__main__':
         else:
             # 其他文件不处理
             pass
-    input_data_infos = {}
-    for cell_key, data_list in court_infos.items():
-        court_num_infos = {}
-        for data in data_list:
-            court_name = data[0]
-            court_num = data[1]
-            if court_num_infos.get(court_name):
-                court_num_infos[court_name].append(court_num)
-            else:
-                court_num_infos[court_name] = [court_num]
-        cell_value_list = []
-        for court_name, court_num_list in court_num_infos.items():
-            sorted_court_num_list = sorted(court_num_list)
-            cell_value_list.append(f"{court_name} {','.join(sorted_court_num_list)}")
-        cell_value = "\n".join(cell_value_list)
-        input_data_infos[cell_key] = cell_value
-    docs.update_cell("300000000$NLrsOYBdnaed", "BB08J2", input_data_infos)
+    if court_infos:
+        input_data_infos = {}
+        for cell_key, data_list in court_infos.items():
+            court_num_infos = {}
+            for data in data_list:
+                court_name = data[0]
+                court_num = data[1]
+                if court_num_infos.get(court_name):
+                    court_num_infos[court_name].append(court_num)
+                else:
+                    court_num_infos[court_name] = [court_num]
+            cell_value_list = []
+            for court_name, court_num_list in court_num_infos.items():
+                sorted_court_num_list = sorted(court_num_list)
+                cell_value_list.append(f"{court_name} {','.join(sorted_court_num_list)}")
+            cell_value = "\n".join(cell_value_list)
+            input_data_infos[cell_key] = cell_value
+        docs.update_cell("300000000$NLrsOYBdnaed", "BB08J2", input_data_infos)
+    else:
+        print(f"无数据更新！！！")
