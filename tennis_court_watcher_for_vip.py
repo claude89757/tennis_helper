@@ -98,6 +98,7 @@ if __name__ == '__main__':
         print(args.app_name)
         print(args.court_name)
         print(args.watch_days)
+    court_name = args.court_name
 
     # 当前可巡检的日期范围
     check_date_list = []
@@ -154,6 +155,8 @@ if __name__ == '__main__':
     rule_check_end_date = max(rule_date_list)
     # print(f"rule check date: from {rule_check_start_date} to {rule_check_end_date}")
     # 采用协程方式查询各日期的场地信息
+    last_check_date_str = (datetime.datetime.now() +
+                           datetime.timedelta(days=len(args.watch_days)-1)).strftime('%Y-%m-%d')
     tasks = []
     loop = asyncio.get_event_loop()
     skip_check_date_list = []
@@ -162,6 +165,15 @@ if __name__ == '__main__':
         check_date = datetime.datetime.strptime(check_date_str, "%Y-%m-%d")
         if rule_check_start_date <= check_date <= rule_check_end_date:
             print(f"checking {check_date_str}")
+            # 剔除部分还没开发预定的时间的巡检
+            if datetime.time(0, 0) <= now < datetime.time(9, 3) \
+                    and court_name in ["香蜜体育", "黄木岗"] \
+                    and check_date_str == last_check_date_str:
+                # 未开放预定，不推送消息
+                continue
+            else:
+                pass
+
             time_range = CD_TIME_RANGE_INFOS.get(args.court_name)
             task = loop.create_task(get_free_tennis_court_infos(args.app_name, check_date_str, proxy_list,
                                                                 input_time_range=time_range,
@@ -180,7 +192,7 @@ if __name__ == '__main__':
             available_tennis_court_slice_infos[check_date_str] = results[i]
     # 计算查询运行时间
     run_time = time.time() - get_start_time
-    print(f"查询耗时: {run_time:.2f}秒")
+    print_with_timestamp(f"查询耗时: {run_time:.2f}秒")
     # 输出结果
     print_with_timestamp(f"available_tennis_court_slice_infos: {len(available_tennis_court_slice_infos)}")
     print_with_timestamp(f"available_tennis_court_slice_infos: {available_tennis_court_slice_infos}")
@@ -202,8 +214,13 @@ if __name__ == '__main__':
     for court_info in found_court_infos:
         # 剔除一些不关注的场地
         if court_info['court_index'] == 102930:
-            # 香蜜的6号场只能电话当日预定，这里先剔除
-            continue
+            # 香蜜的6号场只能电话当日预定, 剔除掉非当日的
+            today_str = datetime.datetime.now().strftime('%Y-%m-%d')
+            if court_info['date'] == today_str:
+                # 重新命名场地名称
+                court_name = "香蜜电话"
+            else:
+                continue
         elif court_info['court_index'] in [104300, 104301, 104302, 104475]:
             # 黄木岗的训练墙剔除
             continue
@@ -243,7 +260,7 @@ if __name__ == '__main__':
                 duration = time2 - time1
                 # 将时间差转换为小时数的浮点数
                 hours = duration.total_seconds() / 3600
-                if hours >= 6:
+                if hours >= 5:
                     # 这类场地默认没人需要打， 过滤
                     pass
                 elif rule_info_list[0].get('duration') and hours < int(rule_info_list[0].get('duration')):
@@ -269,7 +286,7 @@ if __name__ == '__main__':
                 end_time = merge_slot_list[0][1]
                 up_for_send_sms_list.append({"phone": phone,
                                              "date": date,
-                                             "court_name": args.court_name,
+                                             "court_name": court_name,
                                              "start_time": start_time,
                                              "end_time": end_time,
                                              "rule_start_date": rule_info_list[0]['start_date'],
