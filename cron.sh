@@ -7,6 +7,8 @@ TENCENT_CLOUD_SECRET_ID=""
 TENCENT_CLOUD_SECRET_KEY=""
 KS_TOKEN=""
 WEDA_ACCESS_TOKEN=""
+TENCENT_DOCS_SECRET=""
+TENCENT_DOCS_REFRESH_TOKEN=""
 
 # delete too old logs everyday
 0 1 * * * find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +3 -delete /home/lighthouse/tennis_helper/logs/delete_log_$(date +\%Y-\%m-\%d).log 2>&1
