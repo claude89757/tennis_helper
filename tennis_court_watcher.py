@@ -364,7 +364,7 @@ if __name__ == '__main__':
                 print_with_timestamp(f"record rule_total_send_count_infos error: {error}")
 
     # 打开文件，如果文件不存在则创建
-    with open(f"{court_name}.txt", "w") as file:
+    with open(f"{court_name}_available_court.txt", "w") as file:
         # 尝试获取文件锁，如果锁已被其他进程持有，则立即返回
         try:
             fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
