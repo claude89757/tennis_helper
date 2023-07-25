@@ -13,6 +13,7 @@ import time
 import datetime
 import shelve
 import asyncio
+import fcntl
 
 from config import CD_INDEX_INFOS
 from config import CD_TIME_RANGE_INFOS
@@ -361,6 +362,21 @@ if __name__ == '__main__':
                 update_record_info_by_id(rule_id, {"zjtzcs": send_count})
             except Exception as error:
                 print_with_timestamp(f"record rule_total_send_count_infos error: {error}")
+
+    # 打开文件，如果文件不存在则创建
+    with open(f"{court_name}.txt", "w") as file:
+        # 尝试获取文件锁，如果锁已被其他进程持有，则立即返回
+        try:
+            fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except IOError:
+            print("Unable to acquire lock")
+        else:
+            # 写入新的内容
+            for key_str, value_str in available_tennis_court_slice_infos.items():
+                file.write(f"{key_str} {value_str}\n")
+
+            # 释放文件锁
+            fcntl.flock(file, fcntl.LOCK_UN)
 
     # 计算整体加班运行耗时
     run_end_time = time.time()
