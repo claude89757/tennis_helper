@@ -14,6 +14,7 @@ import datetime
 import shelve
 import asyncio
 import fcntl
+import json
 
 from config import CD_INDEX_INFOS
 from config import CD_TIME_RANGE_INFOS
@@ -372,8 +373,7 @@ if __name__ == '__main__':
             print("Unable to acquire lock")
         else:
             # 写入新的内容
-            for key_str, value_str in available_tennis_court_slice_infos.items():
-                file.write(f"{key_str} {value_str}\n")
+            file.write(json.dumps(available_tennis_court_slice_infos))
 
             # 释放文件锁
             fcntl.flock(file, fcntl.LOCK_UN)
