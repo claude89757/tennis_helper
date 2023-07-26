@@ -85,6 +85,8 @@ CD_INDEX_INFOS = {
     # 郑洁俱乐部
     "郑洁俱乐部": 15,
     "梅林文体": 16,
+    # 大生体育
+    "莲花二村": 17,
 }
 
 CD_ACTIVE_DAY_INFOS = {
@@ -109,6 +111,8 @@ CD_ACTIVE_DAY_INFOS = {
     "郑洁俱乐部": 2,
     # 梅林文体
     "梅林文体": 7,
+    # 大生体育
+    "莲花二村": 7,
 }
 
 
@@ -129,6 +133,7 @@ CD_TIME_RANGE_INFOS = {
     "总裁俱乐部": {"start_time": "06:00", "end_time": "23:00"},
     "郑洁俱乐部": {"start_time": "08:00", "end_time": "22:00"},
     "梅林文体": {"start_time": "07:00", "end_time": "23:00"},
+    "莲花二村": {"start_time": "07:00", "end_time": "23:00"},
 }
 
 

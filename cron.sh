@@ -54,6 +54,8 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 */4 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "KS" --court_name "总裁俱乐部" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/ks_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for wcjq
 */4 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "WCJT" --court_name "梅林文体" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/mlwt_$(date +\%Y-\%m-\%d).log 2>&1
+# run tennis tools for dsty
+*/4 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "DSTY" --court_name "莲花二村" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/lh2c_$(date +\%Y-\%m-\%d).log 2>&1
 
 
 # run tennis tools for isz (vip)
@@ -78,3 +80,5 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 */2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "KS" --court_name "总裁俱乐部" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_ks_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for wcjq
 */2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "WCJT" --court_name "梅林文体" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_mlwt_$(date +\%Y-\%m-\%d).log 2>&1
+# run tennis tools for dsty
+*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "DSTY" --court_name "莲花二村" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_lh2c_$(date +\%Y-\%m-\%d).log 2>&1

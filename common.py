@@ -683,6 +683,98 @@ def get_free_tennis_court_infos_for_wcjt(date: str, proxy_list: list = None) -> 
         raise Exception(f"all proxies failed")
 
 
+def get_free_tennis_court_infos_for_dsports(date: str, proxy_list: list = None) -> dict:
+    """
+    从大生体育获取可预订的场地信息,
+    """
+    got_response = False
+    response = None
+    index_list = list(range(len(proxy_list)))
+    # 打乱列表的顺序
+    random.shuffle(index_list)
+    print(index_list)
+    for index in index_list:
+        data = {
+            "userid": "",
+            "gcategoryid": "3",
+            "site_id": "88",
+            "site_name": "莲花二村网球场",
+            "address": "深圳市福田区莲花二村",
+            "cancel_tips": "退场规定：室内场地、室外场地（非天气原因）退场，须提前24小时，否则场馆将谢绝退场申请，谢谢支持。",
+            "version": "8.0",
+            "pre_date": date,
+            "pre_type": "0"
+        }
+        headers = {
+            "Host": "wap.dsports.co",
+            "Accept": "*/*",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko)"
+                          " Chrome/98.0.4758.102 Safari/537.36 NetType/WIFI MicroMessenger/6.8.0(0x16080000)"
+                          " MacWechat/3.8.1(0x13080110) XWEB/30626 Flue",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Origin": "http://wap.dsports.co",
+            "Referer": "http://wap.dsports.co/Enrol/SingleVenue?%7B%22i%22:%2288%22,%22c%22:%223%22%7D=",
+            "Accept-Language": "zh-CN,zh",
+        }
+        url = "http://wap.dsports.co/Site/GetPlayPreList"
+        print(url)
+        print(data)
+        # print(headers)
+        proxy = proxy_list[index]
+        print(f"trying for {index} time for {proxy}")
+        try:
+            proxies = {"https": proxy}
+            if proxy_list:
+                response = requests.post(url, headers=headers, data=data, proxies=proxies,
+                                         timeout=30)
+            else:
+                response = requests.post(url, headers=headers, data=data,
+                                         timeout=30)
+            if response.status_code == 200:
+                print(f"success for {proxy}")
+                got_response = True
+                time.sleep(1)
+                break
+            else:
+                print(f"failed for {proxy}: {response}")
+                continue
+        except Exception as error:  # pylint: disable=broad-except
+            print(f"failed for {proxy}: {error}")
+            continue
+    print(f"response: {response}")
+    # print(f"response: {response.text}")
+    if got_response:
+        if response.json().get('data'):
+            available_slots_infos = {}
+            for data in response.json()['data']['ListPlayDetails']:
+                seat_name = data['posi_name']
+
+                for slot_info in data['ListPlayPreDet']:
+                    time_str = slot_info['preId'][8:12]
+                    start_time = f"{time_str[:2]}:{time_str[2:]}"  # 将时间格式化为 "HH:mm"
+                    time_obj = datetime.datetime.strptime(start_time, "%H:%M")  # 将字符串转换为datetime对象
+                    new_time_obj = time_obj + datetime.timedelta(hours=1)  # 将时间加一小时
+                    end_time = new_time_obj.strftime("%H:%M")  # 将datetime对象转换为字符串
+                    if slot_info['statusStr'] == "可约":
+                        if available_slots_infos.get(seat_name):
+                            available_slots_infos[seat_name].append([start_time, end_time])
+                        else:
+                            available_slots_infos[seat_name] = [[start_time, end_time]]
+                    else:
+                        pass
+            # 合并时间段
+            merged_available_slots_infos = {}
+            for item_name, slot_list in available_slots_infos.items():
+                merged_available_slots_infos[item_name] = merge_time_ranges(slot_list)
+            return merged_available_slots_infos
+        else:
+            raise Exception(response.text)
+
+    else:
+        raise Exception(f"all proxies failed")
+
+
 def merge_time_ranges(data: List[List[str]]) -> List[List[str]]:
     """
     将时间段合并

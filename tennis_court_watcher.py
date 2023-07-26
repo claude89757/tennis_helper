@@ -32,6 +32,7 @@ from common import get_free_tennis_court_infos_for_tns
 from common import get_free_tennis_court_infos_for_ks
 from common import get_free_tennis_court_infos_for_zjclub
 from common import get_free_tennis_court_infos_for_wcjt
+from common import get_free_tennis_court_infos_for_dsports
 
 
 async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, input_proxy_list: list,
@@ -71,6 +72,9 @@ async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, 
                                           input_proxy_list, input_time_range, input_sales_item_id, input_sales_id, )
     elif app_name == "WCJT":
         return await loop.run_in_executor(None, get_free_tennis_court_infos_for_wcjt, input_check_date_str,
+                                          input_proxy_list)
+    elif app_name == "DSTY":
+        return await loop.run_in_executor(None, get_free_tennis_court_infos_for_dsports, input_check_date_str,
                                           input_proxy_list)
     else:
         raise Exception(f"未支持的APP: {app_name}")
