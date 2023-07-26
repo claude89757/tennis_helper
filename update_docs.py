@@ -178,7 +178,7 @@ if __name__ == '__main__':
                 else:
                     cell_value_list.append(f"{court_name} {len(set(sorted_court_num_list))}")
             cell_value = "\n".join(cell_value_list)
-            if cell_value in expired_cell_key_list:
+            if cell_key in expired_cell_key_list:
                 input_data_infos[cell_key] = f"已过期\n{cell_value}"
             else:
                 input_data_infos[cell_key] = cell_value
