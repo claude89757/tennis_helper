@@ -156,12 +156,14 @@ if __name__ == '__main__':
             cell_value_list = []
             for court_name, court_num_list in court_num_infos.items():
                 sorted_court_num_list = sorted(court_num_list)
-                print({','.join(sorted_court_num_list)})
+                court_num_str = ','.join(sorted_court_num_list)
                 if court_name == "香蜜体育":
                     if "6" in sorted_court_num_list:
-                        cell_value_list.append(f"{court_name} {len(set(sorted_court_num_list))} (当日电话)")
+                        cell_value_list.append(f"{court_name} ({court_num_str}) (当日电话)")
                     else:
-                        cell_value_list.append(f"{court_name} {len(set(sorted_court_num_list))}")
+                        cell_value_list.append(f"{court_name} ({court_num_str})")
+                elif court_name in ['大沙河', '简上', '黄木岗', '深云文体']:
+                    cell_value_list.append(f"{court_name} ({court_num_str})")
                 else:
                     cell_value_list.append(f"{court_name} {len(set(sorted_court_num_list))}")
             cell_value = "\n".join(cell_value_list)
