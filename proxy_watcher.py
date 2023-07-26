@@ -49,14 +49,6 @@ def check_proxy(proxy_url):
             return proxy_url
     except:
         pass
-    try:
-        # 检查HTTPS代理
-        response = requests.get("https://www.baidu.com/", proxies={"https": "https://" + proxy_url}, timeout=5)
-        if response.status_code == 200:
-            print(f"HTTPS Proxy https://{proxy_url} is working")
-            return "https://" + proxy_url
-    except:
-        pass
     return None
 
 
