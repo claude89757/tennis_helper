@@ -87,6 +87,7 @@ if __name__ == '__main__':
     file_names = os.listdir(folder_path)
     court_infos = {}
     # 遍历每个文件并读取其内容
+    expired_cell_key_list = []
     for file_name in file_names:
         if "available_court" in file_name:
             court_name = file_name.split('_')[0]
@@ -128,6 +129,19 @@ if __name__ == '__main__':
                                 continue
                             print(row_index)
                             cell_key = f"{col_index}{row_index}"
+                            # 当日的时间，判断是否已经过期
+                            if col_index == 'B':
+                                current_hour = datetime.datetime.now().hour
+                                slot_hour = int(hour_slot[0].split(':')[0])
+                                if current_hour >= slot_hour:
+                                    # 已过期
+                                    expired_cell_key_list.append(cell_key)
+                                else:
+                                    # 未过期
+                                    pass
+                            else:
+                                # 非当日
+                                pass
                             if court_infos.get(cell_key):
                                 court_infos[cell_key].append([court_name, court_num])
                             else:
@@ -137,6 +151,7 @@ if __name__ == '__main__':
         else:
             # 其他文件不处理
             pass
+    print(f"expired_cell_key_list: {expired_cell_key_list}")
     if court_infos:
         input_data_infos = {}
         for row_index in range(len(TIME_SLOTS)):
@@ -163,7 +178,10 @@ if __name__ == '__main__':
                 else:
                     cell_value_list.append(f"{court_name} {len(set(sorted_court_num_list))}")
             cell_value = "\n".join(cell_value_list)
-            input_data_infos[cell_key] = cell_value
+            if cell_value in expired_cell_key_list:
+                input_data_infos[cell_key] = f"已过期\n{cell_value}"
+            else:
+                input_data_infos[cell_key] = cell_value
         docs.update_cell("300000000$NLrsOYBdnaed", "BB08J2", input_data_infos)
     else:
         print(f"无数据更新！！！")
