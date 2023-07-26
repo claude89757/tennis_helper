@@ -747,7 +747,7 @@ def get_free_tennis_court_infos_for_dsports(date: str, proxy_list: list = None) 
     if got_response:
         if response.json().get('data'):
             available_slots_infos = {}
-            for data in response.json()['data']['ListPlayDetails']:
+            for data in response.json()['data'][0]['ListPlayDetails']:
                 seat_name = data['posi_name']
 
                 for slot_info in data['ListPlayPreDet']:
