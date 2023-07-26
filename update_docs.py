@@ -103,8 +103,12 @@ if __name__ == '__main__':
                 print(f"{check_date_str}: {col_index}")
                 for court_index, slot_list in data.items():
                     if slot_list:
-                        print(COURT_NAME_INFOS.get(int(court_index), court_index))
-                        court_num = COURT_NAME_INFOS.get(int(court_index), court_index).split("号")[0]
+                        # 获取场地号
+                        try:
+                            court_num = COURT_NAME_INFOS.get(int(court_index), court_index).split("号")[0]
+                        except ValueError as error:
+                            court_num = str(court_index).split("号")[0]
+                            
                         print(slot_list)
                         hour_slot_list = []
                         for slot in slot_list:
