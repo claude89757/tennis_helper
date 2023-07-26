@@ -67,6 +67,7 @@ if __name__ == '__main__':
     # 初始化第一行数据
     first_line_infos = {"A1": f"更新时间\n{datetime.datetime.now().strftime('%H:%M:%S')}"}
     date_str_list = []
+    check_days = 7
     for index in range(0, 7):
         date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         date_str_list.append(date_str)
@@ -138,6 +139,11 @@ if __name__ == '__main__':
             pass
     if court_infos:
         input_data_infos = {}
+        for row_index in range(len(TIME_SLOTS)):
+            for col_index in range(check_days):
+                cell_key = f"{COLUMN[col_index+1]}{row_index+2}"
+                input_data_infos[cell_key] = ""
+
         for cell_key, data_list in court_infos.items():
             court_num_infos = {}
             for data in data_list:
