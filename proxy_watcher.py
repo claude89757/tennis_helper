@@ -66,7 +66,7 @@ def task_check_proxies():
     """
     proxies = generate_proxies()
     available_proxies = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         future_to_proxy = {executor.submit(check_proxy, proxy): proxy for proxy in proxies}
         for future in concurrent.futures.as_completed(future_to_proxy):
             proxy = future_to_proxy[future]

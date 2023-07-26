@@ -26,7 +26,7 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 0 10 * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/inform_rule_expired.py >> /home/lighthouse/tennis_helper/logs/inform_rule_expired_$(date +\%Y-\%m-\%d).log 2>&1
 
 # check https proxy
-0 12 * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/proxy_watch_$(date +\%Y-\%m-\%d).log 2>&1
+0 1 * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/proxy_watch_$(date +\%Y-\%m-\%d).log 2>&1
 
 # update docs for  tennis tools
 */5 * * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/update_docs.py >> /home/lighthouse/tennis_helper/logs/update_docs_$(date +\%Y-\%m-\%d).log 2>&1
