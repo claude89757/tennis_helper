@@ -49,7 +49,7 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 # run tennis tools for hjd
 */4 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "HJD" --court_name "金地威新" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/jdwx_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for tns
-*/4 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "TNS" --court_name "泰尼斯香蜜" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/tns_$(date +\%Y-\%m-\%d).log 2>&1
+*/4 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "TNS" --court_name "泰尼斯香蜜" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/tns_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for kswq
 */4 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "KS" --court_name "总裁俱乐部" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/ks_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for wcjq
@@ -73,7 +73,7 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 # run tennis tools for hjd(vip)
 */2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "HJD" --court_name "金地威新" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_jdwx_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for tns(vip)
-*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "TNS" --court_name "泰尼斯香蜜" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_tns_$(date +\%Y-\%m-\%d).log 2>&1
+*/2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "TNS" --court_name "泰尼斯香蜜" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_tns_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for kswq(vip)
 */2 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "KS" --court_name "总裁俱乐部" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_ks_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for wcjq
