@@ -157,12 +157,8 @@ if __name__ == '__main__':
             for court_name, court_num_list in court_num_infos.items():
                 sorted_court_num_list = sorted(court_num_list)
                 court_num_str = ','.join(sorted_court_num_list)
-                if court_name == "香蜜体育":
-                    if "6" in sorted_court_num_list:
-                        cell_value_list.append(f"{court_name} ({court_num_str}) (当日电话)")
-                    else:
-                        cell_value_list.append(f"{court_name} ({court_num_str})")
-                elif court_name in ['大沙河', '简上', '黄木岗', '深云文体']:
+                if court_name in ['"香蜜体育",' '大沙河', '简上', '黄木岗', '深云文体']:
+                    # 完成了场地名称映射的
                     cell_value_list.append(f"{court_name} ({court_num_str})")
                 else:
                     cell_value_list.append(f"{court_name} {len(set(sorted_court_num_list))}")
