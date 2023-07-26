@@ -99,6 +99,13 @@ def find_available_slots(booked_slots, time_range):
     """
     根据已预定的时间段，查询可预定的时间段
     """
+    print(f"input: {booked_slots}")
+    for slot in booked_slots:
+        for index in range(len(slot)):
+            if slot[index] == '00:00':
+                slot[index] = "23:59"
+            else:
+                pass
     booked_slots = sorted(booked_slots, key=lambda x: x[0])  # 按开始时间排序
     available_slots = []
 
@@ -116,6 +123,7 @@ def find_available_slots(booked_slots, time_range):
 
     if current_time < end_time:
         available_slots.append([current_time.strftime("%H:%M"), end_time.strftime("%H:%M")])
+    print(f"output: {available_slots}")
     return available_slots
 
 
