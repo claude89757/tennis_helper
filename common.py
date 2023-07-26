@@ -191,6 +191,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             continue
     print(f"response: {response}")
     # print(f"response: {response.text}")
+    today_str = datetime.datetime.now().strftime('%Y-%m-%d')
     if got_response:
         if response.status_code == 200:
             if response.json()['code'] == 0:
@@ -207,6 +208,12 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                     if venue_id in [104300, 104301, 104302, 104475]:
                         # 黄木岗的训练墙剔除
                         continue
+                    elif venue_id == 102930:
+                        if date != today_str:
+                            # 香蜜6号场，非当日的场地信息过滤
+                            continue
+                        else:
+                            pass
                     else:
                         pass
                     available_slots = find_available_slots(booked_slots, time_range)
