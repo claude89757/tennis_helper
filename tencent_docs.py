@@ -19,19 +19,32 @@ COLUMN = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 
           'CR', 'CS', 'CT', 'CU', 'CV', 'CW']
 
 
+# 存储token到本地文件
+def save_token(token):
+    with open('TENCENT_DOCS_TOKEN', 'w') as f:
+        f.write(token)
+
+
+# 从本地文件读取token
+def load_token():
+    with open('TENCENT_DOCS_TOKEN', 'r') as f:
+        token = f.read()
+    return token
+
+
 def get_docs_operator():
     """
     获取腾讯文档的操作对象
     :return:
     """
     # 获取腾讯文档鉴权
-    tencent_docs_token = os.environ.get("TENCENT_DOCS_TOKEN")
+    tencent_docs_token = load_token()
     try:
         docs = TencentDocs(token=tencent_docs_token)
     except Exception as error:  # pylint: disable=broad-except
         print(f"{error}， token: {tencent_docs_token} 无效，重新获取...")
         docs = TencentDocs()
-    os.environ['TENCENT_DOCS_TOKEN'] = docs.token
+    save_token(docs.token)
     return docs
 
 
@@ -352,8 +365,7 @@ class TencentDocs(object):
 
 # Testing
 if __name__ == '__main__':
-    token = ""
-    docs = TencentDocs(token)
+    docs = TencentDocs()
     #docs.create_file_with_write_policy()
     # 300000000$NLrsOYBdnaed
     # docs.add_new_sheet('300000000$NPpAzxSMZMmB', "new")
@@ -362,6 +374,6 @@ if __name__ == '__main__':
     print(docs.get_sheet_info('300000000$NLrsOYBdnaed'))
     # print(docs.append_raw("300000000$NLrsOYBdnaed", "BB08J2", ["123", "test"]))
     # docs.get_row_data("300000000$NLrsOYBdnaed", "BB08J2", "1-10")
-    docs.update_cell("300000000$NLrsOYBdnaed", "BB08J2", {"C10": "大沙河\n深云文体\n深圳湾\n香蜜体育\n莲花体育\n简上"
-                                                                 "\n黄木岗\n华侨城\n福田中心\n黄冈公园\n北站公园"
-                                                                 "\n金地威新\n泰尼斯香蜜\n总裁俱乐部\n郑洁俱乐部"})
+    # docs.update_cell("300000000$NLrsOYBdnaed", "BB08J2", {"C10": "大沙河\n深云文体\n深圳湾\n香蜜体育\n莲花体育\n简上"
+    #                                                              "\n黄木岗\n华侨城\n福田中心\n黄冈公园\n北站公园"
+    #                                                              "\n金地威新\n泰尼斯香蜜\n总裁俱乐部\n郑洁俱乐部"})
