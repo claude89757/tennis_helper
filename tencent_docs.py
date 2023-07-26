@@ -38,11 +38,11 @@ def get_docs_operator():
     :return:
     """
     # 获取腾讯文档鉴权
-    tencent_docs_token = load_token()
     try:
+        tencent_docs_token = load_token()
         docs = TencentDocs(token=tencent_docs_token)
     except Exception as error:  # pylint: disable=broad-except
-        print(f"{error}， token: {tencent_docs_token} 无效，重新获取...")
+        print(f"{error}， token无效，重新获取...")
         docs = TencentDocs()
     save_token(docs.token)
     return docs
