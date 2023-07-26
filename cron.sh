@@ -20,7 +20,7 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 0 * * * * /bin/bash /home/lighthouse/tennis_helper/git_pull.sh /home/lighthouse/tennis_helper/logs/git_pull_$(date +\%Y-\%m-\%d).log 2>&1
 
 # refresh rule status
-*/3 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/refresh_rule_status.py  >> /home/lighthouse/tennis_helper/logs/refresh_rule_status_$(date +\%Y-\%m-\%d).log 2>&1
+*/3 * * * * /usr/bin/python3 /home/lighthouse/tennis_helper/refresh_rule_status.py >/dev/null 2>&1
 
 # inform rules expired
 0 10 * * *  /usr/bin/python3 /home/lighthouse/tennis_helper/inform_rule_expired.py >> /home/lighthouse/tennis_helper/logs/inform_rule_expired_$(date +\%Y-\%m-\%d).log 2>&1

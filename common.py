@@ -878,11 +878,11 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
                             # 检查场地的结束时间比当前时间晚2小时以上
                             time_str = f"{date} {cur_end_time}"
                             time_obj = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M")
-                            if time_obj > datetime.datetime.now() + datetime.timedelta(hours=2):
-                                # print(f"{time_str}比当前时间大于2小时, 来得及去打球")
+                            if time_obj >= datetime.datetime.now() + datetime.timedelta(hours=1):
+                                # print(f"{time_str}比当前时间大于1小时, 来得及去打球")
                                 hit_rule_list.append(rule)
                             else:
-                                # print(f"{time_str}比当前时间小于等于2小时， 来不及去打球")
+                                # print(f"{time_str}比当前时间小于等于1小时， 来不及去打球")
                                 pass
                         else:
                             # print("两个时间范围没有交集，或者交集的时间小于60分钟")
