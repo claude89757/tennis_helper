@@ -207,9 +207,6 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                     if venue_id in [104300, 104301, 104302, 104475]:
                         # 黄木岗的训练墙剔除
                         continue
-                    elif venue_id in [102930]:
-                        # 香蜜6号当日线下预定，剔除
-                        continue
                     else:
                         pass
                     available_slots = find_available_slots(booked_slots, time_range)
