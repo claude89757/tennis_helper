@@ -40,10 +40,15 @@ def split_time_range(time_range):
     """
     分割时间段位整个小时的时间段，并忽略部分不满足一小时的时间段
     """
+    result = []
+    if time_range[0] == '00:00':
+        # 忽略这种特殊场景
+        return result
+    else:
+        pass
+
     start_time = datetime.datetime.strptime(time_range[0], '%H:%M')
     end_time = datetime.datetime.strptime(time_range[1], '%H:%M')
-    result = []
-
     # 确保开始时间为整小时
     if start_time.minute != 0:
         start_time = start_time + datetime.timedelta(hours=1) - datetime.timedelta(minutes=start_time.minute)
