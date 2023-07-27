@@ -832,7 +832,7 @@ def get_free_tennis_court_infos_for_shanhua(date: str, proxy_list: list, time_ra
     today_str = datetime.datetime.now().strftime('%Y-%m-%d')
     if got_response:
         if response.status_code == 200:
-            if response.json()['code'] == 0:
+            if response.json().get('message') == "成功":
                 booked_court_infos = {}
                 for data in response.json()['data']:
                     start_time = f"{data['orderStartedAt'][8:10]}:{data['orderStartedAt'][10:12]}"  # 时间格式化 "HH:mm"
