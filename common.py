@@ -835,8 +835,8 @@ def get_free_tennis_court_infos_for_shanhua(date: str, proxy_list: list, time_ra
             if response.json().get('message') == "成功":
                 booked_court_infos = {}
                 for data in response.json()['data']:
-                    start_time = f"{data['orderStartedAt'][8:10]}:{data['orderStartedAt'][10:12]}"  # 时间格式化 "HH:mm"
-                    end_time = f"{data['orderEndedAt'][8:10]}:{data['orderEndedAt'][10:12]}"  # 时间格式化 "HH:mm"
+                    start_time = f"{str(data['orderStartedAt'])[8:10]}:{str(data['orderStartedAt'])[10:12]}"
+                    end_time = f"{str(data['orderEndedAt'])[8:10]}:{str(data['orderEndedAt'])[10:12]}"  # 时间格式化
                     if booked_court_infos.get(data['spaceId']):
                         booked_court_infos[data['spaceId']].append([start_time, end_time])
                     else:
