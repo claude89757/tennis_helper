@@ -847,7 +847,7 @@ def get_free_tennis_court_infos_for_shanhua(date: str, proxy_list: list, time_ra
                     available_slots_infos[space_id] = available_slots
                 for space_id in [88371202, 88371216, 88371217, 88371218, 88371219, 88371220, 88371221, 88371222]:
                     if space_id not in available_slots_infos.keys():
-                        available_slots_infos[space_id] = ["09:00", "22:00"]
+                        available_slots_infos[space_id] = [["09:00", "22:00"]]
                 return available_slots_infos
             else:
                 raise Exception(response.text)
@@ -925,7 +925,7 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
         date_and_weekday = f'{date}（{weekday_cn}）'
         msg_list.append(f"{date_and_weekday}")
         check_date_slot_list = []
-        print(F"free_slot_infos: {free_slot_infos}")
+        # print(F"free_slot_infos: {free_slot_infos}")
         # 检查是否有符合条件的时间段
         for court_name, slots in free_slot_infos.items():
             # print(f"slots: {slots}")
@@ -933,7 +933,7 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
             unique_data = set(tuple(item) for item in slots)
             # 将元组转换为列表，并按照第一个元素和第二个元素进行排序
             sorted_slot_list = sorted([list(item) for item in unique_data], key=lambda x: (x[0], x[1]))
-            print(f"sorted_slot_list: {sorted_slot_list}")
+            # print(f"sorted_slot_list: {sorted_slot_list}")
             # print(f"sorted_slot_list: {sorted_slot_list}")
             tag_slot_list = []
             for slot in sorted_slot_list:
