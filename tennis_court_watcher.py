@@ -170,37 +170,30 @@ if __name__ == '__main__':
                            datetime.timedelta(days=args.watch_days-1)).strftime('%Y-%m-%d')
     tasks = []
     loop = asyncio.get_event_loop()
-    skip_check_date_list = []
     for index in range(0, args.watch_days):
         check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         check_date = datetime.datetime.strptime(check_date_str, "%Y-%m-%d")
-        if rule_check_start_date <= check_date <= rule_check_end_date:
-            print(f"checking {check_date_str}")
-            # 剔除部分还没开发预定的时间的巡检
-            if datetime.time(0, 0) <= now < datetime.time(9, 3) \
-                    and court_name in ["香蜜体育", "黄木岗"] \
-                    and check_date_str == last_check_date_str:
-                # 未开放预定，不推送消息
-                continue
-            else:
-                pass
-
-            time_range = CD_TIME_RANGE_INFOS.get(args.court_name)
-            task = loop.create_task(get_free_tennis_court_infos(args.app_name, check_date_str, proxy_list,
-                                                                input_time_range=time_range,
-                                                                input_sales_item_id=args.sales_item_id,
-                                                                input_sales_id=args.sales_id))
-            tasks.append(task)
+        print(f"checking {check_date_str}")
+        # 剔除部分还没开发预定的时间的巡检
+        if datetime.time(0, 0) <= now < datetime.time(9, 3) \
+                and court_name in ["香蜜体育", "黄木岗"] \
+                and check_date_str == last_check_date_str:
+            # 未开放预定，不推送消息
+            continue
         else:
-            print(f"skip checking {check_date_str}")
-            skip_check_date_list.append(check_date_str)
+            pass
+
+        time_range = CD_TIME_RANGE_INFOS.get(args.court_name)
+        task = loop.create_task(get_free_tennis_court_infos(args.app_name, check_date_str, proxy_list,
+                                                            input_time_range=time_range,
+                                                            input_sales_item_id=args.sales_item_id,
+                                                            input_sales_id=args.sales_id))
+        tasks.append(task)
+
     results = loop.run_until_complete(asyncio.gather(*tasks))
     for i, index in enumerate(range(0, args.watch_days)):
         check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
-        if check_date_str in skip_check_date_list:
-            pass
-        else:
-            available_tennis_court_slice_infos[check_date_str] = results[i]
+        available_tennis_court_slice_infos[check_date_str] = results[i]
     # 计算查询运行时间
     run_time = time.time() - get_start_time
     print_with_timestamp(f"查询耗时: {run_time:.2f}秒")
