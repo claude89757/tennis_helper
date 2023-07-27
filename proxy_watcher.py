@@ -8,7 +8,6 @@
 """
 import requests
 import datetime
-import concurrent.futures
 
 
 def generate_proxies():
@@ -58,18 +57,18 @@ def task_check_proxies():
     """
     proxies = generate_proxies()
     available_proxies = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        future_to_proxy = {executor.submit(check_proxy, proxy): proxy for proxy in proxies}
-        for future in concurrent.futures.as_completed(future_to_proxy):
-            proxy = future_to_proxy[future]
-            try:
-                result = future.result()
-                if result is not None:
-                    available_proxies.append(result)
-                    print(f"available_proxies: {len(available_proxies)}")
-            except Exception as exc:
-                print(f"{proxy} generated an exception: {exc}")
-    print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    for proxy in proxies:
+        success_proxy = check_proxy(proxy)
+        if success_proxy:
+            available_proxies.append(proxy)
+            print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} "
+                  f"available_proxies: {len(available_proxies)}")
+            if len(available_proxies) >= 50:
+                break
+        else:
+            pass
+
+    print(f"saving...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     check_date_str = datetime.datetime.now().strftime('%Y-%m-%d')
     with open(f"https_proxies_{check_date_str}.txt", "w") as file:
         for proxy in available_proxies:
