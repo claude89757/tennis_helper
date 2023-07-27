@@ -775,6 +775,88 @@ def get_free_tennis_court_infos_for_dsports(date: str, proxy_list: list = None) 
         raise Exception(f"all proxies failed")
 
 
+def get_free_tennis_court_infos_for_shanhua(date: str, proxy_list: list, time_range: dict) -> dict:
+    """
+    获取可预订的场地信息
+    """
+    got_response = False
+    response = None
+    index_list = list(range(len(proxy_list)))
+    # 打乱列表的顺序
+    random.shuffle(index_list)
+    print(index_list)
+    for index in index_list:
+        data = {
+            "kdtid": "92195500",
+            "timeStart": f"{''.join(date.split('-'))}000000",
+            "timeEnd": f"{''.join(date.split('-'))}235959",
+            "serviceId": 9381755,
+            "mode": 3
+        }
+        headers = {
+            "Host": "book.isv.youzan.com",
+            "accept": "application/json, text/plain, */*",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/98.0.4758.102 Safari/537.36 MicroMessenger/6.8.0(0x16080000) NetType/"
+                          "WIFI MiniProgramEnv/Mac MacWechat/WMPF XWEB/30626",
+            "content-type": "application/json;charset=UTF-8",
+            "sec-fetch-site": "same-origin",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://book.isv.youzan.com/pages/applet?kdtId=92195500&busId=3771871&source=1&sId=9381755",
+            "accept-language": "zh-CN,zh",
+        }
+        url = "https://book.isv.youzan.com/api/v2/order/getListByStartedTime"
+        print(url)
+        print(data)
+        # print(headers)
+        proxy = proxy_list[index]
+        print(f"trying for {index} time for {proxy}")
+        try:
+            proxies = {"https": proxy}
+            response = requests.post(url, headers=headers, data=json.dumps(data), proxies=proxies,
+                                     verify=False, timeout=30)
+            if response.status_code == 200:
+                print(f"success for {proxy}")
+                got_response = True
+                time.sleep(1)
+                break
+            else:
+                print(f"failed for {proxy}: {response}")
+                continue
+        except Exception as error:  # pylint: disable=broad-except
+            print(f"failed for {proxy}: {error}")
+            continue
+    print(f"response: {response}")
+    # print(f"response: {response.text}")
+    today_str = datetime.datetime.now().strftime('%Y-%m-%d')
+    if got_response:
+        if response.status_code == 200:
+            if response.json()['code'] == 0:
+                booked_court_infos = {}
+                for data in response.json()['data']:
+                    start_time = f"{data['orderStartedAt'][8:10]}:{data['orderStartedAt'][10:12]}"  # 时间格式化 "HH:mm"
+                    end_time = f"{data['orderEndedAt'][8:10]}:{data['orderEndedAt'][10:12]}"  # 时间格式化 "HH:mm"
+                    if booked_court_infos.get(data['spaceId']):
+                        booked_court_infos[data['spaceId']].append([start_time, end_time])
+                    else:
+                        booked_court_infos[data['spaceId']] = [[start_time, end_time]]
+                available_slots_infos = {}
+                for space_id, booked_slots in booked_court_infos.items():
+                    available_slots = find_available_slots(booked_slots, time_range)
+                    available_slots_infos[space_id] = available_slots
+                for space_id in [88371202, 88371216, 88371217, 88371218, 88371219, 88371220, 88371221, 88371222]:
+                    if space_id not in available_slots_infos.keys():
+                        available_slots_infos[space_id] = ["09:00", "22:00"]
+                return available_slots_infos
+            else:
+                raise Exception(response.text)
+        else:
+            raise Exception(response.text)
+    else:
+        raise Exception(f"all proxies failed")
+
+
 def merge_time_ranges(data: List[List[str]]) -> List[List[str]]:
     """
     将时间段合并
