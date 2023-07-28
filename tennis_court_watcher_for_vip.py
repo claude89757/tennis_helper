@@ -308,6 +308,7 @@ if __name__ == '__main__':
         rule_today_send_count_infos = {}
         rule_total_send_count_infos = {}
         try_send_sms_list = []
+        rude_infos = {}
         for sms_info in sorted_up_for_send_sms_list:
             print(f"sending {sms_info}...")
             phone = sms_info['phone']
@@ -316,11 +317,14 @@ if __name__ == '__main__':
             start_time = sms_info['start_time']
             end_time = sms_info['end_time']
             rule_info_list = rule_infos.get(f"{phone}_{date}")
+            # 最新的订阅生效
             valid_rule = rule_info_list[0]
+            rule_id = valid_rule['_id']
+            rude_infos[rule_id] = valid_rule
+
             sms_res = send_sms_for_news([phone], [date, court_name, start_time, end_time])
             print(sms_res)
             if "send success" in str(sms_res):
-                rule_id = valid_rule['_id']
                 print_with_timestamp("短信发送成功, 刷新数据库计数")
                 # 标记短信发生成功，如果单条短信命中多个规则, 仅标记第一个规则
                 if rule_id in rule_today_send_count_infos.keys():
@@ -356,13 +360,15 @@ if __name__ == '__main__':
 
         # 刷新订阅的计数器
         for rule_id, send_count in rule_today_send_count_infos.items():
+            rude_info = rude_infos[rule_id]
             try:
-                update_record_info_by_id(rule_id, {"jrtzcs": send_count})
+                update_record_info_by_id(rule_id, {"jrtzcs": send_count+rude_info['jrtzcs']})
             except Exception as error:
                 print_with_timestamp(f"record rule_today_send_count_infos error: {error}")
         for rule_id, send_count in rule_total_send_count_infos.items():
+            rude_info = rude_infos[rule_id]
             try:
-                update_record_info_by_id(rule_id, {"zjtzcs": send_count})
+                update_record_info_by_id(rule_id, {"zjtzcs": send_count+rude_info['zjtzcs']})
             except Exception as error:
                 print_with_timestamp(f"record rule_total_send_count_infos error: {error}")
 
