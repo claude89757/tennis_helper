@@ -178,11 +178,16 @@ def get_all_rule_list():
         seconds = (rule['end_time'] // 1000) % 60
         end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
 
+        timestamp = rule['createdAt'] / 1000  # 将毫秒转换为秒
+        created_time = datetime.datetime.fromtimestamp(timestamp, datetime.timezone(datetime.timedelta(hours=8)))
+        created_time_str = created_time.strftime('%Y-%m-%d %H:%M:%S')
+
         # 对日期和时间进行转义
         rule['start_date'] = start_date
         rule['end_date'] = end_date
         rule['start_time'] = start_time
         rule['end_time'] = end_time
+        rule['createdAt'] = created_time_str
 
         # 转义后的订阅
         filter_rule_list.append(rule)
