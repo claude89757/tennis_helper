@@ -67,8 +67,8 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
     print(query_url)
     print(query_params)
     query_response = requests.get(query_url, headers=query_headers, params=query_params)
-    print(query_response.status_code)
-    print(query_response.text)
+    # print(query_response.status_code)
+    # print(query_response.text)
     if query_response.status_code == 200:
         return query_response.json().get('value')
     else:
@@ -87,7 +87,7 @@ def get_rule_list_from_weida(cd_index: int):
     rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') "
                                                                      f"and status ne '3' and status ne '4'")
     for rule in rule_list:
-        print(rule)
+        # print(rule)
         # 转换时间格式
         start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
         end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
@@ -107,7 +107,7 @@ def get_rule_list_from_weida(cd_index: int):
 
         # 转义后的订阅
         filter_rule_list.append(rule)
-    print(f"filter_rule_list: {filter_rule_list}")
+    # print(f"filter_rule_list: {filter_rule_list}")
     print(f"filter_rule_list: {len(filter_rule_list)}")
     return filter_rule_list
 
