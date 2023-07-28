@@ -31,11 +31,11 @@ def get_access_token():
         token_data = {
             "grant_type": "client_credentials"
         }
-        print(token_headers)
-        print(token_url)
+        # print(token_headers)
+        # print(token_url)
         token_response = requests.post(token_url, headers=token_headers, json=token_data)
         access_token = token_response.json()["access_token"]
-    print(f"access_token: {access_token}")
+    # print(f"access_token: {access_token}")
     os.environ["WEDA_ACCESS_TOKEN"] = access_token
     return access_token
 
@@ -65,7 +65,7 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
         "Authorization": f"Bearer {access_token}"
     }
     print(query_url)
-    print(query_params)
+    # print(query_params)
     query_response = requests.get(query_url, headers=query_headers, params=query_params)
     # print(query_response.status_code)
     # print(query_response.text)
