@@ -89,6 +89,7 @@ if __name__ == '__main__':
     # 网球场守望者开始时间
     run_start_time = time.time()
     print_with_timestamp("start to check...")
+    today_str = datetime.datetime.now().strftime('%Y-%m-%d')
 
     # 创建命令行解析器, 添加命令行参数
     parser = argparse.ArgumentParser(description='Help Message')
@@ -219,7 +220,6 @@ if __name__ == '__main__':
         # 剔除一些不关注的场地
         if court_info['court_index'] == 102930:
             # 香蜜的6号场只能电话当日预定, 剔除掉非当日的
-            today_str = datetime.datetime.now().strftime('%Y-%m-%d')
             if court_info['date'] == today_str:
                 # 重新命名场地名称
                 court_name = "香蜜电话"
@@ -288,6 +288,19 @@ if __name__ == '__main__':
                 date = phone_date.split('_')[1]
                 start_time = merge_slot_list[0][0]
                 end_time = merge_slot_list[0][1]
+
+                # 非VIP，每天短信上限3条
+                phone_today_key = f"{phone}_{today_str}_send_count"
+                if phone_today_key in cache:
+                    if (cache[phone_today_key] > 3 and (rule_info_list[0]['user_level'] != "2"
+                                                        and rule_info_list[0]['user_level'] != "3")):
+                        print(f"{phone_today_key} overload sms, skipping...")
+                        continue
+                    else:
+                        cur_send_num = cache[phone_today_key]
+                        cache[phone_today_key] = cur_send_num + 1
+                else:
+                    cache[phone_today_key] = 1
                 up_for_send_sms_list.append({"phone": phone,
                                              "date": date,
                                              "court_name": court_name,

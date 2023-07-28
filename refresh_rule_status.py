@@ -80,7 +80,12 @@ if __name__ == '__main__':
                     # print(f"运行中 > 已过期: {rule}")
                     update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
                     updated_rule_list.append(rule)
-                    # 短信提示用户
+                elif (check_start_date - rule_start_date).days > 7 \
+                        and (rule['user_level'] != "2" and rule['user_level'] != "3"):
+                    # 已过期(普通用户，7天自动过期)
+                    # print(f"运行中 > 已过期: {rule}")
+                    update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
+                    updated_rule_list.append(rule)
                 else:
                     # 未生效
                     pass
