@@ -66,6 +66,7 @@ if __name__ == '__main__':
                         and (rule['user_level'] != "2" and rule['user_level'] != "3"):
                     # 已过期(普通用户，7天自动过期)
                     # print(f"运行中 > 已过期: {rule}")
+                    print(f"over 7 days, timeout...")
                     update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
                     updated_rule_list.append(rule)
                 elif check_start_date <= rule_end_date and check_end_date >= rule_start_date:
