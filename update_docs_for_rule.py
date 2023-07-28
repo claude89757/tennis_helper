@@ -50,8 +50,11 @@ if __name__ == '__main__':
 
     # 获取所有规则
     all_rule_list = get_all_rule_list()
+
+    sorted_rule_list = sorted(all_rule_list, key=lambda x: x['createdAt'], reverse=False)
+
     index = 2
-    for rule in all_rule_list:
+    for rule in sorted_rule_list:
         first_line_infos[f"A{index}"] = str(index-1)
         first_line_infos[f"B{index}"] = court_name_infos.get(str(rule['xjcd']), str(rule['xjcd']))
         first_line_infos[f"C{index}"] = str(rule['start_date'])
