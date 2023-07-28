@@ -61,7 +61,8 @@ if __name__ == '__main__':
                 rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
                 rule_end_date = datetime.datetime.strptime(rule['end_date'], "%Y-%m-%d")
                 print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
-                if (check_start_date - rule_start_date).days > 7 \
+                print(f"rule run day: {(check_start_date - rule_start_date).days}")
+                if int((check_start_date - rule_start_date).days) > 7 \
                         and (rule['user_level'] != "2" and rule['user_level'] != "3"):
                     # 已过期(普通用户，7天自动过期)
                     # print(f"运行中 > 已过期: {rule}")
