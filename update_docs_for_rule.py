@@ -61,10 +61,10 @@ if __name__ == '__main__':
         first_line_infos[f"D{index}"] = str(rule['end_date'])
         first_line_infos[f"E{index}"] = str(rule['start_time'])
         first_line_infos[f"F{index}"] = str(rule['end_time'])
-        first_line_infos[f"G{index}"] = str(rule.get('duration', 2))
+        first_line_infos[f"G{index}"] = str(rule.get('duration', 2)).replace('None', '2')
         first_line_infos[f"H{index}"] = status_name_infos.get(str(rule['status']), str(rule['status']))
-        first_line_infos[f"I{index}"] = str(rule.get('jrtzcs')).replace('None', '-')
-        first_line_infos[f"J{index}"] = str(rule.get('zjtzcs')).replace('None', '-')
+        first_line_infos[f"I{index}"] = str(rule.get('jrtzcs')).replace('None', '-').split('.')[0]
+        first_line_infos[f"J{index}"] = str(rule.get('zjtzcs')).replace('None', '-').split('.')[0]
         first_line_infos[f"K{index}"] = str(rule['sjwh'])
         first_line_infos[f"L{index}"] = str(user_level_infos.get(str(rule['user_level']), "普通")).replace('None', '普通')
         first_line_infos[f"M{index}"] = str(rule['createdAt'])
