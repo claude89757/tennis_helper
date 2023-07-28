@@ -122,7 +122,7 @@ if __name__ == '__main__':
     for vip_user in get_vip_user_list():
         user_rule_list = get_active_rule_list_by_phone(vip_user['phone'])
         for rule in user_rule_list:
-            if not rule.get('user_level') or (rule.get('user_level') and rule['user_level'] != 2):
+            if not rule.get('user_level') or (rule.get('user_level') and rule['user_level'] != "2"):
                 update_record_info_by_id(rule['_id'], {"user_level": "2"})
                 updated_rule_list.append(rule)
             else:
