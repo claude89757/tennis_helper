@@ -28,6 +28,7 @@ if __name__ == '__main__':
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
+    updated_rule_list = []
     # 从微搭的数据库，获取订阅规则列表，根据订阅日期更新订阅状态
     for court_name, court_index in CD_INDEX_INFOS.items():
         # 当前可巡检的日期范围
@@ -48,7 +49,7 @@ if __name__ == '__main__':
         rule_list = get_rule_list_from_weida(court_index)  # 非过期\重复的订阅列表
         rule_date_list = []
         print_with_timestamp(f"rule_list: {len(rule_list)}")
-        updated_rule_list = []
+
         if not rule_list:
             print_with_timestamp(f"该场地无人订阅，不触发")
         else:
@@ -114,18 +115,20 @@ if __name__ == '__main__':
                 else:
                     # 仅1条订阅，无需关注
                     pass
-
-            # 标记是否为VIP的订阅
-            for vip_user in get_vip_user_list():
-                user_rule_list = get_active_rule_list_by_phone(vip_user['phone'])
-                for rule in user_rule_list:
-                    if not rule.get('user_level') or (rule.get('user_level') and rule['user_level'] != 2):
-                        update_record_info_by_id(rule['_id'], {"user_level": "2"})
-                        updated_rule_list.append(rule)
-                    else:
-                        pass
-
         print("-----------------------------------------")
-        print(f"updated_rule_list: {len(updated_rule_list)}")
-        for rule in updated_rule_list:
-            print(rule)
+
+    # 标记是否为VIP的订阅
+    print(f"标记VIP订阅....")
+    for vip_user in get_vip_user_list():
+        user_rule_list = get_active_rule_list_by_phone(vip_user['phone'])
+        for rule in user_rule_list:
+            if not rule.get('user_level') or (rule.get('user_level') and rule['user_level'] != 2):
+                update_record_info_by_id(rule['_id'], {"user_level": "2"})
+                updated_rule_list.append(rule)
+            else:
+                pass
+
+    print(f"updated_rule_list: {len(updated_rule_list)}")
+    for rule in updated_rule_list:
+        print(rule)
+

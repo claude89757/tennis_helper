@@ -280,7 +280,7 @@ def get_active_rule_list_by_phone(phone: str):
     filter_rule_list = []
     rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"phone eq '{phone}' and status eq '2' ")
     for rule in rule_list:
-        print(rule)
+        # print(rule)
         # 转换时间格式
         start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
         end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
@@ -301,8 +301,8 @@ def get_active_rule_list_by_phone(phone: str):
         # 转义后的订阅
         filter_rule_list.append(rule)
 
-    print(f"filter_rule_list: {filter_rule_list}")
-    print(f"filter_rule_list: {len(filter_rule_list)}")
+    # print(f"filter_rule_list: {filter_rule_list}")
+    print(f"active_rule_list_by_phone: {len(filter_rule_list)}")
     return filter_rule_list
 
 
