@@ -27,7 +27,7 @@ if __name__ == '__main__':
         # exit() test
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
-
+    run_start_time = time.time()
     updated_rule_list = []
     # 从微搭的数据库，获取订阅规则列表，根据订阅日期更新订阅状态
     for court_name, court_index in CD_INDEX_INFOS.items():
@@ -131,4 +131,6 @@ if __name__ == '__main__':
     print(f"updated_rule_list: {len(updated_rule_list)}")
     for rule in updated_rule_list:
         print(rule)
+    cost_time = time.time() - run_start_time
+    print(f"cost_time: {cost_time}")
 

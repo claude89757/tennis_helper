@@ -36,7 +36,6 @@ from common import get_free_tennis_court_infos_for_dsports
 from common import get_free_tennis_court_infos_for_shanhua
 
 
-
 async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, input_proxy_list: list,
                                       input_time_range: list = None,
                                       input_sales_item_id: str = None,
