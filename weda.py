@@ -215,7 +215,7 @@ def update_record_info_by_id(record_id: str, payload: dict = None):
     }
     print(query_url)
     # print(payload)
-    query_response = requests.patch(query_url, headers=query_headers, json=payload)
+    query_response = requests.patch(query_url, headers=query_headers, json=payload, timeout=5)
     print(query_response.status_code)
     # print(query_response.text)
     if query_response.status_code == 200:

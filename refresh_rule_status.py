@@ -65,7 +65,7 @@ if __name__ == '__main__':
                     if rule.get("status") and rule['status'] == '2':
                         pass
                     else:
-                        print(f"未生效 > 运行中: {rule}")
+                        # print(f"未生效 > 运行中: {rule}")
                         update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
                         updated_rule_list.append(rule)
                         rule_date_list.append(rule_start_date)
@@ -104,7 +104,7 @@ if __name__ == '__main__':
                             # 同样日期范围的，仅生效最新创建的一条
                             for rule in same_date_range_rules[1:]:
                                 # print(f"运行中 > 重复订阅: {rule}")
-                                update_record_info_by_id(rule['_id'], {"status": '4'})  # 状态: 已过期
+                                update_record_info_by_id(rule['_id'], {"status": '4'})  # 状态: 重复订阅
                                 updated_rule_list.append(rule)
                 else:
                     # 仅1条订阅，无需关注
