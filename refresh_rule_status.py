@@ -40,16 +40,15 @@ if __name__ == '__main__':
             check_date_list.append(check_date)
         check_start_date = min(check_date_list)
         check_end_date = max(check_date_list)
-        print(f"check_date_str_list: {check_date_str_list}")
-        print(f"check_date_list: {check_date_list}")
+        # print(f"check_date_str_list: {check_date_str_list}")
+        # print(f"check_date_list: {check_date_list}")
 
-        print(f"{court_name} 可预定日期: {check_date_str_list} 正在更新订阅状态...")
+        # print(f"{court_name} 可预定日期: {check_date_str_list} 正在更新订阅状态...")
         # 获取订阅列表
         rule_list = get_rule_list_from_weida(court_index)  # 非过期\重复的订阅列表
         rule_date_list = []
         print_with_timestamp(f"rule_list: {len(rule_list)}")
-        for rule in rule_list:
-            print(rule)
+        updated_rule_list = []
         if not rule_list:
             print_with_timestamp(f"该场地无人订阅，不触发")
         else:
@@ -68,6 +67,7 @@ if __name__ == '__main__':
                     else:
                         print(f"未生效 > 运行中: {rule}")
                         update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
+                        updated_rule_list.append(rule)
                         rule_date_list.append(rule_start_date)
                         rule_date_list.append(rule_end_date)
                     # 记录运行中的规则
@@ -77,8 +77,9 @@ if __name__ == '__main__':
                         phone_active_rule_infos[rule['phone']] = [rule]
                 elif check_start_date > rule_end_date:
                     # 已过期
-                    print(f"运行中 > 已过期: {rule}")
+                    # print(f"运行中 > 已过期: {rule}")
                     update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
+                    updated_rule_list.append(rule)
                     # 短信提示用户
                 else:
                     # 未生效
@@ -102,8 +103,9 @@ if __name__ == '__main__':
                         else:
                             # 同样日期范围的，仅生效最新创建的一条
                             for rule in same_date_range_rules[1:]:
-                                print(f"运行中 > 重复订阅: {rule}")
+                                # print(f"运行中 > 重复订阅: {rule}")
                                 update_record_info_by_id(rule['_id'], {"status": '4'})  # 状态: 已过期
+                                updated_rule_list.append(rule)
                 else:
                     # 仅1条订阅，无需关注
                     pass
@@ -114,7 +116,11 @@ if __name__ == '__main__':
                 for rule in user_rule_list:
                     if not rule.get('user_level') or (rule.get('user_level') and rule['user_level'] != 2):
                         update_record_info_by_id(rule['_id'], {"user_level": "2"})
+                        updated_rule_list.append(rule)
                     else:
                         pass
 
         print("-----------------------------------------")
+        print(f"updated_rule_list: {len(updated_rule_list)}")
+        for rule in updated_rule_list:
+            print(rule)
