@@ -68,17 +68,29 @@ if __name__ == '__main__':
                 if int((check_start_date - rule_start_date).days) >= 7 \
                         and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
                     print(f"over 7 days, timeout...")
-                    update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
-                    updated_rule_list.append(rule)
+                    if rule.get("status") and rule['status'] == '3':
+                        pass
+                    else:
+                        update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
+                        updated_rule_list.append(rule)
                 elif check_start_date > rule_end_date:
-                    update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
-                    updated_rule_list.append(rule)
+                    if rule.get("status") and rule['status'] == '3':
+                        pass
+                    else:
+                        update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
+                        updated_rule_list.append(rule)
                 elif total_send_num > 30 and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
-                    update_record_info_by_id(rule['_id'], {"status": '6'})  # 状态: 超月限额
-                    updated_rule_list.append(rule)
+                    if rule.get("status") and rule['status'] == '6':
+                        pass
+                    else:
+                        update_record_info_by_id(rule['_id'], {"status": '6'})  # 状态: 超月限额
+                        updated_rule_list.append(rule)
                 elif today_send_num > 3 and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
-                    update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
-                    updated_rule_list.append(rule)
+                    if rule.get("status") and rule['status'] == '5':
+                        pass
+                    else:
+                        update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
+                        updated_rule_list.append(rule)
                 elif check_start_date <= rule_end_date and check_end_date >= rule_start_date:
                     # 日期范围有交集, 运行中
                     if rule.get("status") and rule['status'] == '2':
@@ -117,8 +129,11 @@ if __name__ == '__main__':
                             # 同样日期范围的，仅生效最新创建的一条
                             for rule in same_date_range_rules[1:]:
                                 # print(f"运行中 > 重复订阅: {rule}")
-                                update_record_info_by_id(rule['_id'], {"status": '4'})  # 状态: 重复订阅
-                                updated_rule_list.append(rule)
+                                if rule.get("status") and rule['status'] == '4':
+                                    pass
+                                else:
+                                    update_record_info_by_id(rule['_id'], {"status": '4'})  # 状态: 重复订阅
+                                    updated_rule_list.append(rule)
                 else:
                     # 仅1条订阅，无需关注
                     pass
