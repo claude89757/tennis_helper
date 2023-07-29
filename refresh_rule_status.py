@@ -63,12 +63,21 @@ if __name__ == '__main__':
                 print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
                 print(f"rule run day: {(check_start_date - rule_start_date).days}")
                 print(rule['user_level'])
+                today_send_num = rule['jrtzcs']
+                total_send_num = rule['zjtzcs']
                 if int((check_start_date - rule_start_date).days) >= 7 \
                         and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
-                    # 已过期(普通用户，7天自动过期)
-                    # print(f"运行中 > 已过期: {rule}")
                     print(f"over 7 days, timeout...")
                     update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
+                    updated_rule_list.append(rule)
+                elif check_start_date > rule_end_date:
+                    update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
+                    updated_rule_list.append(rule)
+                elif total_send_num > 30 and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
+                    update_record_info_by_id(rule['_id'], {"status": '6'})  # 状态: 超月限额
+                    updated_rule_list.append(rule)
+                elif today_send_num > 3 and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
+                    update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
                     updated_rule_list.append(rule)
                 elif check_start_date <= rule_end_date and check_end_date >= rule_start_date:
                     # 日期范围有交集, 运行中
@@ -85,11 +94,6 @@ if __name__ == '__main__':
                         phone_active_rule_infos[rule['phone']].append(rule)
                     else:
                         phone_active_rule_infos[rule['phone']] = [rule]
-                elif check_start_date > rule_end_date:
-                    # 已过期
-                    # print(f"运行中 > 已过期: {rule}")
-                    update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
-                    updated_rule_list.append(rule)
                 else:
                     # 未生效
                     pass
