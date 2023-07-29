@@ -26,6 +26,7 @@ from weda import create_record
 from common import merge_time_ranges
 from common import get_hit_court_infos
 from common import print_with_timestamp
+from config import COURT_NAME_INFOS
 from common import get_free_tennis_court_infos_for_isz
 from common import get_free_tennis_court_infos_for_hjd
 from common import get_free_tennis_court_infos_for_tns
@@ -238,7 +239,7 @@ if __name__ == '__main__':
     rule_infos = {}  # 每个手机某日期命中的订阅规则列表
     for court_info in found_court_infos:
         # 剔除一些不关注的场地
-        if court_info['court_index'] == 102930:
+        if court_info['court_index'] == COURT_NAME_INFOS[102930]:
             # 香蜜的6号场只能电话当日预定, 剔除掉非当日的
             if court_info['date'] == today_str:
                 # 重新命名场地名称
