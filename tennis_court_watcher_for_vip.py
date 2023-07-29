@@ -143,6 +143,24 @@ if __name__ == '__main__':
             rule_date_list.append(rule_start_date)
             rule_date_list.append(rule_end_date)
 
+    # 获取公网HTTPS代理列表
+    # 先从本地文件获取，如果失败则从远程获取
+    filename = f"https_proxies_{datetime.datetime.now().strftime('%Y-%m-%d')}.txt"
+    with open(filename, "r") as file:
+        content = file.read()
+        print(content)
+    if content:
+        print_with_timestamp()
+        proxy_list = [line.strip() for line in content.split()]
+        print_with_timestamp(f"get local proxy_list({len(proxy_list)}): {proxy_list}")
+    else:
+        url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
+        response = requests.get(url)
+        text = response.text.strip()
+        proxy_list = [line.strip() for line in text.split()]
+        print_with_timestamp(f"get remote proxy_list({len(proxy_list)}): {proxy_list}")
+        print_with_timestamp(f"proxy_list: {proxy_list}")
+
     # 每天0点-7点不巡检，其他时间巡检
     now = datetime.datetime.now().time()
     if datetime.time(0, 0) <= now < datetime.time(8, 0):
@@ -151,13 +169,6 @@ if __name__ == '__main__':
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
     print_with_timestamp(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-
-    # 获取公网HTTPS代理列表
-    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
-    response = requests.get(url)
-    text = response.text.strip()
-    proxy_list = [line.strip() for line in text.split()]
-    print_with_timestamp(f"proxy_list: {proxy_list}")
 
     # 查询空闲的球场信息
     get_start_time = time.time()
