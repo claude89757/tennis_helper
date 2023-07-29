@@ -287,19 +287,6 @@ if __name__ == '__main__':
                 date = phone_date.split('_')[1]
                 start_time = merge_slot_list[0][0]
                 end_time = merge_slot_list[0][1]
-
-                # 非VIP，每天短信上限3条
-                phone_today_key = f"{phone}_{today_str}_send_count"
-                if phone_today_key in cache:
-                    if (cache[phone_today_key] > 3 and (rule_info_list[0]['user_level'] != "2"
-                                                        and rule_info_list[0]['user_level'] != "3")):
-                        print(f"{phone_today_key} overload sms, skipping...")
-                        continue
-                    else:
-                        cur_send_num = cache[phone_today_key]
-                        cache[phone_today_key] = cur_send_num + 1
-                else:
-                    cache[phone_today_key] = 1
                 up_for_send_sms_list.append({"phone": phone,
                                              "date": date,
                                              "court_name": court_name,
