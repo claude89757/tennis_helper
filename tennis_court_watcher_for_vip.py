@@ -219,6 +219,7 @@ if __name__ == '__main__':
     found_court_infos = get_hit_court_infos(available_tennis_court_slice_infos, active_rule_list)
     print(f"found_court_infos: {found_court_infos}")
 
+    exit() # test
     # 确认是否发短信
     if not args.send_sms:
         print(f"不发生短信，仅测试打印")
