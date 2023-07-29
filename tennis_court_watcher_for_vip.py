@@ -165,16 +165,8 @@ if __name__ == '__main__':
         proxy_list = [line.strip() for line in text.split()]
         print_with_timestamp(f"get remote proxy_list({len(proxy_list)}): {proxy_list}")
 
-    # 每天0点-7点不巡检，其他时间巡检
-    now = datetime.datetime.now().time()
-    if datetime.time(0, 0) <= now < datetime.time(8, 0):
-        print_with_timestamp('Skipping task execution between 0am and 7am')
-        # exit()
-    else:
-        print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
-    print_with_timestamp(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-
     # 查询空闲的球场信息
+    now = datetime.datetime.now().time()
     get_start_time = time.time()
     available_tennis_court_slice_infos = {}
     rule_check_start_date = min(rule_date_list)
@@ -208,11 +200,7 @@ if __name__ == '__main__':
         check_date_str_list.append(check_date_str)
 
     results = loop.run_until_complete(asyncio.gather(*tasks))
-    print(f"check_date_str_list: {check_date_str_list}")
-    print(f"results: {len(results)}")
-    print(f"results: {results}")
     for index, check_date_str in enumerate(check_date_str_list):
-        print(f"{index} {check_date_str}")
         # check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         available_tennis_court_slice_infos[check_date_str] = results[index]
     # 计算查询运行时间
@@ -226,7 +214,13 @@ if __name__ == '__main__':
     found_court_infos = get_hit_court_infos(available_tennis_court_slice_infos, active_rule_list)
     print(f"found_court_infos: {found_court_infos}")
 
-    exit()
+    # 每天0点-8点不发短信
+    if datetime.time(0, 0) <= now < datetime.time(8, 0):
+        print_with_timestamp('Skipping task execution between 0am and 7am')
+        exit()
+    else:
+        print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
+
     # 确认是否发短信
     if not args.send_sms:
         print(f"不发生短信，仅测试打印")
@@ -365,7 +359,7 @@ if __name__ == '__main__':
             else:
                 print_with_timestamp("短信发送失败")
             try_send_sms_list.append([phone,
-                                      f"* {date} {court_name} 可预定时间: {start_time}~{end_time}",
+                                      f"[vip] {date} {court_name} 可预定时间: {start_time}~{end_time}",
                                       sms_res['SendStatusSet'][0]['Message']])
             time.sleep(1)
         send_sms_end_time = time.time()
