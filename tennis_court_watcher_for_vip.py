@@ -211,6 +211,7 @@ if __name__ == '__main__':
     print(f"results: {len(results)}")
     print(f"results: {results}")
     for index, check_date_str in enumerate(check_date_str_list):
+        print(f"{index} {check_date_str}")
         # check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         available_tennis_court_slice_infos[check_date_str] = results[index]
     # 计算查询运行时间
