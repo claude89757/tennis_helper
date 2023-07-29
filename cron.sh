@@ -11,7 +11,7 @@ TENCENT_DOCS_SECRET=""
 TENCENT_DOCS_REFRESH_TOKEN=""
 
 # delete too old logs everyday
-0 1 * * * timeout 1800 find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +2 -delete /home/lighthouse/tennis_helper/logs/delete_log_$(date +\%Y-\%m-\%d).log 2>&1
+0 3 * * * find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +1 -delete
 
 # reset count for sms
 0 1 * * *  timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/reset_count_for_sms.py >> /home/lighthouse/tennis_helper/logs/reset_count_for_sms_$(date +\%Y-\%m-\%d).log 2>&1
