@@ -183,6 +183,7 @@ if __name__ == '__main__':
     last_check_date_str = (datetime.datetime.now() +
                            datetime.timedelta(days=args.watch_days-1)).strftime('%Y-%m-%d')
     tasks = []
+    check_date_str_list = []
     loop = asyncio.get_event_loop()
     for index in range(0, args.watch_days):
         check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
@@ -203,11 +204,12 @@ if __name__ == '__main__':
                                                             input_sales_item_id=args.sales_item_id,
                                                             input_sales_id=args.sales_id))
         tasks.append(task)
+        check_date_str_list.append(check_date_str)
 
     results = loop.run_until_complete(asyncio.gather(*tasks))
-    for i, index in enumerate(range(0, args.watch_days)):
-        check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
-        available_tennis_court_slice_infos[check_date_str] = results[i]
+    for index, check_date_str in enumerate(check_date_str_list):
+        # check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
+        available_tennis_court_slice_infos[check_date_str] = results[index]
     # 计算查询运行时间
     run_time = time.time() - get_start_time
     print_with_timestamp(f"查询耗时: {run_time:.2f}秒")
@@ -219,8 +221,6 @@ if __name__ == '__main__':
     found_court_infos = get_hit_court_infos(available_tennis_court_slice_infos, active_rule_list)
     print(f"found_court_infos: {found_court_infos}")
 
-    print("test....")
-    exit() # test
     # 确认是否发短信
     if not args.send_sms:
         print(f"不发生短信，仅测试打印")
