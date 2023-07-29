@@ -145,10 +145,14 @@ if __name__ == '__main__':
 
     # 获取公网HTTPS代理列表
     # 先从本地文件获取，如果失败则从远程获取
-    filename = f"https_proxies_{datetime.datetime.now().strftime('%Y-%m-%d')}.txt"
-    with open(filename, "r") as file:
-        content = file.read()
-        print(content)
+    try:
+        filename = f"https_proxies_{datetime.datetime.now().strftime('%Y-%m-%d')}.txt"
+        with open(filename, "r") as file:
+            content = file.read()
+            print(content)
+    except Exception as error:
+        print_with_timestamp(f"get local proxy list error: {error}")
+        content = None
     if content:
         print_with_timestamp()
         proxy_list = [line.strip() for line in content.split()]
