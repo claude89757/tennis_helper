@@ -22,7 +22,7 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 # refresh rule status
 */1 * * * * timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/refresh_rule_status.py >> /home/lighthouse/tennis_helper/logs/refresh_rule_status_$(date +\%Y-\%m-\%d).log 2>&1
 
-# refresh rule status
+# refresh rule status for docs
 */10 * * * * timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/update_docs_for_rule.py >> /home/lighthouse/tennis_helper/logs/update_docs_for_rule_$(date +\%Y-\%m-\%d).log 2>&1
 
 # inform rules expired
