@@ -168,7 +168,7 @@ if __name__ == '__main__':
     now = datetime.datetime.now().time()
     if datetime.time(0, 0) <= now < datetime.time(8, 0):
         print_with_timestamp('Skipping task execution between 0am and 7am')
-        exit()
+        # exit()
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
     print_with_timestamp(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
@@ -219,6 +219,7 @@ if __name__ == '__main__':
     found_court_infos = get_hit_court_infos(available_tennis_court_slice_infos, active_rule_list)
     print(f"found_court_infos: {found_court_infos}")
 
+    print("test....")
     exit() # test
     # 确认是否发短信
     if not args.send_sms:
