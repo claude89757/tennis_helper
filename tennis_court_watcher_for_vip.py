@@ -207,6 +207,9 @@ if __name__ == '__main__':
         check_date_str_list.append(check_date_str)
 
     results = loop.run_until_complete(asyncio.gather(*tasks))
+    print(f"check_date_str_list: {check_date_str_list}")
+    print(f"results: {len(results)}")
+    print(f"results: {results}")
     for index, check_date_str in enumerate(check_date_str_list):
         # check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         available_tennis_court_slice_infos[check_date_str] = results[index]
