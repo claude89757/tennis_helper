@@ -163,7 +163,6 @@ if __name__ == '__main__':
         text = response.text.strip()
         proxy_list = [line.strip() for line in text.split()]
         print_with_timestamp(f"get remote proxy_list({len(proxy_list)}): {proxy_list}")
-        print_with_timestamp(f"proxy_list: {proxy_list}")
 
     # 每天0点-7点不巡检，其他时间巡检
     now = datetime.datetime.now().time()
