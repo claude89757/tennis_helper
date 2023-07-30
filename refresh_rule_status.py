@@ -79,14 +79,14 @@ if __name__ == '__main__':
                     else:
                         update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
                         updated_rule_list.append(rule)
-                elif total_send_num and total_send_num > 30 \
+                elif total_send_num and total_send_num >= 15 \
                         and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
                     if rule.get("status") and rule['status'] == '6':
                         pass
                     else:
                         update_record_info_by_id(rule['_id'], {"status": '6'})  # 状态: 超月限额
                         updated_rule_list.append(rule)
-                elif today_send_num and today_send_num > 3 \
+                elif today_send_num and today_send_num >= 3 \
                         and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
                     if rule.get("status") and rule['status'] == '5':
                         pass
