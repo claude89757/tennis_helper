@@ -350,7 +350,7 @@ if __name__ == '__main__':
                         cur_today_send_num = valid_rule.get('jrtzcs')
                     else:
                         cur_today_send_num = 1
-                    if rule_info_list[0].get('zjtzcs'):
+                    if valid_rule.get('zjtzcs'):
                         cur_total_send_num = valid_rule.get('zjtzcs')
                     else:
                         cur_total_send_num = 1
@@ -377,13 +377,13 @@ if __name__ == '__main__':
         for rule_id, send_count in rule_today_send_count_infos.items():
             rude_info = rude_infos[rule_id]
             try:
-                update_record_info_by_id(rule_id, {"jrtzcs": send_count+rude_info['jrtzcs']})
+                update_record_info_by_id(rule_id, {"jrtzcs": send_count})
             except Exception as error:
                 print_with_timestamp(f"record rule_today_send_count_infos error: {error}")
         for rule_id, send_count in rule_total_send_count_infos.items():
             rude_info = rude_infos[rule_id]
             try:
-                update_record_info_by_id(rule_id, {"zjtzcs": send_count+rude_info['zjtzcs']})
+                update_record_info_by_id(rule_id, {"zjtzcs": send_count})
             except Exception as error:
                 print_with_timestamp(f"record rule_total_send_count_infos error: {error}")
 
