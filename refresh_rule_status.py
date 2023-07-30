@@ -28,7 +28,7 @@ if __name__ == '__main__':
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
     run_start_time = time.time()
-    updated_rule_list = []
+    updated_rule_id_list = []
     # 从微搭的数据库，获取订阅规则列表，根据订阅日期更新订阅状态
     for court_name, court_index in CD_INDEX_INFOS.items():
         # 当前可巡检的日期范围
@@ -56,6 +56,7 @@ if __name__ == '__main__':
             print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             # 标记这些订阅的状态：运行中、已过期、未生效
             phone_active_rule_infos = {}
+            phone_today_sms_count_infos = {}
             for rule in rule_list:
                 # 判断订阅的状态，根据日期范围是否有交集
                 rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
@@ -72,27 +73,27 @@ if __name__ == '__main__':
                         pass
                     else:
                         update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
-                        updated_rule_list.append(rule)
+                        updated_rule_id_list.append(rule['_id'])
                 elif check_start_date > rule_end_date:
                     if rule.get("status") and rule['status'] == '3':
                         pass
                     else:
                         update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
-                        updated_rule_list.append(rule)
+                        updated_rule_id_list.append(rule['_id'])
                 elif total_send_num and total_send_num >= 15 \
                         and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
                     if rule.get("status") and rule['status'] == '6':
                         pass
                     else:
                         update_record_info_by_id(rule['_id'], {"status": '6'})  # 状态: 超月限额
-                        updated_rule_list.append(rule)
-                elif today_send_num and today_send_num >= 3 \
-                        and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
-                    if rule.get("status") and rule['status'] == '5':
-                        pass
-                    else:
-                        update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
-                        updated_rule_list.append(rule)
+                        updated_rule_id_list.append(rule['_id'])
+                # elif today_send_num and today_send_num >= 3 \
+                #         and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
+                #     if rule.get("status") and rule['status'] == '5':
+                #         pass
+                #     else:
+                #         update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
+                #         updated_rule_id_list.append(rule['_id'])
                 elif check_start_date <= rule_end_date and check_end_date >= rule_start_date:
                     # 日期范围有交集, 运行中
                     if rule.get("status") and rule['status'] == '2':
@@ -100,7 +101,7 @@ if __name__ == '__main__':
                     else:
                         # print(f"未生效 > 运行中: {rule}")
                         update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
-                        updated_rule_list.append(rule)
+                        updated_rule_id_list.append(rule['_id'])
                         rule_date_list.append(rule_start_date)
                         rule_date_list.append(rule_end_date)
                     # 记录运行中的规则
@@ -111,8 +112,28 @@ if __name__ == '__main__':
                 else:
                     # 未生效
                     pass
+                if today_send_num and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
+                    if phone_today_sms_count_infos.get(rule['phone']):
+                        phone_today_sms_count_infos[rule['phone']] += today_send_num
+                    else:
+                        phone_today_sms_count_infos[rule['phone']] = today_send_num
+                else:
+                    pass
                 time.sleep(0.1)
-
+            
+            # 非VIP, 每日仅可收到3条短信
+            for phone, today_send_num in phone_today_sms_count_infos.items():
+                if today_send_num >= 3:
+                    for rule in rule_list:
+                        if rule['phone'] == phone:
+                            if rule.get("status") and rule['status'] == '5':
+                                pass
+                            else:
+                                update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
+                                updated_rule_id_list.append(rule['_id'])
+                else:
+                    pass
+                
             # 重复的订阅进行标记
             for phone, rules in phone_active_rule_infos.items():
                 sorted_rules = sorted(rules, key=lambda x: x['createdAt'], reverse=False)
@@ -135,7 +156,7 @@ if __name__ == '__main__':
                                     pass
                                 else:
                                     update_record_info_by_id(rule['_id'], {"status": '4'})  # 状态: 重复订阅
-                                    updated_rule_list.append(rule)
+                                    updated_rule_id_list.append(rule['_id'])
                 else:
                     # 仅1条订阅，无需关注
                     pass
@@ -148,12 +169,12 @@ if __name__ == '__main__':
         for rule in user_rule_list:
             if not rule.get('user_level') or (rule.get('user_level') and rule['user_level'] != "2"):
                 update_record_info_by_id(rule['_id'], {"user_level": "2"})
-                updated_rule_list.append(rule)
+                updated_rule_id_list.append(rule['_id'])
             else:
                 pass
 
-    print(f"updated_rule_list: {len(updated_rule_list)}")
-    for rule in updated_rule_list:
+    print(f"updated_rule_list: {len(updated_rule_id_list)}")
+    for rule in updated_rule_id_list:
         print(rule)
     cost_time = time.time() - run_start_time
     print(f"cost_time: {cost_time}")
