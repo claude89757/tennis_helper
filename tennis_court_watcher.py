@@ -176,7 +176,7 @@ if __name__ == '__main__':
         print(f"checking {check_date_str}")
         # 剔除部分还没开发预定的时间的巡检
         if datetime.time(0, 0) <= now < datetime.time(9, 3) \
-                and court_name in ["香蜜体育", "黄木岗"] \
+                and court_name in ["香蜜体育", "黄木岗", "莲花体育"] \
                 and check_date_str == last_check_date_str:
             # 未开放预定，不推送消息
             continue
