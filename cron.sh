@@ -11,7 +11,7 @@ TENCENT_DOCS_SECRET=""
 TENCENT_DOCS_REFRESH_TOKEN=""
 
 # delete too old logs everyday
-0 1 * * * timeout 1800 find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +2 -delete /home/lighthouse/tennis_helper/logs/delete_log_$(date +\%Y-\%m-\%d).log 2>&1
+0 3 * * * find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +1 -delete
 
 # reset count for sms
 0 1 * * *  timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/reset_count_for_sms.py >> /home/lighthouse/tennis_helper/logs/reset_count_for_sms_$(date +\%Y-\%m-\%d).log 2>&1
@@ -20,9 +20,9 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 0 * * * * timeout 1800 /bin/bash /home/lighthouse/tennis_helper/git_pull.sh /home/lighthouse/tennis_helper/logs/git_pull_$(date +\%Y-\%m-\%d).log 2>&1
 
 # refresh rule status
-*/3 * * * * timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/refresh_rule_status.py >> /home/lighthouse/tennis_helper/logs/refresh_rule_status_$(date +\%Y-\%m-\%d).log 2>&1
+*/1 * * * * timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/refresh_rule_status.py >> /home/lighthouse/tennis_helper/logs/refresh_rule_status_$(date +\%Y-\%m-\%d).log 2>&1
 
-# refresh rule status
+# refresh rule status for docs
 */10 * * * * timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/update_docs_for_rule.py >> /home/lighthouse/tennis_helper/logs/update_docs_for_rule_$(date +\%Y-\%m-\%d).log 2>&1
 
 # inform rules expired
@@ -60,7 +60,7 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 # run tennis tools for dsty
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "DSTY" --court_name "莲花二村" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/lh2c_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for shanhua
-*/4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "SHANHUA" --court_name "山花馆" --watch_days 5 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_shanhua_$(date +\%Y-\%m-\%d).log 2>&1
+*/4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "SHANHUA" --court_name "山花馆" --watch_days 5 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/shanhua_$(date +\%Y-\%m-\%d).log 2>&1
 
 
 # run tennis tools for isz (vip)

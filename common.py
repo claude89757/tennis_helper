@@ -177,7 +177,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
         print(f"trying for {index} time for {proxy}")
         try:
             proxies = {"https": proxy}
-            response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=30)
+            response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=5)
             if response.status_code == 200:
                 print(f"success for {proxy}")
                 got_response = True
@@ -277,7 +277,7 @@ def get_free_tennis_court_infos_for_zjclub(date: str, proxy_list: list, time_ran
         print(f"trying for {index} time for {proxy}")
         try:
             proxies = {"https": proxy}
-            response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=30)
+            response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=5)
             if response.status_code == 200:
                 print(f"success for {proxy}")
                 got_response = True
@@ -362,7 +362,7 @@ def get_free_tennis_court_infos_for_hjd(date: str, proxy_list: list) -> dict:
         print(f"trying for {index} time for {proxy}")
         try:
             proxies = {"https": proxy}
-            response = requests.get(url, headers=headers, params=params, proxies=proxies, verify=False, timeout=30)
+            response = requests.get(url, headers=headers, params=params, proxies=proxies, verify=False, timeout=5)
             if response.status_code == 200:
                 print(f"success for {proxy}")
                 got_response = True
@@ -477,7 +477,7 @@ def get_free_tennis_court_infos_for_tns(date: str, proxy_list: list) -> dict:
         try:
             proxies = {"https": proxy}
             response = requests.post(url, headers=headers, data=json.dumps(payload), proxies=proxies,
-                                     verify=False, timeout=30)
+                                     verify=False, timeout=5)
             if response.status_code == 200:
                 print(f"success for {proxy}")
                 got_response = True
@@ -557,7 +557,7 @@ def get_free_tennis_court_infos_for_ks(date: str, proxy_list: list) -> dict:
         try:
             proxies = {"https": proxy}
             response = requests.post(url, headers=headers, data=json.dumps(data), proxies=proxies,
-                                     verify=False, timeout=30)
+                                     verify=False, timeout=5)
             if response.status_code == 200:
                 print(f"success for {proxy}")
                 got_response = True
@@ -637,10 +637,10 @@ def get_free_tennis_court_infos_for_wcjt(date: str, proxy_list: list = None) -> 
             proxies = {"https": proxy}
             if proxy_list:
                 response = requests.post(url, headers=headers, data=data, proxies=proxies,
-                                         timeout=30)
+                                         timeout=5)
             else:
                 response = requests.post(url, headers=headers, data=data,
-                                         timeout=30)
+                                         timeout=5)
             if response.status_code == 200:
                 print(f"success for {proxy}")
                 got_response = True
@@ -727,10 +727,10 @@ def get_free_tennis_court_infos_for_dsports(date: str, proxy_list: list = None) 
             proxies = {"https": proxy}
             if proxy_list:
                 response = requests.post(url, headers=headers, data=data, proxies=proxies,
-                                         timeout=30)
+                                         timeout=5)
             else:
                 response = requests.post(url, headers=headers, data=data,
-                                         timeout=30)
+                                         timeout=5)
             if response.status_code == 200:
                 print(f"success for {proxy}")
                 got_response = True
@@ -815,7 +815,7 @@ def get_free_tennis_court_infos_for_shanhua(date: str, proxy_list: list, time_ra
         try:
             proxies = {"https": proxy}
             response = requests.post(url, headers=headers, data=json.dumps(data), proxies=proxies,
-                                     verify=False, timeout=30)
+                                     verify=False, timeout=5)
             if response.status_code == 200:
                 print(f"success for {proxy}")
                 got_response = True

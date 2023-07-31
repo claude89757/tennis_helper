@@ -26,6 +26,7 @@ from weda import create_record
 from common import merge_time_ranges
 from common import get_hit_court_infos
 from common import print_with_timestamp
+from config import COURT_NAME_INFOS
 from common import get_free_tennis_court_infos_for_isz
 from common import get_free_tennis_court_infos_for_hjd
 from common import get_free_tennis_court_infos_for_tns
@@ -143,23 +144,29 @@ if __name__ == '__main__':
             rule_date_list.append(rule_start_date)
             rule_date_list.append(rule_end_date)
 
-    # 每天0点-7点不巡检，其他时间巡检
-    now = datetime.datetime.now().time()
-    if datetime.time(0, 0) <= now < datetime.time(8, 0):
-        print_with_timestamp('Skipping task execution between 0am and 7am')
-        exit()
-    else:
-        print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
-    print_with_timestamp(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-
     # 获取公网HTTPS代理列表
-    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
-    response = requests.get(url)
-    text = response.text.strip()
-    proxy_list = [line.strip() for line in text.split()]
-    print_with_timestamp(f"proxy_list: {proxy_list}")
+    # 先从本地文件获取，如果失败则从远程获取
+    try:
+        filename = f"https_proxies_{datetime.datetime.now().strftime('%Y-%m-%d')}.txt"
+        with open(filename, "r") as file:
+            content = file.read()
+            print(content)
+    except Exception as error:
+        print_with_timestamp(f"get local proxy list error: {error}")
+        content = None
+    if content:
+        print_with_timestamp()
+        proxy_list = [line.strip() for line in content.split()]
+        print_with_timestamp(f"get local proxy_list({len(proxy_list)}): {proxy_list}")
+    else:
+        url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
+        response = requests.get(url)
+        text = response.text.strip()
+        proxy_list = [line.strip() for line in text.split()]
+        print_with_timestamp(f"get remote proxy_list({len(proxy_list)}): {proxy_list}")
 
     # 查询空闲的球场信息
+    now = datetime.datetime.now().time()
     get_start_time = time.time()
     available_tennis_court_slice_infos = {}
     rule_check_start_date = min(rule_date_list)
@@ -169,6 +176,7 @@ if __name__ == '__main__':
     last_check_date_str = (datetime.datetime.now() +
                            datetime.timedelta(days=args.watch_days-1)).strftime('%Y-%m-%d')
     tasks = []
+    check_date_str_list = []
     loop = asyncio.get_event_loop()
     for index in range(0, args.watch_days):
         check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
@@ -189,11 +197,12 @@ if __name__ == '__main__':
                                                             input_sales_item_id=args.sales_item_id,
                                                             input_sales_id=args.sales_id))
         tasks.append(task)
+        check_date_str_list.append(check_date_str)
 
     results = loop.run_until_complete(asyncio.gather(*tasks))
-    for i, index in enumerate(range(0, args.watch_days)):
-        check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
-        available_tennis_court_slice_infos[check_date_str] = results[i]
+    for index, check_date_str in enumerate(check_date_str_list):
+        # check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
+        available_tennis_court_slice_infos[check_date_str] = results[index]
     # 计算查询运行时间
     run_time = time.time() - get_start_time
     print_with_timestamp(f"查询耗时: {run_time:.2f}秒")
@@ -204,6 +213,13 @@ if __name__ == '__main__':
     # 获取命中规则的各时间段的场地信息
     found_court_infos = get_hit_court_infos(available_tennis_court_slice_infos, active_rule_list)
     print(f"found_court_infos: {found_court_infos}")
+
+    # 每天0点-8点不发短信
+    if datetime.time(0, 0) <= now < datetime.time(8, 0):
+        print_with_timestamp('Skipping task execution between 0am and 7am')
+        exit()
+    else:
+        print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
     # 确认是否发短信
     if not args.send_sms:
@@ -217,7 +233,7 @@ if __name__ == '__main__':
     rule_infos = {}  # 每个手机某日期命中的订阅规则列表
     for court_info in found_court_infos:
         # 剔除一些不关注的场地
-        if court_info['court_index'] == 102930:
+        if court_info['court_index'] == COURT_NAME_INFOS[102930]:
             # 香蜜的6号场只能电话当日预定, 剔除掉非当日的
             if court_info['date'] == today_str:
                 # 重新命名场地名称
@@ -287,19 +303,6 @@ if __name__ == '__main__':
                 date = phone_date.split('_')[1]
                 start_time = merge_slot_list[0][0]
                 end_time = merge_slot_list[0][1]
-
-                # 非VIP，每天短信上限3条
-                phone_today_key = f"{phone}_{today_str}_send_count"
-                if phone_today_key in cache:
-                    if (cache[phone_today_key] > 3 and (rule_info_list[0]['user_level'] != "2"
-                                                        and rule_info_list[0]['user_level'] != "3")):
-                        print(f"{phone_today_key} overload sms, skipping...")
-                        continue
-                    else:
-                        cur_send_num = cache[phone_today_key]
-                        cache[phone_today_key] = cur_send_num + 1
-                else:
-                    cache[phone_today_key] = 1
                 up_for_send_sms_list.append({"phone": phone,
                                              "date": date,
                                              "court_name": court_name,
@@ -347,7 +350,7 @@ if __name__ == '__main__':
                         cur_today_send_num = valid_rule.get('jrtzcs')
                     else:
                         cur_today_send_num = 1
-                    if rule_info_list[0].get('zjtzcs'):
+                    if valid_rule.get('zjtzcs'):
                         cur_total_send_num = valid_rule.get('zjtzcs')
                     else:
                         cur_total_send_num = 1
@@ -374,13 +377,13 @@ if __name__ == '__main__':
         for rule_id, send_count in rule_today_send_count_infos.items():
             rude_info = rude_infos[rule_id]
             try:
-                update_record_info_by_id(rule_id, {"jrtzcs": send_count+rude_info['jrtzcs']})
+                update_record_info_by_id(rule_id, {"jrtzcs": send_count})
             except Exception as error:
                 print_with_timestamp(f"record rule_today_send_count_infos error: {error}")
         for rule_id, send_count in rule_total_send_count_infos.items():
             rude_info = rude_infos[rule_id]
             try:
-                update_record_info_by_id(rule_id, {"zjtzcs": send_count+rude_info['zjtzcs']})
+                update_record_info_by_id(rule_id, {"zjtzcs": send_count})
             except Exception as error:
                 print_with_timestamp(f"record rule_total_send_count_infos error: {error}")
 

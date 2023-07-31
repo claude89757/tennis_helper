@@ -41,6 +41,8 @@ if __name__ == '__main__':
         "2": "运行中",
         "3": "已过期",
         "4": "重复订阅",
+        "5": "超日限额",
+        "6": "超月限额",
     }
     user_level_infos = {
         "1": "普通用户",
@@ -62,7 +64,7 @@ if __name__ == '__main__':
         first_line_infos[f"E{index}"] = str(rule['start_time'])
         first_line_infos[f"F{index}"] = str(rule['end_time'])
         first_line_infos[f"G{index}"] = str(rule.get('duration', 2)).replace('None', '2')
-        first_line_infos[f"H{index}"] = status_name_infos.get(str(rule['status']), str(rule['status']))
+        first_line_infos[f"H{index}"] = str(status_name_infos.get(str(rule['status']))).replace('None', '未生效')
         first_line_infos[f"I{index}"] = str(rule.get('jrtzcs')).replace('None', '-').split('.')[0]
         first_line_infos[f"J{index}"] = str(rule.get('zjtzcs')).replace('None', '-').split('.')[0]
         first_line_infos[f"K{index}"] = str(rule['sjwh'])

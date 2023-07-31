@@ -31,7 +31,9 @@ if __name__ == '__main__':
     # 判断哪些用户的全部订阅都过期，如果是，发送短信提醒
     inform_phone_list = []
     for phone, rule_status_set in phone_rule_status_infos.items():
-        if len(set(rule_status_set)) == 1 and rule_status_set[0] == '3':
+        sorted_rule_status_list = sorted(list(rule_status_set))
+        if (len(set(rule_status_set)) == 1 and rule_status_set[0] == '3') \
+                or (len(rule_status_set) == 2 and sorted_rule_status_list == ['3', "6"]):
             is_send_before = set()
             for rule in phone_rule_infos[phone]:
                 print(rule)
