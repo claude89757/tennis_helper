@@ -220,7 +220,20 @@ if __name__ == '__main__':
 
     # 每天0点-8点不发短信
     if datetime.time(0, 0) <= now < datetime.time(8, 0):
-        print_with_timestamp('Skipping task execution between 0am and 7am')
+        print_with_timestamp('Skipping task execution between 0am and 8am')
+        # 打开文件，如果文件不存在则创建
+        with open(f"{court_name}_available_court.txt", "w") as file:
+            # 尝试获取文件锁，如果锁已被其他进程持有，则立即返回
+            try:
+                fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except IOError:
+                print("Unable to acquire lock")
+            else:
+                # 写入新的内容
+                file.write(json.dumps(available_tennis_court_slice_infos))
+
+                # 释放文件锁
+                fcntl.flock(file, fcntl.LOCK_UN)
         exit()
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
