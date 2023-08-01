@@ -218,5 +218,5 @@ if __name__ == '__main__':
     all_rule_str = json.dumps(all_rule_list)
     with open(ALL_RULE_FILENAME, 'w+') as f:
         fcntl.flock(f, fcntl.LOCK_EX)
-        f.write(all_rule_list)
+        f.write(all_rule_str)
         fcntl.flock(f, fcntl.LOCK_UN)
