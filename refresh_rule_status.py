@@ -71,23 +71,24 @@ if __name__ == '__main__':
                 # 判断订阅的状态，根据日期范围是否有交集
                 rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
                 rule_end_date = datetime.datetime.strptime(rule['end_date'], "%Y-%m-%d")
-                print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
+                # print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
                 print(f"rule run day: {(check_start_date - rule_start_date).days}")
                 print(rule['user_level'])
                 today_send_num = rule['jrtzcs']
                 total_send_num = rule['zjtzcs']
                 if int((check_start_date - rule_start_date).days) >= 7 \
                         and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
-                    print(f"over 7 days, timeout...")
                     if rule.get("status") and rule['status'] == '3':
                         pass
                     else:
+                        print(f"{rule['_id']} 已过期...")
                         update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
                         updated_rule_id_list.append(rule['_id'])
                 elif check_start_date > rule_end_date:
                     if rule.get("status") and rule['status'] == '3':
                         pass
                     else:
+                        print(f"{rule['_id']} 已过期...")
                         update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
                         updated_rule_id_list.append(rule['_id'])
                 elif total_send_num and total_send_num >= 15 \
@@ -95,6 +96,7 @@ if __name__ == '__main__':
                     if rule.get("status") and rule['status'] == '6':
                         pass
                     else:
+                        print(f"{rule['_id']} 超月限额...")
                         update_record_info_by_id(rule['_id'], {"status": '6'})  # 状态: 超月限额
                         updated_rule_id_list.append(rule['_id'])
                 # elif today_send_num and today_send_num >= 3 \
@@ -110,6 +112,7 @@ if __name__ == '__main__':
                         pass
                     else:
                         # print(f"未生效 > 运行中: {rule}")
+                        print(f"{rule['_id']} 运行中...")
                         update_record_info_by_id(rule['_id'], {"status": '2'})  # 状态: 运行中
                         updated_rule_id_list.append(rule['_id'])
                         rule_date_list.append(rule_start_date)
@@ -139,6 +142,7 @@ if __name__ == '__main__':
                             if rule.get("status") and rule['status'] == '5':
                                 pass
                             else:
+                                print(f"{rule['_id']} 超日限额...")
                                 update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
                                 updated_rule_id_list.append(rule['_id'])
                 else:
@@ -165,6 +169,7 @@ if __name__ == '__main__':
                                 if rule.get("status") and rule['status'] == '4':
                                     pass
                                 else:
+                                    print(f"{rule['_id']} 重复订阅...")
                                     update_record_info_by_id(rule['_id'], {"status": '4'})  # 状态: 重复订阅
                                     updated_rule_id_list.append(rule['_id'])
                 else:
