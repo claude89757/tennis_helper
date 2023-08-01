@@ -35,6 +35,7 @@ from common import get_free_tennis_court_infos_for_zjclub
 from common import get_free_tennis_court_infos_for_wcjt
 from common import get_free_tennis_court_infos_for_dsports
 from common import get_free_tennis_court_infos_for_shanhua
+from common import get_free_tennis_court_infos_for_szw
 
 
 async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, input_proxy_list: list,
@@ -80,6 +81,9 @@ async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, 
                                           input_proxy_list)
     elif app_name == "SHANHUA":
         return await loop.run_in_executor(None, get_free_tennis_court_infos_for_shanhua, input_check_date_str,
+                                          input_proxy_list, input_time_range)
+    elif app_name == "SZW":
+        return await loop.run_in_executor(None, get_free_tennis_court_infos_for_szw, input_check_date_str,
                                           input_proxy_list, input_time_range)
     else:
         raise Exception(f"未支持的APP: {app_name}")
@@ -243,6 +247,12 @@ if __name__ == '__main__':
         elif court_info['court_index'] in [104300, 104301, 104302, 104475]:
             # 黄木岗的训练墙剔除
             continue
+        elif court_name == "深圳湾":
+            # 深圳湾仅通知当日的
+            if court_info['date'] == today_str:
+                pass
+            else:
+                continue
         else:
             pass
         key = f"{court_info['phone']}_{court_info['date']}"  # 手机+日期作为聚合的标志

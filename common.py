@@ -100,6 +100,7 @@ def find_available_slots(booked_slots, time_range):
     根据已预定的时间段，查询可预定的时间段
     """
     print(f"input: {booked_slots}")
+    print(f"time_range: {time_range}")
     for slot in booked_slots:
         for index in range(len(slot)):
             if slot[index] == '00:00':
@@ -119,7 +120,9 @@ def find_available_slots(booked_slots, time_range):
         if current_time < slot_start:
             available_slots.append([current_time.strftime("%H:%M"), slot_start.strftime("%H:%M")])
 
-        current_time = slot_end
+        # 如果当前时间小于已预定时间段的结束时间，更新当前时间为已预定时间段的结束时间
+        if current_time < slot_end:
+            current_time = slot_end
 
     if current_time < end_time:
         available_slots.append([current_time.strftime("%H:%M"), end_time.strftime("%H:%M")])
@@ -848,6 +851,106 @@ def get_free_tennis_court_infos_for_shanhua(date: str, proxy_list: list, time_ra
                 for space_id in [88371202, 88371216, 88371217, 88371218, 88371219, 88371220, 88371221, 88371222]:
                     if space_id not in available_slots_infos.keys():
                         available_slots_infos[space_id] = [["09:00", "22:00"]]
+                return available_slots_infos
+            else:
+                raise Exception(response.text)
+        else:
+            raise Exception(response.text)
+    else:
+        raise Exception(f"all proxies failed")
+
+
+def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range: dict) -> dict:
+    """
+    获取可预订的场地信息
+    """
+    got_response = False
+    response = None
+    index_list = list(range(len(proxy_list)))
+    # 打乱列表的顺序
+    random.shuffle(index_list)
+    print(index_list)
+    for index in index_list:
+        data = {
+            'VenueTypeID': 'd3bc78ba-0d9c-4996-9ac5-5a792324decb',
+            'VenueTypeDisplayName': '',
+            # 'IsGetPrice': 'true',
+            # 'isApp': 'true',
+            'billDay': {date},
+            # 'webApiUniqueID': '811e68e7-f189-675c-228d-3739e48e57b2'
+        }
+        headers = {
+            'Host': 'program.springcocoon.com',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Sec-Fetch-Site': 'same-origin',
+            # 'X-XSRF-TOKEN': 'WX8ov48Nfyv--FaZ5ugm6cbscc_'
+            #                 'YOqfTVIr6Tobcku0Clt4Q4jtRZrg0YML14TNs6ukHgXsWyK_'
+            #                 'OfgGvejxCaE7srNgpMwxjX9PUOU_JbIl3LkQx3aPI02YovKbqfUwOL5QMqw2',
+            'Cookie': 'HT.ShopID.1=4f195d33-de51-495e-a345-09b23f98ce95;'
+                      '.AspNet.ApplicationCookie=aQl5ju2OXLbnHuGbCI4T_8lLN_lwLDH22IgIMcjlzsNjRfvp'
+                      'YYtYVSBcupIJ_2E2DHPkgYyme9MVWKVvbg97t-TrnYvtocP2BKipfpjl-ROPvdBwJ1BP0uWPpCMDIdSR7J7OdKqPHQ4'
+                      '2Cj-A5ozeLS4_C7IYSjBHLUYwJm6rvq-5Sye187tT7GwmQJE5chg2U6mCL3X-EaRHf3cuk1En3Gyxjt-ZyPxmGZm_gP3'
+                      'V1FWmMEEalM2gJH95BTTrEAQtAM3gTs1AURcwNmNQXiHSJzz79JTcKkTA3vYZamio4jkLGeQ_LnE5WQSm7x0QXFz3Sxi'
+                      'vShX4EWvInkfm4hGqDUE_HlXL1eAR66WVh4TLWGXLUOolfz_F2fz9OE0vLyNvIBxsYdY_LqMbHyV5SbxxIOxgCgxM2aJ'
+                      'Hw04WhY5S-8AOA5UVhWkNJwCWBcnk-6nNveQYNNWHJAICiLtlDJ7b6cbZ_8tlhnXcqvppcyJFLFOb1cl7yfPsn_uX69x'
+                      'v-RU8neEP4pw-nuFkrbN8OGCeHTM2M8mA5dwxfdJ4lD92P3znT7T3b6cKeSuGxo-65HUKuTjCq_P3_qOMetN39CTDQn6E'
+                      'ZY68uMF6OQzw3Nu1ge9ANTFM',
+            'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+            'Sec-Fetch-Mode': 'cors',
+            'Origin': 'https://program.springcocoon.com',
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X)'
+                          ' AppleWebKit/605.1.15 (KHTML, like Gecko) '
+                          'Mobile/15E148 MicroMessenger/8.0.39(0x18002733) '
+                          'NetType/WIFI Language/zh_CN miniProgram/wx6b10d95e92283e1c',
+            'Referer': 'https://program.springcocoon.com/szbay/AppVenue/VenueBill/'
+                       'VenueBill?VenueTypeID=d3bc78ba-0d9c-4996-9ac5-5a792324decb',
+            'Sec-Fetch-Dest': 'empty'
+        }
+        url = 'https://program.springcocoon.com/szbay/api/services/app/VenueBill/GetVenueBillDataAsync'
+        print(url)
+        print(data)
+        # print(headers)
+        proxy = proxy_list[index]
+        print(f"trying for {index} time for {proxy}")
+        try:
+            proxies = {"https": proxy}
+            response = requests.post(url, headers=headers, data=data, proxies=proxies, verify=False, timeout=30)
+            print(response.text)
+            if response.status_code == 200:
+                print(f"success for {proxy}")
+                got_response = True
+                time.sleep(1)
+                break
+            else:
+                print(f"failed for {proxy}: {response}")
+                continue
+        except Exception as error:  # pylint: disable=broad-except
+            print(f"failed for {proxy}: {error}")
+            continue
+
+    if got_response:
+        if response.status_code == 200:
+            if len(response.json()['result']) == 1:
+                # 场地名称转换
+                venue_name_infos = {}
+                for venue in response.json()['result'][0]['listVenue']:
+                    venue_name_infos[venue['id']] = venue['displayName']
+                print(venue_name_infos)
+
+                booked_court_infos = {}
+                for venue_info in response.json()['result'][0]['listWebVenueStatus']:
+                    start_time = str(venue_info['timeStartEndName']).split('-')[0].replace(":30", ":00")
+                    end_time = str(venue_info['timeStartEndName']).split('-')[1].replace(":30", ":00")
+                    venue_name = venue_name_infos[venue_info['venueID']]
+                    if booked_court_infos.get(venue_name):
+                        booked_court_infos[venue_name].append([start_time, end_time])
+                    else:
+                        booked_court_infos[venue_name] = [[start_time, end_time]]
+                available_slots_infos = {}
+                for venue_id, booked_slots in booked_court_infos.items():
+                    available_slots = find_available_slots(booked_slots, time_range)
+                    available_slots_infos[venue_id] = available_slots
                 return available_slots_infos
             else:
                 raise Exception(response.text)

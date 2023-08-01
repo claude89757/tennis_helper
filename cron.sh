@@ -40,7 +40,6 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "香蜜体育" --sales_id "101332" --sales_item_id "100341" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/xm_$(date +\%Y-\%m-\%d).log 2>&1
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "深云文体" --sales_id "105057" --sales_item_id "105127" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/sy_$(date +\%Y-\%m-\%d).log 2>&1
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "黄木岗" --sales_id "101333" --sales_item_id "100344" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/hmg_$(date +\%Y-\%m-\%d).log 2>&1
-*/4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "深圳湾" --sales_id "104331" --sales_item_id "103715" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/szw_$(date +\%Y-\%m-\%d).log 2>&1
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "莲花体育" --sales_id "101335" --sales_item_id "100347" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/lh_$(date +\%Y-\%m-\%d).log 2>&1
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "简上" --sales_id "103909" --sales_item_id "102913" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/js_$(date +\%Y-\%m-\%d).log 2>&1
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "华侨城" --sales_id "105143" --sales_item_id "105347" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/hqc_$(date +\%Y-\%m-\%d).log 2>&1
@@ -61,6 +60,8 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "DSTY" --court_name "莲花二村" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/lh2c_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for shanhua
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "SHANHUA" --court_name "山花馆" --watch_days 5 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/shanhua_$(date +\%Y-\%m-\%d).log 2>&1
+# run tennis tools for szw
+*/4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "SZW" --court_name "深圳湾" --watch_days 4 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/szw_$(date +\%Y-\%m-\%d).log 2>&1
 
 
 # run tennis tools for isz (vip)
@@ -68,7 +69,6 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 */2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "香蜜体育" --sales_id "101332" --sales_item_id "100341" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_xm_$(date +\%Y-\%m-\%d).log 2>&1
 */2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "深云文体" --sales_id "105057" --sales_item_id "105127" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_sy_$(date +\%Y-\%m-\%d).log 2>&1
 */2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "黄木岗" --sales_id "101333" --sales_item_id "100344" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_hmg_$(date +\%Y-\%m-\%d).log 2>&1
-*/2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "深圳湾" --sales_id "104331" --sales_item_id "103715" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_szw_$(date +\%Y-\%m-\%d).log 2>&1
 */2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "莲花体育" --sales_id "101335" --sales_item_id "100347" --watch_days 2 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_lh_$(date +\%Y-\%m-\%d).log 2>&1
 */2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "简上" --sales_id "103909" --sales_item_id "102913" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_js_$(date +\%Y-\%m-\%d).log 2>&1
 */2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "ISZ" --court_name "华侨城" --sales_id "105143" --sales_item_id "105347" --watch_days 3 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_hqc_$(date +\%Y-\%m-\%d).log 2>&1
@@ -89,3 +89,5 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 */2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "DSTY" --court_name "莲花二村" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_lh2c_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for shanhua
 */2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "SHANHUA" --court_name "山花馆" --watch_days 5 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_shanhua_$(date +\%Y-\%m-\%d).log 2>&1
+# run tennis tools for szw
+*/2 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher_for_vip.py --app_name "SZW" --court_name "深圳湾" --watch_days 4 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/vip_szw_$(date +\%Y-\%m-\%d).log 2>&1
