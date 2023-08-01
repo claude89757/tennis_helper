@@ -291,7 +291,7 @@ if __name__ == '__main__':
                 else:
                     filter_merge_slot_list.append(slot)
 
-            cache_key = f"{phone_date}_{merge_slot_list[0][0]}_{merge_slot_list[0][1]}"  # 每个时间段仅提醒一次
+            cache_key = f"{phone_date}_{merge_slot_list[0][0]}"  # 每个时间段仅提醒一次
             if cache_key in cache:
                 print(f"{cache_key} has already been sent, skipping...")
                 continue
