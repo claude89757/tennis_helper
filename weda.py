@@ -95,11 +95,12 @@ def get_active_rule_list(cd_index: int, is_vip: bool = False):
     all_rule_list = json.loads(data)
     if is_vip:
         for rule in all_rule_list:
-            if rule['status'] == '2' and rule['user_level'] == '2':
+            if rule['status'] == '2' and rule['user_level'] == '2' and rule['xjcd'] == str(cd_index):
                 rule_list.append(rule)
     else:
         for rule in all_rule_list:
-            if rule['status'] == '2' and rule['user_level'] != '2' and rule['user_level'] != '3':
+            if rule['status'] == '2' and rule['user_level'] != '2' and rule['user_level'] != '3' \
+                    and rule['xjcd'] == str(cd_index):
                 rule_list.append(rule)
     return rule_list
 
@@ -126,7 +127,7 @@ def get_all_rule_list(use_cache: bool = True):
         filter_rule_list = []
         rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE)
         for rule in rule_list:
-            print(rule)
+            # print(rule)
             # 转换时间格式
             start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
             end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
@@ -153,7 +154,7 @@ def get_all_rule_list(use_cache: bool = True):
             # 转义后的订阅
             filter_rule_list.append(rule)
         # print(f"filter_rule_list: {filter_rule_list}")
-        print(f"filter_rule_list: {len(filter_rule_list)}")
+        print(f"all_rule_list: {len(filter_rule_list)}")
         return filter_rule_list
 
 

@@ -53,7 +53,7 @@ if __name__ == '__main__':
         # 获取订阅列表, 非过期\重复的订阅列表
         rule_list = []
         for rule in all_rule_list:
-            if rule['xjcd'] == court_index and rule['status'] != '3' and rule['status'] != '4':
+            if rule['xjcd'] == str(court_index) and rule['status'] != '3' and rule['status'] != '4':
                 rule_list.append(rule)
             else:
                 pass
@@ -182,7 +182,7 @@ if __name__ == '__main__':
             print(vip_content)
     except Exception as error:
         print_with_timestamp(f"get local proxy list error: {error}")
-        content = None
+        vip_content = None
     if vip_content:
         pass
     else:
