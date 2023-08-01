@@ -38,7 +38,7 @@ def get_access_token():
         # print(token_url)
         token_response = requests.post(token_url, headers=token_headers, json=token_data)
         access_token = token_response.json()["access_token"]
-    # print(f"access_token: {access_token}")
+    print(f"access_token: {access_token}")
     os.environ["WEDA_ACCESS_TOKEN"] = access_token
     return access_token
 
