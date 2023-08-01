@@ -51,7 +51,7 @@ if __name__ == '__main__':
     }
 
     # 获取所有规则
-    all_rule_list = get_all_rule_list()
+    all_rule_list = get_all_rule_list(use_cache=True)
 
     sorted_rule_list = sorted(all_rule_list, key=lambda x: x['createdAt'], reverse=True)
 

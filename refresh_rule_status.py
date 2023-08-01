@@ -6,15 +6,16 @@
 @File    : refresh_rule_status.py
 @Software: PyCharm
 """
-
+import json
 import time
 import datetime
+import fcntl
 
 from config import CD_INDEX_INFOS
+from config import ALL_RULE_FILENAME
 from config import CD_ACTIVE_DAY_INFOS
-from weda import get_rule_list_from_weida
+from weda import get_all_rule_list
 from weda import get_vip_user_list
-from weda import get_active_rule_list_by_phone
 from weda import update_record_info_by_id
 from common import print_with_timestamp
 
@@ -29,6 +30,10 @@ if __name__ == '__main__':
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
     run_start_time = time.time()
     updated_rule_id_list = []
+
+    # 获取所有规则
+    all_rule_list = get_all_rule_list(use_cache=False)
+
     # 从微搭的数据库，获取订阅规则列表，根据订阅日期更新订阅状态
     for court_name, court_index in CD_INDEX_INFOS.items():
         # 当前可巡检的日期范围
@@ -45,13 +50,18 @@ if __name__ == '__main__':
         # print(f"check_date_list: {check_date_list}")
 
         # print(f"{court_name} 可预定日期: {check_date_str_list} 正在更新订阅状态...")
-        # 获取订阅列表
-        rule_list = get_rule_list_from_weida(court_index)  # 非过期\重复的订阅列表
+        # 获取订阅列表, 非过期\重复的订阅列表
+        rule_list = []
+        for rule in all_rule_list:
+            if rule['xjcd'] == court_index and rule['status'] != '3' and rule['status'] != '4':
+                rule_list.append(rule)
+            else:
+                pass
+
         rule_date_list = []
         print_with_timestamp(f"rule_list: {len(rule_list)}")
-
         if not rule_list:
-            print_with_timestamp(f"该场地无人订阅，不触发")
+            print_with_timestamp(f"该场地无人订阅，不触发刷新")
         else:
             print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             # 标记这些订阅的状态：运行中、已过期、未生效
@@ -164,14 +174,39 @@ if __name__ == '__main__':
 
     # 标记是否为VIP的订阅
     print(f"标记VIP订阅....")
-    for vip_user in get_vip_user_list():
-        user_rule_list = get_active_rule_list_by_phone(vip_user['phone'])
-        for rule in user_rule_list:
-            if not rule.get('user_level') or (rule.get('user_level') and rule['user_level'] != "2"):
+    # 先从本地缓存读取vip列表，如果不存在，则从远端拉取
+    file_name = "vip_user_list.txt"
+    try:
+        with open(file_name, "r") as file:
+            vip_content = file.read()
+            print(vip_content)
+    except Exception as error:
+        print_with_timestamp(f"get local proxy list error: {error}")
+        content = None
+    if vip_content:
+        pass
+    else:
+        # 从远程拉取，并缓存到本地
+        vip_user_list = get_vip_user_list()
+        msg_list = []
+        with open(file_name, "w") as file:
+            for vip_user in vip_user_list:
+                file.write(f"{vip_user['name']} {vip_user['phone']}\n")
+                msg_list.append(f"{vip_user['name']} {vip_user['phone']}")
+        vip_content = "\n".join(msg_list)
+
+    for rule in all_rule_list:
+        if not rule.get('user_level') or (rule.get('user_level') and rule['user_level'] != "2"):
+            if rule['phone'] in vip_content:
+                # VIP用户
                 update_record_info_by_id(rule['_id'], {"user_level": "2"})
                 updated_rule_id_list.append(rule['_id'])
             else:
+                # 非VIP用户
                 pass
+        else:
+            # 已标记过的VIP
+            pass
 
     print(f"updated_rule_list: {len(updated_rule_id_list)}")
     for rule in updated_rule_id_list:
@@ -179,3 +214,9 @@ if __name__ == '__main__':
     cost_time = time.time() - run_start_time
     print(f"cost_time: {cost_time}")
 
+    # 全部订阅缓存到本地, 写入文件时加写锁
+    all_rule_str = json.dumps(all_rule_list)
+    with open(ALL_RULE_FILENAME, 'w+') as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        f.write(all_rule_list)
+        fcntl.flock(f, fcntl.LOCK_UN)

@@ -142,3 +142,4 @@ CD_TIME_RANGE_INFOS = {
 
 WEDA_ENV = "prod"
 WEDA_USER_DATASOURCE = "vip_jz6a5g3"
+ALL_RULE_FILENAME = "all_rule_list.txt"

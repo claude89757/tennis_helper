@@ -13,7 +13,7 @@ from weda import update_record_info_by_id
 
 if __name__ == '__main__':
     # 获取订阅列表
-    rule_list = get_all_rule_list()
+    rule_list = get_all_rule_list(use_cache=True)
 
     # 整理每个用户的订阅状态
     phone_rule_status_infos = {}

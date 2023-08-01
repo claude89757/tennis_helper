@@ -4,7 +4,10 @@ import base64
 import requests
 import pytz
 import datetime
+import json
+import fcntl
 
+from config import ALL_RULE_FILENAME
 from config import WEDA_ENV
 from config import WEDA_USER_DATASOURCE
 
@@ -75,125 +78,83 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
         raise Exception(query_response.text)
 
 
-def get_rule_list_from_weida(cd_index: int):
-    """
-    从微搭数据源获取用户的推送规则
-    :parm: cd_index 场地代号，映射见全局变量
-    :return:
-    """
-    print(f"getting rule for {cd_index}")
-    beijing_tz = pytz.timezone('Asia/Shanghai')  # 北京时区
-    filter_rule_list = []
-    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') "
-                                                                     f"and status ne '3' and status ne '4'")
-    for rule in rule_list:
-        # print(rule)
-        # 转换时间格式
-        start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
-        end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
-        hours = rule['start_time'] // (1000 * 60 * 60)
-        minutes = (rule['start_time'] // (1000 * 60)) % 60
-        seconds = (rule['start_time'] // 1000) % 60
-        start_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
-        hours = rule['end_time'] // (1000 * 60 * 60)
-        minutes = (rule['end_time'] // (1000 * 60)) % 60
-        seconds = (rule['end_time'] // 1000) % 60
-        end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
-        # 对日期和时间进行转义
-        rule['start_date'] = start_date
-        rule['end_date'] = end_date
-        rule['start_time'] = start_time
-        rule['end_time'] = end_time
-
-        # 转义后的订阅
-        filter_rule_list.append(rule)
-    # print(f"filter_rule_list: {filter_rule_list}")
-    print(f"filter_rule_list: {len(filter_rule_list)}")
-    return filter_rule_list
-
-
 def get_active_rule_list(cd_index: int, is_vip: bool = False):
     """
     从微搭数据源获取用户的推送规则
     :parm: cd_index 场地代号，映射见全局变量
     :return:
     """
-    print(f"getting rule for {cd_index}")
-    beijing_tz = pytz.timezone('Asia/Shanghai')  # 北京时区
-    filter_rule_list = []
+    rule_list = []
+    print("getting all rules from local file...")
+    # 读取文件时加读锁
+    with open(ALL_RULE_FILENAME, 'r') as f:
+        fcntl.flock(f, fcntl.LOCK_SH)
+        data = f.read()
+        fcntl.flock(f, fcntl.LOCK_UN)
+    # 将JSON格式的字符串转换为列表
+    all_rule_list = json.loads(data)
     if is_vip:
-        rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') and status eq '2' "
-                                                                         f"and user_level eq '2'")
+        for rule in all_rule_list:
+            if rule['status'] == '2' and rule['user_level'] == '2':
+                rule_list.append(rule)
     else:
-        rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(xjcd eq '{cd_index}') and status eq '2' "
-                                                                         f"and user_level ne '2' and user_level ne '3'")
-    for rule in rule_list:
-        print(rule)
-        # 转换时间格式
-        start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
-        end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
-        hours = rule['start_time'] // (1000 * 60 * 60)
-        minutes = (rule['start_time'] // (1000 * 60)) % 60
-        seconds = (rule['start_time'] // 1000) % 60
-        start_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
-        hours = rule['end_time'] // (1000 * 60 * 60)
-        minutes = (rule['end_time'] // (1000 * 60)) % 60
-        seconds = (rule['end_time'] // 1000) % 60
-        end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
-        # 对日期和时间进行转义
-        rule['start_date'] = start_date
-        rule['end_date'] = end_date
-        rule['start_time'] = start_time
-        rule['end_time'] = end_time
-
-        # 转义后的订阅
-        filter_rule_list.append(rule)
-
-    print(f"filter_rule_list: {filter_rule_list}")
-    print(f"filter_rule_list: {len(filter_rule_list)}")
-    return filter_rule_list
+        for rule in all_rule_list:
+            if rule['status'] == '2' and rule['user_level'] != '2' and rule['user_level'] != '3':
+                rule_list.append(rule)
+    return rule_list
 
 
-def get_all_rule_list():
+def get_all_rule_list(use_cache: bool = True):
     """
     从微搭数据源获取用户的推送规则
     :parm: cd_index 场地代号，映射见全局变量
     :return:
     """
     print(f"getting all rule")
-    beijing_tz = pytz.timezone('Asia/Shanghai')  # 北京时区
-    filter_rule_list = []
-    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE)
-    for rule in rule_list:
-        print(rule)
-        # 转换时间格式
-        start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
-        end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
-        hours = rule['start_time'] // (1000 * 60 * 60)
-        minutes = (rule['start_time'] // (1000 * 60)) % 60
-        seconds = (rule['start_time'] // 1000) % 60
-        start_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
-        hours = rule['end_time'] // (1000 * 60 * 60)
-        minutes = (rule['end_time'] // (1000 * 60)) % 60
-        seconds = (rule['end_time'] // 1000) % 60
-        end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
+    if use_cache:
+        print("get from local file...")
+        # 读取文件时加读锁
+        with open(ALL_RULE_FILENAME, 'r') as f:
+            fcntl.flock(f, fcntl.LOCK_SH)
+            data = f.read()
+            fcntl.flock(f, fcntl.LOCK_UN)
+        # 将JSON格式的字符串转换为列表
+        all_rule_list = json.loads(data)
+        return all_rule_list
+    else:
+        beijing_tz = pytz.timezone('Asia/Shanghai')  # 北京时区
+        filter_rule_list = []
+        rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE)
+        for rule in rule_list:
+            print(rule)
+            # 转换时间格式
+            start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
+            end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
+            hours = rule['start_time'] // (1000 * 60 * 60)
+            minutes = (rule['start_time'] // (1000 * 60)) % 60
+            seconds = (rule['start_time'] // 1000) % 60
+            start_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
+            hours = rule['end_time'] // (1000 * 60 * 60)
+            minutes = (rule['end_time'] // (1000 * 60)) % 60
+            seconds = (rule['end_time'] // 1000) % 60
+            end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
 
-        timestamp = rule['createdAt'] / 1000  # 将毫秒转换为秒
-        created_time = datetime.datetime.fromtimestamp(timestamp, datetime.timezone(datetime.timedelta(hours=8)))
-        created_time_str = created_time.strftime('%Y-%m-%d %H:%M:%S')
+            timestamp = rule['createdAt'] / 1000  # 将毫秒转换为秒
+            created_time = datetime.datetime.fromtimestamp(timestamp, datetime.timezone(datetime.timedelta(hours=8)))
+            created_time_str = created_time.strftime('%Y-%m-%d %H:%M:%S')
 
-        # 对日期和时间进行转义
-        rule['start_date'] = start_date
-        rule['end_date'] = end_date
-        rule['start_time'] = start_time
-        rule['end_time'] = end_time
-        rule['createdAt'] = created_time_str
+            # 对日期和时间进行转义
+            rule['start_date'] = start_date
+            rule['end_date'] = end_date
+            rule['start_time'] = start_time
+            rule['end_time'] = end_time
+            rule['createdAt'] = created_time_str
 
-        # 转义后的订阅
-        filter_rule_list.append(rule)
-    # print(f"filter_rule_list: {filter_rule_list}")
-    print(f"filter_rule_list: {len(filter_rule_list)}")
-    return filter_rule_list
+            # 转义后的订阅
+            filter_rule_list.append(rule)
+        # print(f"filter_rule_list: {filter_rule_list}")
+        print(f"filter_rule_list: {len(filter_rule_list)}")
+        return filter_rule_list
 
 
 def get_vip_user_list():
@@ -258,52 +219,33 @@ def create_record(payload: dict):
         raise Exception(query_response.text)
 
 
-def get_today_active_rule_list():
+def get_today_active_rule_list(use_cache: bool = True):
     """
     从微搭数据源获取用户的推送规则
     :parm: cd_index 场地代号，映射见全局变量
     :return:
     """
     print(f"get_today_active_rule_list")
-    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(jrtzcs gt 0)")
+    if use_cache:
+        print("get from local file...")
+        # 读取文件时加读锁
+        with open(ALL_RULE_FILENAME, 'r') as f:
+            fcntl.flock(f, fcntl.LOCK_SH)
+            data = f.read()
+            fcntl.flock(f, fcntl.LOCK_UN)
+        # 将JSON格式的字符串转换为列表
+        all_rule_list = json.loads(data)
+        rule_list = []
+        for rule in all_rule_list:
+            if rule['jrtzcs'] > 0:
+                rule_list.append(rule)
+            else:
+                pass
+    else:
+        print("get from remote...")
+        rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"(jrtzcs gt 0)")
     print(f"rule_list: {len(rule_list)}")
     return rule_list
-
-
-def get_active_rule_list_by_phone(phone: str):
-    """
-    从微搭数据源获取用户的推送规则
-    :parm: cd_index 场地代号，映射见全局变量
-    :return:
-    """
-    beijing_tz = pytz.timezone('Asia/Shanghai')  # 北京时区
-    filter_rule_list = []
-    rule_list = query_data_by_filter(WEDA_ENV, WEDA_USER_DATASOURCE, f"phone eq '{phone}' and status eq '2' ")
-    for rule in rule_list:
-        # print(rule)
-        # 转换时间格式
-        start_date = datetime.datetime.fromtimestamp(rule['start_date']/1000, beijing_tz).strftime("%Y-%m-%d")
-        end_date = datetime.datetime.fromtimestamp(rule['end_date'] / 1000, beijing_tz).strftime("%Y-%m-%d")
-        hours = rule['start_time'] // (1000 * 60 * 60)
-        minutes = (rule['start_time'] // (1000 * 60)) % 60
-        seconds = (rule['start_time'] // 1000) % 60
-        start_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
-        hours = rule['end_time'] // (1000 * 60 * 60)
-        minutes = (rule['end_time'] // (1000 * 60)) % 60
-        seconds = (rule['end_time'] // 1000) % 60
-        end_time = datetime.time(hour=int(hours), minute=int(minutes), second=int(seconds)).strftime('%H:%M')
-        # 对日期和时间进行转义
-        rule['start_date'] = start_date
-        rule['end_date'] = end_date
-        rule['start_time'] = start_time
-        rule['end_time'] = end_time
-
-        # 转义后的订阅
-        filter_rule_list.append(rule)
-
-    # print(f"filter_rule_list: {filter_rule_list}")
-    print(f"active_rule_list_by_phone: {len(filter_rule_list)}")
-    return filter_rule_list
 
 
 # testing
