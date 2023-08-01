@@ -238,7 +238,7 @@ def get_today_active_rule_list(use_cache: bool = True):
         all_rule_list = json.loads(data)
         rule_list = []
         for rule in all_rule_list:
-            if rule['jrtzcs'] > 0:
+            if rule.get('jrtzcs') and rule['jrtzcs'] > 0:
                 rule_list.append(rule)
             else:
                 pass
