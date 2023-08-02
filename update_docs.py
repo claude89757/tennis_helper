@@ -65,7 +65,7 @@ def split_time_range(time_range):
 
 if __name__ == '__main__':
     # 初始化第一行数据
-    first_line_infos = {"A1": f"更新时间\n{datetime.datetime.now().strftime('%H:%M:%S')}"}
+    first_line_infos = {"A1": f"Update\n{datetime.datetime.now().strftime('%H:%M')}"}
     date_str_list = []
     check_days = 7
     for index in range(0, 7):
