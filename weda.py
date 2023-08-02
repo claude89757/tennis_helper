@@ -38,7 +38,7 @@ def get_access_token():
         # print(token_url)
         token_response = requests.post(token_url, headers=token_headers, json=token_data)
         access_token = token_response.json()["access_token"]
-    # print(f"access_token: {access_token}")
+    print(f"access_token: {access_token}")
     os.environ["WEDA_ACCESS_TOKEN"] = access_token
     return access_token
 
@@ -238,7 +238,7 @@ def get_today_active_rule_list(use_cache: bool = True):
         all_rule_list = json.loads(data)
         rule_list = []
         for rule in all_rule_list:
-            if rule['jrtzcs'] > 0:
+            if rule.get('jrtzcs') and rule['jrtzcs'] > 0:
                 rule_list.append(rule)
             else:
                 pass
