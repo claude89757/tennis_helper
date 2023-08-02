@@ -194,6 +194,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             continue
     print(f"response: {response}")
     # print(f"response: {response.text}")
+    now = datetime.datetime.now().time()
     today_str = datetime.datetime.now().strftime('%Y-%m-%d')
     if got_response:
         if response.status_code == 200:
@@ -216,7 +217,11 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                             # 香蜜6号场，非当日的场地信息过滤
                             continue
                         else:
-                            pass
+                            # 当日12点前，暂时把6号场信息过滤
+                            if now > datetime.time(12, 0):
+                                pass
+                            else:
+                                continue
                     else:
                         pass
                     available_slots = find_available_slots(booked_slots, time_range)
