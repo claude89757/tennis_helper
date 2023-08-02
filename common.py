@@ -217,16 +217,18 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                             # 香蜜6号场，非当日的场地信息过滤
                             continue
                         else:
-                            # 当日12点前，暂时把6号场信息过滤
-                            if now > datetime.time(12, 0):
-                                pass
-                            else:
-                                continue
+                            pass
                     else:
                         pass
                     available_slots = find_available_slots(booked_slots, time_range)
                     available_slots_infos[venue_id] = available_slots
-                return available_slots_infos
+                filter_available_slots_infos = {}
+                for venue_id, available_slots in available_slots_infos.items():
+                    if venue_id == 102930 and available_slots == [['09:00', '22:30']]:
+                        pass
+                    else:
+                        filter_available_slots_infos[venue_id] = available_slots
+                return filter_available_slots_infos
             else:
                 raise Exception(response.text)
         else:
