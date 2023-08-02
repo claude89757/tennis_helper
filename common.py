@@ -940,7 +940,9 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
 
                 booked_court_infos = {}
                 for venue_info in response.json()['result'][0]['listWebVenueStatus']:
-                    if venue_info['bookLinker'] != '可定':
+                    if venue_info['bookLinker'] == '可定' or venue_info['bookLinker'] == '可订':
+                        pass
+                    else:
                         start_time = str(venue_info['timeStartEndName']).split('-')[0].replace(":30", ":00")
                         end_time = str(venue_info['timeStartEndName']).split('-')[1].replace(":30", ":00")
                         venue_name = venue_name_infos[venue_info['venueID']]
@@ -948,8 +950,6 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
                             booked_court_infos[venue_name].append([start_time, end_time])
                         else:
                             booked_court_infos[venue_name] = [[start_time, end_time]]
-                    else:
-                        pass
                 available_slots_infos = {}
                 for venue_id, booked_slots in booked_court_infos.items():
                     available_slots = find_available_slots(booked_slots, time_range)
