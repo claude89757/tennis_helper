@@ -224,7 +224,9 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                     available_slots_infos[venue_id] = available_slots
                 filter_available_slots_infos = {}
                 for venue_id, available_slots in available_slots_infos.items():
-                    if venue_id == 102930 and available_slots == [['09:00', '22:30']]:
+                    if venue_id == 102930 and (available_slots == [['08:00', '22:30']]
+                                               or available_slots == [['09:00', '22:30']]
+                                               or available_slots == [['10:00', '22:30']]):
                         pass
                     else:
                         filter_available_slots_infos[venue_id] = available_slots
