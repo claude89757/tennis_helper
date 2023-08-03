@@ -194,6 +194,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             continue
     print(f"response: {response}")
     # print(f"response: {response.text}")
+    now = datetime.datetime.now().time()
     today_str = datetime.datetime.now().strftime('%Y-%m-%d')
     if got_response:
         if response.status_code == 200:
@@ -221,7 +222,15 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                         pass
                     available_slots = find_available_slots(booked_slots, time_range)
                     available_slots_infos[venue_id] = available_slots
-                return available_slots_infos
+                filter_available_slots_infos = {}
+                for venue_id, available_slots in available_slots_infos.items():
+                    if venue_id == 102930 and (available_slots == [['08:00', '22:30']]
+                                               or available_slots == [['09:00', '22:30']]
+                                               or available_slots == [['10:00', '22:30']]):
+                        pass
+                    else:
+                        filter_available_slots_infos[venue_id] = available_slots
+                return filter_available_slots_infos
             else:
                 raise Exception(response.text)
         else:
@@ -940,13 +949,16 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
 
                 booked_court_infos = {}
                 for venue_info in response.json()['result'][0]['listWebVenueStatus']:
-                    start_time = str(venue_info['timeStartEndName']).split('-')[0].replace(":30", ":00")
-                    end_time = str(venue_info['timeStartEndName']).split('-')[1].replace(":30", ":00")
-                    venue_name = venue_name_infos[venue_info['venueID']]
-                    if booked_court_infos.get(venue_name):
-                        booked_court_infos[venue_name].append([start_time, end_time])
+                    if venue_info['bookLinker'] == '可定' or venue_info['bookLinker'] == '可订':
+                        pass
                     else:
-                        booked_court_infos[venue_name] = [[start_time, end_time]]
+                        start_time = str(venue_info['timeStartEndName']).split('-')[0].replace(":30", ":00")
+                        end_time = str(venue_info['timeStartEndName']).split('-')[1].replace(":30", ":00")
+                        venue_name = venue_name_infos[venue_info['venueID']]
+                        if booked_court_infos.get(venue_name):
+                            booked_court_infos[venue_name].append([start_time, end_time])
+                        else:
+                            booked_court_infos[venue_name] = [[start_time, end_time]]
                 available_slots_infos = {}
                 for venue_id, booked_slots in booked_court_infos.items():
                     available_slots = find_available_slots(booked_slots, time_range)
