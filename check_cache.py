@@ -13,4 +13,3 @@ if __name__ == '__main__':
     with shelve.open(f'{args.court_name}_cache') as db:
         for key, value in db.items():
             print(f'{key}: {value}')
-    

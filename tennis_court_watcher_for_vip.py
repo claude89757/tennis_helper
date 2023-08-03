@@ -294,6 +294,7 @@ if __name__ == '__main__':
             # print(f"raw_slot_list: {slot_list}")
             # print(f"merged_slot_list: {merge_slot_list}")
             # 剔除不符合要求的时间段，过大或者过小
+            print(f"merge_slot_list: {merge_slot_list}")
             filter_merge_slot_list = []
             for slot in merge_slot_list:
                 time1 = datetime.datetime.strptime(slot[0], '%H:%M')
@@ -304,22 +305,24 @@ if __name__ == '__main__':
                 hours = duration.total_seconds() / 3600
                 if hours >= 5:
                     # 这类场地默认没人需要打， 过滤
-                    pass
+                    print_with_timestamp(f"时长过大：{hours}")
                 elif rule_info_list[0].get('duration') and hours < int(rule_info_list[0].get('duration')):
                     # 小于订阅的时长pass
-                    pass
+                    print_with_timestamp(f"小于订阅时长：{rule_info_list[0].get('duration')}")
                 elif hours < 2:
                     # 默认仅2小时以上的场地
-                    pass
+                    print_with_timestamp(f"默认仅2小时以上的场地")
                 else:
                     filter_merge_slot_list.append(slot)
-
+            print(f"filter_merge_slot_list: {filter_merge_slot_list}")
+            print(f"hit rule: {rule_info_list}")
             cache_key = f"{phone_date}_{merge_slot_list[0][0]}"  # 每个时间段仅提醒一次
             if cache_key in cache:
                 print(f"{cache_key} has already been sent, skipping...")
                 continue
             elif not filter_merge_slot_list:
                 print(f"{cache_key} too short slot duration, skipping ...")
+                continue
             else:
                 # 加入待发送短信队里
                 phone = phone_date.split('_')[0]
@@ -333,8 +336,8 @@ if __name__ == '__main__':
                                              "end_time": end_time,
                                              "rule_start_date": rule_info_list[0]['start_date'],
                                              "rule_end_date": rule_info_list[0]['end_date']})
-            # 更新本地文件缓存
-            cache[cache_key] = 1
+                # 更新本地文件缓存
+                cache[cache_key] = 1
         # 关闭本地文件缓存
         cache.close()
 
