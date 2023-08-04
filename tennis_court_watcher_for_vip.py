@@ -266,6 +266,7 @@ if __name__ == '__main__':
             if str(court_info['date']).split()[0] == today_str:
                 pass
             else:
+                print(f"{court_info['date']} vs {today_str}")
                 continue
         else:
             pass
@@ -304,7 +305,7 @@ if __name__ == '__main__':
                 duration = time2 - time1
                 # 将时间差转换为小时数的浮点数
                 hours = duration.total_seconds() / 3600
-                if hours >= 5:
+                if hours > 12:
                     # 这类场地默认没人需要打， 过滤
                     print_with_timestamp(f"时长过大：{hours}")
                 elif rule_info_list[0].get('duration') and hours < int(rule_info_list[0].get('duration')):
