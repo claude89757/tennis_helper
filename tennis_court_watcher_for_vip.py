@@ -250,12 +250,13 @@ if __name__ == '__main__':
     rule_infos = {}  # 每个手机某日期命中的订阅规则列表
     for court_info in found_court_infos:
         # 剔除一些不关注的场地
-        if court_info['court_index'] == COURT_NAME_INFOS[102930]:
+        if court_info['court_index'] == COURT_NAME_INFOS[102930] or str(court_info['court_index']) == "102930":
             # 香蜜的6号场只能电话当日预定, 剔除掉非当日的
             if court_info['date'] == today_str:
                 # 重新命名场地名称
                 court_name = "香蜜电话"
             else:
+                print(f"{court_info['date']} vs {today_str}")
                 continue
         elif court_info['court_index'] in [104300, 104301, 104302, 104475]:
             # 黄木岗的训练墙剔除
@@ -278,7 +279,7 @@ if __name__ == '__main__':
     # 对命中的规则列表进行排序，仅最新创建的优先生效
     for phone_date, rule_list in rule_infos.items():
         rule_infos[phone_date] = sorted(rule_list, key=lambda x: x['createdAt'], reverse=False)
-    # print(f"rule_infos: {rule_infos}")
+    print(f"rule_infos: {rule_infos}")
 
     # 根据手机发送短信提醒
     if not phone_slot_infos:
