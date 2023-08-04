@@ -280,7 +280,7 @@ if __name__ == '__main__':
     # 对命中的规则列表进行排序，仅最新创建的优先生效
     for phone_date, rule_list in rule_infos.items():
         rule_infos[phone_date] = sorted(rule_list, key=lambda x: x['createdAt'], reverse=False)
-    print(f"rule_infos: {rule_infos}")
+    # print(f"rule_infos: {rule_infos}")
 
     # 根据手机发送短信提醒
     if not phone_slot_infos:
@@ -317,7 +317,7 @@ if __name__ == '__main__':
                 else:
                     filter_merge_slot_list.append(slot)
             print(f"filter_merge_slot_list: {filter_merge_slot_list}")
-            print(f"hit rule: {rule_info_list}")
+            # print(f"hit rule: {rule_info_list}")
             cache_key = f"{phone_date}_{merge_slot_list[0][0]}"  # 每个时间段仅提醒一次
             if cache_key in cache:
                 print(f"{cache_key} has already been sent, skipping...")
