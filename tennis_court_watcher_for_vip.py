@@ -155,7 +155,7 @@ if __name__ == '__main__':
             content = file.read()
             print(content)
     except Exception as error:
-        print_with_timestamp(f"get local proxy list error: {error}")
+        print_with_timestamp(f"no local proxy list: {error}")
         content = None
     if content:
         print_with_timestamp()
