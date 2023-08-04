@@ -125,7 +125,7 @@ if __name__ == '__main__':
                             try:
                                 row_index = TIME_SLOTS.index(f"{hour_slot[0]}~{hour_slot[1]}") + 2
                             except ValueError as error:
-                                print(f"error: {error}")
+                                # print(f"error: {error}")
                                 continue
                             print(row_index)
                             cell_key = f"{col_index}{row_index}"
