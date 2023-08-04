@@ -93,7 +93,6 @@ if __name__ == '__main__':
     # 网球场守望者开始时间
     run_start_time = time.time()
     print_with_timestamp("start to check...")
-    today_str = datetime.datetime.now().strftime('%Y-%m-%d')
 
     # 创建命令行解析器, 添加命令行参数
     parser = argparse.ArgumentParser(description='Help Message')
@@ -248,11 +247,12 @@ if __name__ == '__main__':
     # 汇总各时间段的场地信息，按照手机粒度聚合
     phone_slot_infos = {}  # 每个手机某日期命中的时间段列表
     rule_infos = {}  # 每个手机某日期命中的订阅规则列表
+    today_str = datetime.datetime.now().strftime('%m-%d')
     for court_info in found_court_infos:
         # 剔除一些不关注的场地
         if court_info['court_index'] == COURT_NAME_INFOS[102930] or str(court_info['court_index']) == "102930":
             # 香蜜的6号场只能电话当日预定, 剔除掉非当日的
-            if court_info['date'] == today_str:
+            if str(court_info['date']).split()[0] == today_str:
                 # 重新命名场地名称
                 court_name = "香蜜电话"
             else:
@@ -263,7 +263,7 @@ if __name__ == '__main__':
             continue
         elif court_name == "深圳湾":
             # 深圳湾仅通知当日的
-            if court_info['date'] == today_str:
+            if str(court_info['date']).split()[0] == today_str:
                 pass
             else:
                 continue
