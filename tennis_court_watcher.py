@@ -93,7 +93,6 @@ if __name__ == '__main__':
     # 网球场守望者开始时间
     run_start_time = time.time()
     print_with_timestamp("start to check...")
-    today_str = datetime.datetime.now().strftime('%Y-%m-%d')
 
     # 创建命令行解析器, 添加命令行参数
     parser = argparse.ArgumentParser(description='Help Message')
@@ -248,23 +247,26 @@ if __name__ == '__main__':
     # 汇总各时间段的场地信息，按照手机粒度聚合
     phone_slot_infos = {}  # 每个手机某日期命中的时间段列表
     rule_infos = {}  # 每个手机某日期命中的订阅规则列表
+    today_str = datetime.datetime.now().strftime('%m-%d')
     for court_info in found_court_infos:
         # 剔除一些不关注的场地
-        if court_info['court_index'] == COURT_NAME_INFOS[102930]:
+        if court_info['court_index'] == COURT_NAME_INFOS[102930] or str(court_info['court_index']) == "102930":
             # 香蜜的6号场只能电话当日预定, 剔除掉非当日的
-            if court_info['date'] == today_str:
+            if str(court_info['date']).split()[0] == today_str:
                 # 重新命名场地名称
                 court_name = "香蜜电话"
             else:
+                print(f"{court_info['date']} vs {today_str}")
                 continue
         elif court_info['court_index'] in [104300, 104301, 104302, 104475]:
             # 黄木岗的训练墙剔除
             continue
         elif court_name == "深圳湾":
             # 深圳湾仅通知当日的
-            if court_info['date'] == today_str:
+            if str(court_info['date']).split()[0] == today_str:
                 pass
             else:
+                print(f"{court_info['date']} vs {today_str}")
                 continue
         else:
             pass
@@ -278,7 +280,7 @@ if __name__ == '__main__':
     # 对命中的规则列表进行排序，仅最新创建的优先生效
     for phone_date, rule_list in rule_infos.items():
         rule_infos[phone_date] = sorted(rule_list, key=lambda x: x['createdAt'], reverse=False)
-    # print(f"rule_infos: {rule_infos}")
+    print(f"rule_infos: {rule_infos}")
 
     # 根据手机发送短信提醒
     if not phone_slot_infos:
@@ -294,6 +296,7 @@ if __name__ == '__main__':
             # print(f"raw_slot_list: {slot_list}")
             # print(f"merged_slot_list: {merge_slot_list}")
             # 剔除不符合要求的时间段，过大或者过小
+            print(f"merge_slot_list: {merge_slot_list}")
             filter_merge_slot_list = []
             for slot in merge_slot_list:
                 time1 = datetime.datetime.strptime(slot[0], '%H:%M')
@@ -302,24 +305,26 @@ if __name__ == '__main__':
                 duration = time2 - time1
                 # 将时间差转换为小时数的浮点数
                 hours = duration.total_seconds() / 3600
-                if hours >= 5:
+                if hours > 12:
                     # 这类场地默认没人需要打， 过滤
-                    pass
+                    print_with_timestamp(f"时长过大：{hours}")
                 elif rule_info_list[0].get('duration') and hours < int(rule_info_list[0].get('duration')):
                     # 小于订阅的时长pass
-                    pass
+                    print_with_timestamp(f"小于订阅时长：{rule_info_list[0].get('duration')}")
                 elif hours < 2:
                     # 默认仅2小时以上的场地
-                    pass
+                    print_with_timestamp(f"默认仅2小时以上的场地")
                 else:
                     filter_merge_slot_list.append(slot)
-
+            print(f"filter_merge_slot_list: {filter_merge_slot_list}")
+            print(f"hit rule: {rule_info_list}")
             cache_key = f"{phone_date}_{merge_slot_list[0][0]}"  # 每个时间段仅提醒一次
             if cache_key in cache:
                 print(f"{cache_key} has already been sent, skipping...")
                 continue
             elif not filter_merge_slot_list:
                 print(f"{cache_key} too short slot duration, skipping ...")
+                continue
             else:
                 # 加入待发送短信队里
                 phone = phone_date.split('_')[0]
@@ -333,8 +338,8 @@ if __name__ == '__main__':
                                              "end_time": end_time,
                                              "rule_start_date": rule_info_list[0]['start_date'],
                                              "rule_end_date": rule_info_list[0]['end_date']})
-            # 更新本地文件缓存
-            cache[cache_key] = 1
+                # 更新本地文件缓存
+                cache[cache_key] = 1
         # 关闭本地文件缓存
         cache.close()
 
