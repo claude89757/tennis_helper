@@ -397,8 +397,14 @@ if __name__ == '__main__':
                 cur_rule_today_send_num = rule['jrtzcs']
                 cur_rule_total_send_num = rule['jrtzcs']
                 try:
-                    update_record_info_by_id(rule['_id'], {"jrtzcs": cur_rule_today_send_num+rule_send_count})
-                    update_record_info_by_id(rule['_id'], {"zjtzcs": cur_rule_total_send_num+rule_send_count})
+                    if cur_rule_today_send_num:
+                        update_record_info_by_id(rule['_id'], {"jrtzcs": cur_rule_today_send_num + rule_send_count})
+                    else:
+                        update_record_info_by_id(rule['_id'], {"jrtzcs": rule_send_count})
+                    if cur_rule_total_send_num:
+                        update_record_info_by_id(rule['_id'], {"zjtzcs": cur_rule_total_send_num + rule_send_count})
+                    else:
+                        update_record_info_by_id(rule['_id'], {"zjtzcs": rule_send_count})
                 except Exception as error:
                     print_with_timestamp(f"record rule_today_send_count_infos error: {error}")
             else:
