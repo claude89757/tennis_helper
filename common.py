@@ -1067,11 +1067,16 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
                         cur_end_time_obj = datetime.datetime.strptime(cur_end_time, "%H:%M")
                         watch_start_time_obj = datetime.datetime.strptime(watch_start_time, "%H:%M")
                         watch_end_time_obj = datetime.datetime.strptime(watch_end_time, "%H:%M")
-                        rule_duration = rule.get('duration', 2)
-                        if not rule_duration:
+                        try:
+                            rule_duration = rule.get('duration', 2)
+                            if not rule_duration:
+                                rule_duration = 2
+                            else:
+                                pass
+                            rule_duration = int(rule_duration)
+                        except Exception as error:
+                            print(f"error: {error}")
                             rule_duration = 2
-                        else:
-                            pass
                         # 计算两个时间范围的交集
                         start_time = max(cur_start_time_obj, watch_start_time_obj)
                         end_time = min(cur_end_time_obj, watch_end_time_obj)
@@ -1081,7 +1086,7 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
                         print(f"rule_duration: {type(rule_duration)}: {rule_duration}")
                         print(f"diff_duration: {type(datetime.timedelta(hours=rule_duration))}:"
                               f" {datetime.timedelta(hours=rule_duration)}")
-                        if duration >= datetime.timedelta(hours=rule_duration):
+                        if duration >= datetime.timedelta(hours=int(rule_duration)):
                             # print("两个时间范围有交集，且交集的时间大于等于60分钟")
                             # 检查场地的结束时间比当前时间晚2小时以上
                             time_str = f"{date} {cur_end_time}"
