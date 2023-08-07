@@ -1077,6 +1077,10 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
                         end_time = min(cur_end_time_obj, watch_end_time_obj)
                         # 计算交集的时间长度
                         duration = end_time - start_time
+                        print(f"duration: {type(duration)}: {duration}")
+                        print(f"rule_duration: {type(rule_duration)}: {rule_duration}")
+                        print(f"diff_duration: {type(datetime.timedelta(hours=rule_duration))}:"
+                              f" {datetime.timedelta(hours=rule_duration)}")
                         if duration >= datetime.timedelta(hours=rule_duration):
                             # print("两个时间范围有交集，且交集的时间大于等于60分钟")
                             # 检查场地的结束时间比当前时间晚2小时以上
