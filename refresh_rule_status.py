@@ -35,6 +35,8 @@ if __name__ == '__main__':
     all_rule_list = get_all_rule_list(use_cache=False)
 
     # 从微搭的数据库，获取订阅规则列表，根据订阅日期更新订阅状态
+    phone_today_sms_count_infos = {}
+    phone_running_rule_infos = {}
     for court_name, court_index in CD_INDEX_INFOS.items():
         # 当前可巡检的日期范围
         check_date_list = []
@@ -66,7 +68,6 @@ if __name__ == '__main__':
             print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             # 标记这些订阅的状态：运行中、已过期、未生效
             phone_active_rule_infos = {}
-            phone_today_sms_count_infos = {}
             for rule in rule_list:
                 # 判断订阅的状态，根据日期范围是否有交集
                 rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
@@ -120,11 +121,15 @@ if __name__ == '__main__':
                     # 记录运行中的规则
                     if phone_active_rule_infos.get(rule['phone']):
                         phone_active_rule_infos[rule['phone']].append(rule)
+                        phone_running_rule_infos[rule['phone']].append(rule)
                     else:
                         phone_active_rule_infos[rule['phone']] = [rule]
+                        phone_running_rule_infos[rule['phone']] = [rule]
                 else:
                     # 未生效
                     pass
+
+                # 统计每个手机的通知次数
                 if today_send_num and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
                     if phone_today_sms_count_infos.get(rule['phone']):
                         phone_today_sms_count_infos[rule['phone']] += today_send_num
@@ -132,22 +137,7 @@ if __name__ == '__main__':
                         phone_today_sms_count_infos[rule['phone']] = today_send_num
                 else:
                     pass
-                time.sleep(0.1)
-            
-            # 非VIP, 每日仅可收到3条短信
-            for phone, today_send_num in phone_today_sms_count_infos.items():
-                if today_send_num >= 3:
-                    for rule in rule_list:
-                        if rule['phone'] == phone:
-                            if rule.get("status") and rule['status'] == '5':
-                                pass
-                            else:
-                                print(f"{rule['_id']} 超日限额...")
-                                update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
-                                updated_rule_id_list.append(rule['_id'])
-                else:
-                    pass
-                
+
             # 重复的订阅进行标记
             for phone, rules in phone_active_rule_infos.items():
                 sorted_rules = sorted(rules, key=lambda x: x['createdAt'], reverse=False)
@@ -175,7 +165,36 @@ if __name__ == '__main__':
                 else:
                     # 仅1条订阅，无需关注
                     pass
-        print("-----------------------------------------")
+
+    # 非VIP, 每日仅可收到3条短信
+    for phone, today_send_num in phone_today_sms_count_infos.items():
+        if today_send_num >= 3:
+            for rule in all_rule_list:
+                if rule['phone'] == phone:
+                    if rule.get("status") and rule['status'] == '5':
+                        pass
+                    else:
+                        print(f"{rule['_id']} 超日限额...")
+                        update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
+                        updated_rule_id_list.append(rule['_id'])
+        else:
+            pass
+
+    # 非VIP, 最新的3条订阅生效
+    for phone, rule_list in phone_running_rule_infos.items():
+        if len(rule_list) > 3:
+            sorted_rule_list = sorted(rule_list, key=lambda x: x['createdAt'], reverse=True)
+            print(f"top3 sorted_rule_list: {sorted_rule_list[:3]}")
+            for rule in sorted_rule_list[3:]:
+                if rule.get("status") and rule['status'] == '3':
+                    pass
+                else:
+                    print(f"{rule['_id']} 已过期...")
+                    update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
+                    updated_rule_id_list.append(rule['_id'])
+        else:
+            pass
+    print("-----------------------------------------")
 
     # 标记是否为VIP的订阅
     print(f"标记VIP订阅....")
