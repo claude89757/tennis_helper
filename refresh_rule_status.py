@@ -182,18 +182,21 @@ if __name__ == '__main__':
             pass
 
     # 非VIP, 最新的3条订阅生效
-    print(f"phone_running_rule_infos: {phone_running_rule_infos}")
+    # print(f"phone_running_rule_infos: {phone_running_rule_infos}")
     for phone, rule_list in phone_running_rule_infos.items():
         if len(rule_list) > 3:
             sorted_rule_list = sorted(rule_list, key=lambda x: x['createdAt'], reverse=True)
             print(f"top3 sorted_rule_list: {sorted_rule_list[:3]}")
             for rule in sorted_rule_list[3:]:
-                if rule.get("status") and rule['status'] == '3':
-                    pass
+                if (str(rule['user_level']) != "2" and str(rule['user_level']) != "3")
+                    if rule.get("status") and rule['status'] == '3':
+                        pass
+                    else:
+                        print(f"{rule['_id']} 已过期...")
+                        update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
+                        updated_rule_id_list.append(rule['_id'])
                 else:
-                    print(f"{rule['_id']} 已过期...")
-                    update_record_info_by_id(rule['_id'], {"status": '3'})  # 状态: 已过期
-                    updated_rule_id_list.append(rule['_id'])
+                    pass
         else:
             pass
     print("-----------------------------------------")
