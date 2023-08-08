@@ -101,13 +101,10 @@ if __name__ == '__main__':
                         print(f"{rule['_id']} 超月限额...")
                         update_record_info_by_id(rule['_id'], {"status": '6'})  # 状态: 超月限额
                         updated_rule_id_list.append(rule['_id'])
-                # elif today_send_num and today_send_num >= 3 \
-                #         and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
-                #     if rule.get("status") and rule['status'] == '5':
-                #         pass
-                #     else:
-                #         update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
-                #         updated_rule_id_list.append(rule['_id'])
+                elif today_send_num and rule['status'] == '5' \
+                        and (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
+                    # 本日已超限，忽略
+                    pass
                 elif check_start_date <= rule_end_date and check_end_date >= rule_start_date:
                     # 日期范围有交集, 运行中
                     if rule.get("status") and rule['status'] == '2':
@@ -172,12 +169,12 @@ if __name__ == '__main__':
         if today_send_num >= 3:
             for rule in all_rule_list:
                 if rule['phone'] == phone:
-                    if rule.get("status") and rule['status'] == '5':
-                        pass
-                    else:
+                    if rule.get("status") and rule['status'] == '2':
                         print(f"{rule['_id']} 超日限额...")
                         update_record_info_by_id(rule['_id'], {"status": '5'})  # 状态: 超日限额
                         updated_rule_id_list.append(rule['_id'])
+                    else:
+                        pass
         else:
             pass
 
