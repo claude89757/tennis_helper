@@ -247,14 +247,15 @@ if __name__ == '__main__':
     # 汇总各时间段的场地信息，按照手机粒度聚合
     phone_slot_infos = {}  # 每个手机某日期命中的时间段列表
     rule_infos = {}  # 每个手机某日期命中的订阅规则列表
+    court_index_infos = {}  # 每个手机某日期命中的场地老板
     today_str = datetime.datetime.now().strftime('%m-%d')
     for court_info in found_court_infos:
         # 剔除一些不关注的场地
         if court_info['court_index'] == COURT_NAME_INFOS[102930] or str(court_info['court_index']) == "102930":
             # 香蜜的6号场只能电话当日预定, 剔除掉非当日的
             if str(court_info['date']).split()[0] == today_str:
-                # 重新命名场地名称
-                court_name = "香蜜电话"
+                # court_name = "香蜜电话"
+                pass
             else:
                 print(f"{court_info['date']} vs {today_str}")
                 continue
@@ -274,9 +275,11 @@ if __name__ == '__main__':
         if phone_slot_infos.get(key):
             phone_slot_infos[key].append([court_info['start_time'], court_info['end_time']])
             rule_infos[key].append(court_info['rule_info'])
+            court_index_infos[key].append(str(court_info['court_index']))
         else:
             phone_slot_infos[key] = [[court_info['start_time'], court_info['end_time']]]
             rule_infos[key] = [court_info['rule_info']]
+            court_index_infos[key] = [str(court_info['court_index'])]
     # 对命中的规则列表进行排序，仅最新创建的优先生效
     for phone_date, rule_list in rule_infos.items():
         rule_infos[phone_date] = sorted(rule_list, key=lambda x: x['createdAt'], reverse=False)
@@ -326,6 +329,13 @@ if __name__ == '__main__':
                 print(f"{cache_key} too short slot duration, skipping ...")
                 continue
             else:
+                court_index_list = court_index_infos.get(phone_date)
+                if len(set(court_index_list)) == 1 and list(court_index_list)[0] \
+                        and (list(court_index_list)[0] == COURT_NAME_INFOS[102930]
+                             or list(court_index_list)[0] == "102930"):
+                    send_court_name = "香蜜电话"
+                else:
+                    send_court_name = court_name
                 # 加入待发送短信队里
                 phone = phone_date.split('_')[0]
                 date = phone_date.split('_')[1]
@@ -333,7 +343,7 @@ if __name__ == '__main__':
                 end_time = merge_slot_list[0][1]
                 up_for_send_sms_list.append({"phone": phone,
                                              "date": date,
-                                             "court_name": court_name,
+                                             "court_name": send_court_name,
                                              "start_time": start_time,
                                              "end_time": end_time,
                                              "rule_start_date": rule_info_list[0]['start_date'],
