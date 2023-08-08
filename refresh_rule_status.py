@@ -188,7 +188,7 @@ if __name__ == '__main__':
             sorted_rule_list = sorted(rule_list, key=lambda x: x['createdAt'], reverse=True)
             print(f"top3 sorted_rule_list: {sorted_rule_list[:3]}")
             for rule in sorted_rule_list[3:]:
-                if (str(rule['user_level']) != "2" and str(rule['user_level']) != "3")
+                if (str(rule['user_level']) != "2" and str(rule['user_level']) != "3"):
                     if rule.get("status") and rule['status'] == '3':
                         pass
                     else:
