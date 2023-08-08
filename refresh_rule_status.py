@@ -36,6 +36,7 @@ if __name__ == '__main__':
 
     # 从微搭的数据库，获取订阅规则列表，根据订阅日期更新订阅状态
     phone_today_sms_count_infos = {}
+    phone_total_sms_count_infos = {}
     phone_running_rule_infos = {}
     for court_name, court_index in CD_INDEX_INFOS.items():
         # 当前可巡检的日期范围
@@ -181,6 +182,7 @@ if __name__ == '__main__':
             pass
 
     # 非VIP, 最新的3条订阅生效
+    print(f"phone_running_rule_infos: {phone_running_rule_infos}")
     for phone, rule_list in phone_running_rule_infos.items():
         if len(rule_list) > 3:
             sorted_rule_list = sorted(rule_list, key=lambda x: x['createdAt'], reverse=True)
