@@ -301,6 +301,7 @@ if __name__ == '__main__':
         cache = shelve.open(f'{args.court_name}_cache')
         for phone_date, slot_list in phone_slot_infos.items():
             rule_info_list = rule_infos.get(phone_date)  # 一个手机号，可能命中多个订阅
+            print(f"rule_info_list: {rule_info_list}")
             merge_slot_list = merge_time_ranges(slot_list)  # 聚合后，可能还有多个时间段，短信只发送第一个时间段
             # print(f"raw_slot_list: {slot_list}")
             # print(f"merged_slot_list: {merge_slot_list}")
@@ -319,20 +320,20 @@ if __name__ == '__main__':
                     print_with_timestamp(f"时长过大：{hours}")
                 elif rule_info_list[0].get('duration') and hours < int(rule_info_list[0].get('duration')):
                     # 小于订阅的时长pass
-                    print_with_timestamp(f"小于订阅时长：{rule_info_list[0].get('duration')}")
+                    print_with_timestamp(f"{phone_date} 小于订阅时长：{rule_info_list[0].get('duration')}")
                 elif hours < 2:
                     # 默认仅2小时以上的场地
-                    print_with_timestamp(f"默认仅2小时以上的场地")
+                    print_with_timestamp(f"{phone_date} 默认仅2小时以上的场地")
                 else:
                     filter_merge_slot_list.append(slot)
             print(f"filter_merge_slot_list: {filter_merge_slot_list}")
             # print(f"hit rule: {rule_info_list}")
             cache_key = f"{phone_date}_{merge_slot_list[0][0]}"  # 每个时间段仅提醒一次
             if cache_key in cache:
-                print(f"{cache_key} has already been sent, skipping...")
+                print_with_timestamp(f"{cache_key} has already been sent, skipping...")
                 continue
             elif not filter_merge_slot_list:
-                print(f"{cache_key} too short slot duration, skipping ...")
+                print_with_timestamp(f"{cache_key} too short slot duration, skipping ...")
                 continue
             else:
                 court_index_list = court_index_infos.get(phone_date)
