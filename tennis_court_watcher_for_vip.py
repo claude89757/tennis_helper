@@ -190,11 +190,6 @@ if __name__ == '__main__':
                 and check_date_str == last_check_date_str:
             # 未开放预定，不推送消息
             continue
-        elif datetime.time(0, 0) <= now < datetime.time(20, 3) \
-                and args.court_name in ["简上"] \
-                and check_date_str == last_check_date_str:
-            # 未开放预定，不推送消息
-            continue
         else:
             pass
 
@@ -273,6 +268,13 @@ if __name__ == '__main__':
             else:
                 print(f"{court_info['date']} vs {today_str}")
                 continue
+        elif args.court_name == "简上":
+            # 深圳湾仅通知当日的
+            if str(court_info['date']).split()[0] == last_check_date_str \
+                    and datetime.time(0, 0) <= now < datetime.time(20, 3):
+                continue
+            else:
+                pass
         else:
             pass
         key = f"{court_info['phone']}_{court_info['date']}"  # 手机+日期作为聚合的标志
