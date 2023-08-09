@@ -113,7 +113,6 @@ if __name__ == '__main__':
         print(args.app_name)
         print(args.court_name)
         print(args.watch_days)
-    court_name = args.court_name
 
     # 当前可巡检的日期范围
     check_date_list = []
@@ -187,7 +186,12 @@ if __name__ == '__main__':
         print(f"checking {check_date_str}")
         # 剔除部分还没开发预定的时间的巡检
         if datetime.time(0, 0) <= now < datetime.time(9, 3) \
-                and court_name in ["香蜜体育", "黄木岗", "莲花体育"] \
+                and args.court_name in ["香蜜体育", "黄木岗", "莲花体育"] \
+                and check_date_str == last_check_date_str:
+            # 未开放预定，不推送消息
+            continue
+        elif datetime.time(0, 0) <= now < datetime.time(20, 3) \
+                and args.court_name in ["简上"] \
                 and check_date_str == last_check_date_str:
             # 未开放预定，不推送消息
             continue
@@ -221,7 +225,7 @@ if __name__ == '__main__':
     if datetime.time(0, 0) <= now < datetime.time(8, 0):
         print_with_timestamp('Skipping task execution between 0am and 8am')
         # 打开文件，如果文件不存在则创建
-        with open(f"{court_name}_available_court.txt", "w") as file:
+        with open(f"{args.court_name}_available_court.txt", "w") as file:
             # 尝试获取文件锁，如果锁已被其他进程持有，则立即返回
             try:
                 fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -262,7 +266,7 @@ if __name__ == '__main__':
         elif court_info['court_index'] in [104300, 104301, 104302, 104475]:
             # 黄木岗的训练墙剔除
             continue
-        elif court_name == "深圳湾":
+        elif args.court_name == "深圳湾":
             # 深圳湾仅通知当日的
             if str(court_info['date']).split()[0] == today_str:
                 pass
@@ -335,7 +339,7 @@ if __name__ == '__main__':
                              or list(court_index_list)[0] == "102930"):
                     send_court_name = "香蜜电话"
                 else:
-                    send_court_name = court_name
+                    send_court_name = args.court_name
                 # 加入待发送短信队里
                 phone = phone_date.split('_')[0]
                 date = phone_date.split('_')[1]
@@ -421,7 +425,7 @@ if __name__ == '__main__':
                 pass
 
     # 打开文件，如果文件不存在则创建
-    with open(f"{court_name}_available_court.txt", "w") as file:
+    with open(f"{args.court_name}_available_court.txt", "w") as file:
         # 尝试获取文件锁，如果锁已被其他进程持有，则立即返回
         try:
             fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
