@@ -288,7 +288,7 @@ if __name__ == '__main__':
             court_index_infos[key] = [str(court_info['court_index'])]
     # 对命中的规则列表进行排序，仅最新创建的优先生效
     for phone_date, rule_list in rule_infos.items():
-        rule_infos[phone_date] = sorted(rule_list, key=lambda x: x['createdAt'], reverse=False)
+        rule_infos[phone_date] = sorted(rule_list, key=lambda x: x['createdAt'], reverse=True)
     # print(f"rule_infos: {rule_infos}")
 
     # 根据手机发送短信提醒
