@@ -175,8 +175,9 @@ if __name__ == '__main__':
     rule_check_end_date = max(rule_date_list)
     # print(f"rule check date: from {rule_check_start_date} to {rule_check_end_date}")
     # 采用协程方式查询各日期的场地信息
-    last_check_date_str = (datetime.datetime.now() +
-                           datetime.timedelta(days=args.watch_days-1)).strftime('%Y-%m-%d')
+    last_check_date_str = (datetime.datetime.now() + datetime.timedelta(days=args.watch_days-1)).strftime('%Y-%m-%d')
+    last_check_date_str2 = (datetime.datetime.now() + datetime.timedelta(days=args.watch_days-1)).strftime('%m-%d')
+
     tasks = []
     check_date_str_list = []
     loop = asyncio.get_event_loop()
@@ -270,7 +271,7 @@ if __name__ == '__main__':
                 continue
         elif args.court_name == "简上":
             # 深圳湾仅通知当日的
-            if str(court_info['date']).split()[0] == last_check_date_str \
+            if str(court_info['date']).split()[0] == last_check_date_str2 \
                     and datetime.time(0, 0) <= now < datetime.time(20, 3):
                 continue
             else:

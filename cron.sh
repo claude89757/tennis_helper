@@ -61,7 +61,7 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 # run tennis tools for shanhua
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "SHANHUA" --court_name "山花馆" --watch_days 5 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/shanhua_$(date +\%Y-\%m-\%d).log 2>&1
 # run tennis tools for szw
-*/4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "SZW" --court_name "深圳湾" --watch_days 4 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/szw_$(date +\%Y-\%m-\%d).log 2>&1
+*/4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "SZW" --court_name "深圳湾" --watch_days 1 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/szw_$(date +\%Y-\%m-\%d).log 2>&1
 
 
 # run tennis tools for isz (vip)
