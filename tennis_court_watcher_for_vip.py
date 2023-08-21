@@ -316,13 +316,16 @@ if __name__ == '__main__':
                 duration = time2 - time1
                 # 将时间差转换为小时数的浮点数
                 hours = duration.total_seconds() / 3600
+                print(f"hours: {hours}")
                 if hours > 12:
                     # 这类场地默认没人需要打， 过滤
                     print_with_timestamp(f"时长过大：{hours}")
                 elif rule_info_list[0].get('duration') and hours < int(rule_info_list[0].get('duration')):
                     # 小于订阅的时长pass
                     print_with_timestamp(f"{phone_date} 小于订阅时长：{rule_info_list[0].get('duration')}")
-                elif hours < 2:
+                elif rule_info_list[0].get('duration') and hours >= int(rule_info_list[0].get('duration')):
+                    filter_merge_slot_list.append(slot)
+                elif not rule_info_list[0].get('duration') and hours < 2:
                     # 默认仅2小时以上的场地
                     print_with_timestamp(f"{phone_date} 默认仅2小时以上的场地")
                 else:
