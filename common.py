@@ -889,32 +889,46 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
             # 'webApiUniqueID': '811e68e7-f189-675c-228d-3739e48e57b2'
         }
         headers = {
-            'Host': 'program.springcocoon.com',
-            'Accept': 'application/json, text/javascript, */*; q=0.01',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Sec-Fetch-Site': 'same-origin',
-            # 'X-XSRF-TOKEN': 'WX8ov48Nfyv--FaZ5ugm6cbscc_'
-            #                 'YOqfTVIr6Tobcku0Clt4Q4jtRZrg0YML14TNs6ukHgXsWyK_'
-            #                 'OfgGvejxCaE7srNgpMwxjX9PUOU_JbIl3LkQx3aPI02YovKbqfUwOL5QMqw2',
-            'Cookie': 'HT.ShopID.1=4f195d33-de51-495e-a345-09b23f98ce95;'
-                      '.AspNet.ApplicationCookie=aQl5ju2OXLbnHuGbCI4T_8lLN_lwLDH22IgIMcjlzsNjRfvp'
-                      'YYtYVSBcupIJ_2E2DHPkgYyme9MVWKVvbg97t-TrnYvtocP2BKipfpjl-ROPvdBwJ1BP0uWPpCMDIdSR7J7OdKqPHQ4'
-                      '2Cj-A5ozeLS4_C7IYSjBHLUYwJm6rvq-5Sye187tT7GwmQJE5chg2U6mCL3X-EaRHf3cuk1En3Gyxjt-ZyPxmGZm_gP3'
-                      'V1FWmMEEalM2gJH95BTTrEAQtAM3gTs1AURcwNmNQXiHSJzz79JTcKkTA3vYZamio4jkLGeQ_LnE5WQSm7x0QXFz3Sxi'
-                      'vShX4EWvInkfm4hGqDUE_HlXL1eAR66WVh4TLWGXLUOolfz_F2fz9OE0vLyNvIBxsYdY_LqMbHyV5SbxxIOxgCgxM2aJ'
-                      'Hw04WhY5S-8AOA5UVhWkNJwCWBcnk-6nNveQYNNWHJAICiLtlDJ7b6cbZ_8tlhnXcqvppcyJFLFOb1cl7yfPsn_uX69x'
-                      'v-RU8neEP4pw-nuFkrbN8OGCeHTM2M8mA5dwxfdJ4lD92P3znT7T3b6cKeSuGxo-65HUKuTjCq_P3_qOMetN39CTDQn6E'
-                      'ZY68uMF6OQzw3Nu1ge9ANTFM',
-            'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
-            'Sec-Fetch-Mode': 'cors',
-            'Origin': 'https://program.springcocoon.com',
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X)'
-                          ' AppleWebKit/605.1.15 (KHTML, like Gecko) '
-                          'Mobile/15E148 MicroMessenger/8.0.39(0x18002733) '
-                          'NetType/WIFI Language/zh_CN miniProgram/wx6b10d95e92283e1c',
-            'Referer': 'https://program.springcocoon.com/szbay/AppVenue/VenueBill/'
-                       'VenueBill?VenueTypeID=d3bc78ba-0d9c-4996-9ac5-5a792324decb',
-            'Sec-Fetch-Dest': 'empty'
+            "Host": "program.springcocoon.com",
+            "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"98\"",
+            # "X-XSRF-TOKEN": "rs3gB5gQUqeG-YcaRXgB13JMlQAn9N4e_vS29wl-_HV5-MZb6gCL7eLhiC030tJP-cFa0c2qgK9UfSKuwLH5vhZK_
+            # 2KYA_j7Df_NAn9ts9q3N0A9XIJe7vAXdhZLTaywn0VRMA2",
+            "sec-ch-ua-mobile": "?0",
+            # "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko)
+            # Chrome/98.0.4758.102 Safari/537.36 MicroMessenger/6.8.0(0x16080000) NetType/WIFI MiniProgramEnv
+            # /Mac MacWechat/WMPF XWEB/30803",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "X-Requested-With": "XMLHttpRequest",
+            "sec-ch-ua-platform": "\"macOS\"",
+            "Origin": "https://program.springcocoon.com",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty",
+            "Referer": "https://program.springcocoon.com/szbay/AppVenue/VenueBill/"
+                       "VenueBill?VenueTypeID=d3bc78ba-0d9c-4996-9ac5-5a792324decb",
+            "Accept-Language": "zh-CN,zh",
+            "Cookie": "ASP.NET_SessionId=kvocpvhfdwvg5oc1zjgnuweg; HT.LoginType.1=20; HT.App.Type.1=10;"
+                      " HT.Weixin.ServiceType.1=30; .AspNet.ApplicationCookie=DEqSrh0CUZmHJYhyiK1Ly-7eK0_"
+                      "x-CG-JAv3NsnEdz0Em-KdmcZdNubnt16Yxf9pe4op70JTLzxaMsb0PfmIS5NgPlLyIVz65FDjW"
+                      "L1cFb71ZnS9GOO18Zpf8bpyLlMg5o_w-LWwm_m3U21fNxWDg1baUSsIPlWAqDJKBuTPrEGs1rvNPp"
+                      "82f5cSXaGNSgfRWjr0fwQRaR9H3Ocq25h-O66-cF_TpNVeAF2BHhRkx_OfX-YijKPfd40LjQwJAAj-"
+                      "HUtT75Mh29ISorqOrmKRjamsuapWDEVJ6XDBswjVbbnMWbrwrCDJHwWdkgo-xw-vhRkBVYfZSQZgWqXggtP"
+                      "_dWyrxWxV26rBLV0cpddcqKzOrDGlMjgIltDZIZ4NT1cPSSH58M7XSUbqgY24UG14kH-WUYBGqZYooTPt9Y"
+                      "MBVkJztOSEIWNo9ixWFg2jvJ40D33aDM9gzz6fdqJjLJMpWHeeYKykj4iaNjM_tZzKqfPMnzH9dDZLEVjV4"
+                      "850SB22f3MAITF3rbtFWdVR3_Wd00F3LAqg9G1tuAG8Jl3ReqL4MQ5zp9XpnO_KO9e1vn8OwUQ_06tCc"
+                      "xokHgNEnIlzz1IL0yAFvyRoGXVObWB4EWBM7LGC; HT.Weixin.AppID.1=wx6b10d95e92283e1c; "
+                      "HT.Weixin.OpenID.1=oH5RL5EWB5CjAPKVPOOLlfHm1bV8; HT.EmpID.1=4d5adfce-e849-48d5-"
+                      "b7fb-863cdf34bea0; HT.IsTrainer.1=False; HT.PartID.1=b700c053-71f2-47a6-88a1-6cf50b7cf863;"
+                      " HT.PartDisplayName.1=%e6%b7%b1%e5%9c%b3%e6%b9%be%e4%bd%93%e8%82%b2%e4%b8%ad%e5%bf%83;"
+                      " HT.ShopID.1=4f195d33-de51-495e-a345-09b23f98ce95; HT.ShopDisplayName.1="
+                      "%e6%b7%b1%e5%9c%b3%e6%b9%be%e5%b0%8f%e7%a8%8b%e5%ba%8f; __RequestVerificationToken"
+                      "_L3N6YmF50=FXMW3m5I9fZK71GaCXRca5Ay0WDTbMgOaZoHFQwHWHTw7S_Dfa2vBwHOPqV0PffXA1NhlizV"
+                      "FX5OfyVUZeP5Zri3Du41; XSRF-TOKEN=rs3gB5gQUqeG-YcaRXgB13JMlQAn9N4e_vS29wl-_HV5-MZb6gC"
+                      "L7eLhiC030tJP-cFa0c2qgK9UfSKuwLH5vhZK_2KYA_j7Df_NAn9ts9q3N0A9XIJe7vAXdhZLTaywn0VRMA2",
+            # "__RequestVerificationToken_L3N6YmF50": "FXMW3m5I9fZK71GaCXRca5Ay0WDTbMgOaZoHFQwHWHTw7S
+            # _Dfa2vBwHOPqV0PffXA1NhlizVFX5OfyVUZeP5Zri3Du41",
+            # "XSRF-TOKEN": "rs3gB5gQUqeG-YcaRXgB13JMlQAn9N4e_vS29wl-_HV5-MZb6gCL7eLhiC030tJP-cFa0"
+            #               "c2qgK9UfSKuwLH5vhZK_2KYA_j7Df_NAn9ts9q3N0A9XIJe7vAXdhZLTaywn0VRMA2"
         }
         url = 'https://program.springcocoon.com/szbay/api/services/app/VenueBill/GetVenueBillDataAsync'
         print(url)
