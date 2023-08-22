@@ -33,6 +33,7 @@ if __name__ == '__main__':
 
     # 获取所有规则
     all_rule_list = get_all_rule_list(use_cache=False)
+    print(f"all_rule_list: {len(all_rule_list)}")
 
     # 从微搭的数据库，获取订阅规则列表，根据订阅日期更新订阅状态
     phone_today_sms_count_infos = {}
