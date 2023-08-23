@@ -60,7 +60,7 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
         query_url = f"https://lowcode-8gsauxtn5fe06776.ap-shanghai.tcb-api.tencentcloudapi.com/weda/odata/v1/batch" \
                     f"/{env_type}/{datasource_name}"
     query_params = {
-        "$count": 'true',
+        "$count": 100000,
         "$top": 100000,
     }
     query_headers = {
