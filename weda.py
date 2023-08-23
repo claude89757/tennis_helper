@@ -58,11 +58,10 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
                     f"/{env_type}/{datasource_name}?$filter={filter_str}"
     else:
         query_url = f"https://lowcode-8gsauxtn5fe06776.ap-shanghai.tcb-api.tencentcloudapi.com/weda/odata/v1/batch" \
-                    f"/{env_type}/{datasource_name}"
+                    f"/{env_type}/{datasource_name}?$orderby=(updateBy asc)"
     query_params = {
         "$count": 'true',
         "$top": 5000,
-        "$orderby": "updateBy asc"
     }
     query_headers = {
         "Content-Type": "application/json",
