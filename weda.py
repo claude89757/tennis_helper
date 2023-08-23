@@ -67,7 +67,6 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
     params = {
         "$top": 1000,  # 每次查询的记录数
         "$skip": 0,  # 跳过的记录数
-        "$orderby": "updateBy asc",  # 排序方式
         "$count": "true"  # 获取数据总数
     }
     # 存储所有数据的列表
