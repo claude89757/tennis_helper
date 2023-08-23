@@ -59,24 +59,32 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
     else:
         query_url = f"https://lowcode-8gsauxtn5fe06776.ap-shanghai.tcb-api.tencentcloudapi.com/weda/odata/v1/batch" \
                     f"/{env_type}/{datasource_name}?$orderby=updateBy desc"
-    query_params = {
-        "$count": 'true',
-        "$top": 5000,
-    }
-    query_headers = {
+    headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}"
     }
-    print(query_url)
-    # print(query_params)
-    query_response = requests.get(query_url, headers=query_headers, params=query_params)
-    # print(query_response.status_code)
-    # print(query_response.text)
-    if query_response.status_code == 200:
-        return query_response.json().get('value')
-    else:
-        raise Exception(query_response.text)
-
+    # 初始化参数
+    params = {
+        "$top": 1000,  # 每次查询的记录数
+        "$skip": 0,  # 跳过的记录数
+        "$orderby": "updateBy asc",  # 排序方式
+        "$count": "true"  # 获取数据总数
+    }
+    # 存储所有数据的列表
+    all_data = []
+    while True:
+        # 发送GET请求
+        response = requests.get(query_url, headers=headers, params=params)
+        # 将响应内容解析为JSON
+        data = response.json()
+        # 将本次查询的数据添加到总数据列表中
+        all_data.extend(data['value'])
+        # 如果本次查询的数据少于1000条，说明已经查询完所有数据，跳出循环
+        if len(data['value']) < 1000:
+            break
+        # 否则，更新$skip参数，准备查询下一页数据
+        params['$skip'] += 1000
+    return all_data
 
 def get_active_rule_list(cd_index: int, is_vip: bool = False):
     """
