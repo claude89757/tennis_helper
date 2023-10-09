@@ -85,6 +85,7 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
         params['$skip'] += 1000
     return all_data
 
+
 def get_active_rule_list(cd_index: int, is_vip: bool = False):
     """
     从微搭数据源获取用户的推送规则
