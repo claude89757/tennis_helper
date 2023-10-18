@@ -165,7 +165,7 @@ def tencent_docs_to_image(image_path: str):
     driver.get("https://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2&_t=1690340619074")
 
     # 等待JavaScript加载
-    time.sleep(5)
+    time.sleep(10)
 
     # 获取要截屏的元素
     print(f"finding element...")
