@@ -62,18 +62,7 @@ def get_topic_data(keyword):
         "x-s": "1BwJ16Z61lOv121i1BvKZ6ZUO2siO2sisgsG12dvOjs3",
         "x-t": "1697655265279",
         # 注意：你需要将下面的cookie替换为你自己的cookie
-        "cookie": "a1=189a24b299dzg9nw7kay0s5ghtexkjdqswji4885n50000398979; webId=c4f82c15c1fb37de66d15464eeb27e51; "
-                  "gid=yYj0J4DqJqMYyYj0J4DJjEYYjfukjIEWT0v8V2IM2kx9d328CTVfA4888qjYjWj8yj04JYWD; web_session="
-                  "0400698e777c5b565df6427af0364b2539e623; customerBeakerSessionId=10089cf15290f7ca3d046150b5d12"
-                  "d3749c5c805gAJ9cQAoWBAAAABjdXN0b21lclVzZXJUeXBlcQFLAVgOAAAAX2NyZWF0aW9uX3RpbWVxAkdB2UwJ247ItF"
-                  "gJAAAAYXV0aFRva2VucQNYQQAAADY0Njc3MDgxNDMwZTRkZjdiOGYxYzRhMTVmMjhmMmY3LThiZTQ2NjE4NmNiMDQwZjI"
-                  "5Mzk2NTk1MTVkNzlkOTUwcQRYAwAAAF9pZHEFWCAAAAAzMDBkNWIxNjcyNmU0NzMzYWQzZTQwMmE5NWY2ZWFkOHEGWA4AA"
-                  "ABfYWNjZXNzZWRfdGltZXEHR0HZTAnbjsi0WAYAAAB1c2VySWRxCFgYAAAANWJjNzFmNmNmN2U4YjkwNGJiZWFlNDU1cQlYA"
-                  "wAAAHNpZHEKWBgAAAA2NTMwMjc2ZWRkMDAwMDAwMDAwMDAwMDFxC3Uu; customerClientId=654263717538808; "
-                  "customer-sso-sid=6530276edd00000000000001; x-user-id-creator.xiaohongshu.com=5bc71f6cf7e8b"
-                  "904bbeae455; access-token-creator.xiaohongshu.com=customer.ares.AT-9347c335bedc4df68b7de1858"
-                  "4441f21-a5c7351e8f2143c7a8a72e19c8c6073b; galaxy_creator_session_id=zulW5JF9HzmPMus0GybLHF6IYn"
-                  "1BEuwyIfEQ; galaxy.creator.beaker.session.id=1697654638398046416509; xsecappid=creator-creator",
+        "cookie": "a1=189a24b299dzg9nw7kay0s5ghtexkjdqswji4885n50000398979; webId=c4f82c15c1fb37de66d15464eeb27e51; gid=yYj0J4DqJqMYyYj0J4DJjEYYjfukjIEWT0v8V2IM2kx9d328CTVfA4888qjYjWj8yj04JYWD; customerClientId=654263717538808; customerBeakerSessionId=498cab4b72364be0585c65a4be17fbe99c7dab20gAJ9cQAoWBAAAABjdXN0b21lclVzZXJUeXBlcQFLAVgOAAAAX2NyZWF0aW9uX3RpbWVxAkdB2UwMCm0OVlgJAAAAYXV0aFRva2VucQNYQQAAAGZlZDc3NzJiYmZhMTRlYWE5ZWYxOGY5MzY3MmUzNmNlLWIzNDg3MGNhMGY4MzRjN2M4NzZkZDE5YTBkZjBiNzE1cQRYAwAAAF9pZHEFWCAAAABkMWMzZTY3YjM1NDI0ZGU3YmFlNDk2NzFmNTlkYjE1N3EGWA4AAABfYWNjZXNzZWRfdGltZXEHR0HZTAwKbQ5WWAYAAAB1c2VySWRxCFgYAAAANWYwMzNmMTMwMDAwMDAwMDAxMDAwZGEwcQlYAwAAAHNpZHEKWBgAAAA2NTMwMzAyOTY0MDAwMDAwMDAwMDAwMDJxC3Uu; customer-sso-sid=653030296400000000000002; x-user-id-creator.xiaohongshu.com=5f033f130000000001000da0; access-token-creator.xiaohongshu.com=customer.ares.AT-d6d4fb70c58c4ab3bc1a75e64fa24473-06869bd40c3c46e4992ab4308a8eb570; galaxy_creator_session_id=XWBjFlieezagoNp5QLchTV2IWqfh2RrZAFHO; galaxy.creator.beaker.session.id=1697656873955095649557; abRequestId=c4f82c15c1fb37de66d15464eeb27e51; webBuild=3.11.3; xsecappid=xhs-pc-web; web_session=030037a3f6658a483fcc787648224aa8392c42; websectiga=f47eda31ec99545da40c2f731f0630efd2b0959e1dd10d5fedac3dce0bd1e04d; sec_poison_id=228a9b9a-a882-4caa-8d92-10a6274da427; acw_tc=3590b94f30dc14b3910006ac097b02facdff27f3d63dcec6b5866d16838d993a",
     }
 
     data = {
@@ -116,7 +105,7 @@ def get_topic_data(keyword):
 def input_content_with_topic(title: str, describe: str):
     # title_input = Config.Browser.find_element(By.CSS_SELECTOR, ".c-input_inner")
     # Config.Browser.execute_script("arguments[0].innerText = arguments[1]", title_input, title)
-    
+
     title_input = Config.Browser.find_element(By.CSS_SELECTOR, ".c-input_inner")
     title_input.clear()
     title_input.send_keys(title)
