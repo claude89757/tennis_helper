@@ -34,6 +34,8 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 # update docs for  tennis tools
 */5 * * * *  timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/update_docs.py >> /home/lighthouse/tennis_helper/logs/update_docs_$(date +\%Y-\%m-\%d).log 2>&1
 
+# 发布小红书
+0 * * * * timeout 1800 /usr/local/opt/python3.7/bin/python3.7 /home/lighthouse/tennis_helper/xiaohongshu/publish_xiaohongshu.py >> /home/lighthouse/tennis_helper/logs/publish_xiaohongshu_$(date +\%Y-\%m-\%d).log 2>&1
 
 # run tennis tools for isz
 */4 * * * * timeout 600 /usr/bin/python3 /home/lighthouse/tennis_helper/tennis_court_watcher.py --app_name "ISZ" --court_name "大沙河" --sales_id "100220" --sales_item_id "100000" --watch_days 7 --send_sms 1 >> /home/lighthouse/tennis_helper/logs/dsh_$(date +\%Y-\%m-\%d).log 2>&1
