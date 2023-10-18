@@ -168,6 +168,7 @@ def tencent_docs_to_image(image_path: str):
     time.sleep(5)
 
     # 获取要截屏的元素
+    print(f"finding element...")
     element = driver.find_element(By.XPATH, "//div[@class='main-board']")
     print(element)
 
