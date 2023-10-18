@@ -155,7 +155,6 @@ def tencent_docs_to_image(image_path: str):
 
     # 指定geckodriver的路径
     service = Service('/usr/local/bin/geckodriver')
-
     # 创建一个WebDriver实例
     driver = webdriver.Firefox(service=service, options=options)
 
