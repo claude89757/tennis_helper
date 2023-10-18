@@ -149,6 +149,7 @@ def tencent_docs_to_image(image_path: str):
     """
     腾讯在线文档转化成截图
     """
+    print("loading firefox driver ...")
     # 设置Firefox选项
     options = Options()
     options.add_argument("--headless")  # Ensure GUI is off
@@ -163,8 +164,9 @@ def tencent_docs_to_image(image_path: str):
 
     # 打开临时HTML文件
     driver.get("https://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2&_t=1690340619074")
-
+    
     # 等待JavaScript加载
+    print("waiting for 10s ...")
     time.sleep(10)
 
     # 获取要截屏的元素
