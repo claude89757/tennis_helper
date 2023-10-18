@@ -154,11 +154,10 @@ def tencent_docs_to_image(image_path: str):
     options.add_argument("--headless")  # Ensure GUI is off
 
     # 指定geckodriver的路径
-    # service = Service('/usr/local/bin/geckodriver')
-    # 创建一个WebDriver实例
-    # driver = webdriver.Firefox(service=service, options=options)
+    service = Service('/usr/local/bin/geckodriver')
 
-    driver = webdriver.Firefox(executable_path="/usr/local/bin/geckodriver", options=options)
+    # 创建一个WebDriver实例
+    driver = webdriver.Firefox(service=service, options=options)
 
     # 设置窗口大小
     driver.set_window_size(1080, 1920)  # 小红书推荐的尺寸
