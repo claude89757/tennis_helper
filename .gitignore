@@ -8,3 +8,4 @@ private.env
 /data_example
 1.csv
 *.db
+*.json
