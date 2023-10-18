@@ -114,8 +114,12 @@ def get_topic_data(keyword):
 
 
 def input_content_with_topic(title: str, describe: str):
+    # title_input = Config.Browser.find_element(By.CSS_SELECTOR, ".c-input_inner")
+    # Config.Browser.execute_script("arguments[0].innerText = arguments[1]", title_input, title)
+    
     title_input = Config.Browser.find_element(By.CSS_SELECTOR, ".c-input_inner")
-    Config.Browser.execute_script("arguments[0].innerText = arguments[1]", title_input, title)
+    title_input.clear()
+    title_input.send_keys(title)
 
     describe_with_topics = describe
     topics = [word for word in describe.split() if word.startswith('#') and word.endswith('#')]
