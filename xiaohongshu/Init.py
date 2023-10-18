@@ -21,10 +21,8 @@ def init_browser():
     # 无界面模式
     options.add_argument('--headless')
 
-    # service = Service('/usr/local/bin/geckodriver')
-    # Config.Browser = webdriver.Firefox(service=service, options=options)
-
-    Config.Browser = webdriver.Firefox(executable_path="/usr/local/bin/geckodriver", options=options)
+    service = Service('/usr/local/bin/geckodriver')
+    Config.Browser = webdriver.Firefox(service=service, options=options)
 
     Config.Browser.maximize_window()
 
