@@ -208,14 +208,14 @@ if __name__ == '__main__':
     # 将时间格式化为字符串
     cur_time = current_time.strftime("%m-%d_%H:%M")
 
-    # 将腾讯文档转换为图片
-    image_path = f"{cur_time}_tennis_sheet.png"
-    tencent_docs_to_image(image_path)
-
     # 获取当前脚本所在的目录
     current_directory = os.path.dirname(os.path.abspath(__file__))
     # 拼接文件的绝对路径
+    image_path = f"{cur_time}_tennis_sheet.png"
     file_path = os.path.join(current_directory, image_path)
+
+    # 将腾讯文档转换为图片
+    tencent_docs_to_image(file_path)
 
     # 打印文件的绝对路径
     print("文件的绝对路径：", file_path)
