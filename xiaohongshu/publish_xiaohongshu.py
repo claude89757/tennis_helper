@@ -165,6 +165,9 @@ def tencent_docs_to_image(image_path: str):
     # 打开临时HTML文件
     driver.get("https://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2&_t=1690340619074")
 
+    # 刷新页面
+    driver.refresh()
+    
     # 等待JavaScript加载
     print("waiting for 10s ...")
     time.sleep(10)
