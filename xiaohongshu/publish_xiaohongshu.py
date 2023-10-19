@@ -191,8 +191,14 @@ def tencent_docs_to_image(image_path: str):
 
 # testing
 if __name__ == '__main__':
+    # 获取当前时间
+    current_time = datetime.now()
+
+    # 将时间格式化为字符串
+    cur_time = current_time.strftime("%m-%d_%H:%M")
+
     # 将腾讯文档转换为图片
-    image_path = "tennis_sheet.png"
+    image_path = f"{cur_time}_tennis_sheet.png"
     tencent_docs_to_image(image_path)
 
     # 获取当前脚本所在的目录
@@ -202,12 +208,6 @@ if __name__ == '__main__':
 
     # 打印文件的绝对路径
     print("文件的绝对路径：", file_path)
-
-    # 获取当前时间
-    current_time = datetime.now()
-
-    # 将时间格式化为字符串
-    cur_time = current_time.strftime("%m-%d %H:%M")
 
     msg = f"本笔记1小时自动发布一次\n【访问原文档, 请看个人主页】\n #深圳网球#"
 
