@@ -167,7 +167,7 @@ def tencent_docs_to_image(image_path: str):
 
     # 刷新页面
     driver.refresh()
-    
+
     # 等待JavaScript加载
     print("waiting for 10s ...")
     time.sleep(10)
