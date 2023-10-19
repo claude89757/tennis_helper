@@ -84,22 +84,25 @@ def get_topic_data(keyword):
     # 检查请求是否成功
     if not topic_data['success']:
         print('Failed to get topic data')
-        return
+        return None
 
-    # 提取话题信息
-    topic_info = topic_data['data']['topic_info_dtos'][0]
+    if topic_data.get('date', {}).get('topic_info_dtos'):
+        # 提取话题信息
+        topic_info = topic_data['data']['topic_info_dtos'][0]
 
-    # 提取需要的字段
-    topic_link = topic_info['link']
-    topic_name = topic_info['name']
+        # 提取需要的字段
+        topic_link = topic_info['link']
+        topic_name = topic_info['name']
 
-    # 将话题信息与内容整合
-    topic_data_str = json.dumps(topic_info)
+        # 将话题信息与内容整合
+        topic_data_str = json.dumps(topic_info)
 
-    content_with_topic = f'&nbsp;<a contenteditable="false" data-topic=\'{topic_data_str}\' href="{topic_link}">' \
-                         f'#{topic_name}<span class="content-hide">[话题]#</span></a>&nbsp;'
+        content_with_topic = f'&nbsp;<a contenteditable="false" data-topic=\'{topic_data_str}\' href="{topic_link}">' \
+                             f'#{topic_name}<span class="content-hide">[话题]#</span></a>&nbsp;'
 
-    return content_with_topic
+        return content_with_topic
+    else:
+        return None
 
 
 def input_content_with_topic(title: str, describe: str):
@@ -115,8 +118,11 @@ def input_content_with_topic(title: str, describe: str):
 
     for topic in topics:
         topic_name = topic[1:-1]  # remove '#' from both ends
-        topic_tag = get_topic_data(topic_name)
-        describe_with_topics = describe_with_topics.replace(topic, topic_tag)
+        try:
+            topic_tag = get_topic_data(topic_name)
+            describe_with_topics = describe_with_topics.replace(topic, topic_tag)
+        except Exception as error:  # pylint: disable=broad-except
+            print(error)
 
     describe_input = Config.Browser.find_element(By.CSS_SELECTOR, "#post-textarea")
     Config.Browser.execute_script("arguments[0].innerHTML = arguments[1]", describe_input, describe_with_topics)
