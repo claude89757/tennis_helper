@@ -167,7 +167,9 @@ def tencent_docs_to_image(image_path: str):
 
     # 等待JavaScript加载
     print("waiting for 10s ...")
-    time.sleep(15)
+    time.sleep(5)
+    driver.refresh()
+    time.sleep(5)
 
     # 获取要截屏的元素
     print(f"finding element...")
