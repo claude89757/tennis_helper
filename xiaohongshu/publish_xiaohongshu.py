@@ -163,7 +163,7 @@ def tencent_docs_to_image(image_path: str):
     # 设置窗口大小
     driver.set_window_size(1080, 1920)  # 小红书推荐的尺寸
 
-    # 打开临时HTML文件
+    # 打开网站页面
     driver.get("https://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2&_t=1690340619074", )
 
     # 等待JavaScript加载
