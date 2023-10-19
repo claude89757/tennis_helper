@@ -205,7 +205,7 @@ if __name__ == '__main__':
     # 打印文件的绝对路径
     print("文件的绝对路径：", file_path)
 
-    msg = f"笔记每小时自动发布\n【访问原文档, 请私信】\n#深圳网球#\n#深圳网球场#"
+    msg = f"笔记每小时自动发布\n【访问原文档, 请私信】\n #深圳网球#"
 
     publish_image_and_text(file_path, f"{cur_time} 深圳热门网球场动态", msg)
 
