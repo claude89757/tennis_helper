@@ -182,7 +182,7 @@ def tencent_docs_to_image(image_path: str):
             except Exception as error:  # pylint: disable=broad-except
                 print(error)
     print(f"element: {element}")
-    time.sleep(3)
+    time.sleep(5)
     element = driver.find_element(By.XPATH, "//div[@class='main-board']")
 
     # 元素截图
