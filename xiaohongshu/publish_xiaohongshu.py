@@ -178,12 +178,13 @@ def tencent_docs_to_image(image_path: str):
                 # 获取要截屏的元素
                 element = driver.find_element(By.XPATH, "//div[@class='main-board']")
                 print(f"OK")
+                break
             except Exception as error:  # pylint: disable=broad-except
                 print(error)
     print(f"element: {element}")
     time.sleep(3)
     element = driver.find_element(By.XPATH, "//div[@class='main-board']")
-    
+
     # 元素截图
     element.screenshot('sheet.png')
 
