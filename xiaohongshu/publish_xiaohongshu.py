@@ -164,25 +164,10 @@ def tencent_docs_to_image(image_path: str):
 
     # 打开网站页面
     driver.get("https://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2")
-
-    deadline = time.time() + 60
-    element = None
-    while True:
-        print(f"finding element...")
-        if time.time() > deadline:
-            break
-        else:
-            # 等待JavaScript加载
-            time.sleep(1)
-            try:
-                # 获取要截屏的元素
-                element = driver.find_element(By.XPATH, "//div[@class='main-board']")
-                print(f"OK")
-                break
-            except Exception as error:  # pylint: disable=broad-except
-                print(error)
+    print("loading url...")
+    time.sleep(10)
+    element = driver.find_element(By.XPATH, "//div[@class='main-board']")
     print(f"element: {element}")
-    time.sleep(5)
     element = driver.find_element(By.XPATH, "//div[@class='main-board']")
 
     # 元素截图
