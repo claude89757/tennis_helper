@@ -224,7 +224,8 @@ if __name__ == '__main__':
 
     publish_image_and_text(file_path, f"{cur_time} 深圳热门网球场动态", msg)
 
-    time.sleep(10)
+    print("waiting for 60s")
+    time.sleep(60)
     
     # 删除临时文件
     os.remove(file_path)
