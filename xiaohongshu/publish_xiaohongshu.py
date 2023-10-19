@@ -168,16 +168,16 @@ def tencent_docs_to_image(image_path: str):
     deadline = time.time() + 60
     element = None
     while True:
+        print(f"finding element...")
         if time.time() > deadline:
             break
         else:
             # 等待JavaScript加载
-            print("waiting for 10s ...")
             time.sleep(1)
-            # 获取要截屏的元素
-            print(f"finding element...")
             try:
+                # 获取要截屏的元素
                 element = driver.find_element(By.XPATH, "//div[@class='main-board']")
+                print(f"OK")
             except Exception as error:  # pylint: disable=broad-except
                 print(error)
     print(f"element: {element}")
