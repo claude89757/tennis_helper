@@ -152,7 +152,6 @@ def tencent_docs_to_image(image_path: str):
     print("loading firefox driver ...")
     # 设置Firefox选项
     options = Options()
-    options.set_preference("network.http.use-cache", False)
     options.add_argument("--headless")  # Ensure GUI is off
 
     # 指定geckodriver的路径
@@ -164,7 +163,7 @@ def tencent_docs_to_image(image_path: str):
     driver.set_window_size(1080, 1920)  # 小红书推荐的尺寸
 
     # 打开网站页面
-    driver.get("https://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2&_t=1690340619074", )
+    driver.get("https://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2")
 
     # 等待JavaScript加载
     print("waiting for 10s ...")
