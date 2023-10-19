@@ -212,3 +212,6 @@ if __name__ == '__main__':
     msg = f"本笔记1小时自动发布一次\n【访问原文档, 请看个人主页】\n #深圳网球#"
 
     publish_image_and_text(file_path, f"{cur_time} 深圳热门网球场动态", msg)
+
+    # 删除临时文件
+    os.remove(image_path)
