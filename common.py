@@ -907,22 +907,7 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
             "Referer": "https://program.springcocoon.com/szbay/AppVenue/VenueBill/"
                        "VenueBill?VenueTypeID=d3bc78ba-0d9c-4996-9ac5-5a792324decb",
             "Accept-Language": "zh-CN,zh",
-            "Cookie": "HT.LoginType.1=20; HT.App.Type.1=10; HT.Weixin.ServiceType.1=30; HT.Weixin.AppID.1=wx6b10d95e922"
-                      "83e1c; HT.Weixin.OpenID.1=oH5RL5EWB5CjAPKVPOOLlfHm1bV8; HT.EmpID.1=4d5adfce-e849-48d5-b7fb-863cd"
-                      "f34bea0; HT.IsTrainer.1=False; HT.PartID.1=b700c053-71f2-47a6-88a1-6cf50b7cf863; HT.PartDisplay"
-                      "Name.1=%e6%b7%b1%e5%9c%b3%e6%b9%be%e4%bd%93%e8%82%b2%e4%b8%ad%e5%bf%83; HT.ShopID.1=4f195d33-de"
-                      "51-495e-a345-09b23f98ce95; HT.ShopDisplayName.1=%e6%b7%b1%e5%9c%b3%e6%b9%be%e5%b0%8f%e7%a8%8b%e"
-                      "5%ba%8f; ASP.NET_SessionId=atyxo5nyapaj3dfljo4rcshz; .AspNet.ApplicationCookie=EzaEj7Zsa-tk2FL"
-                      "yrdxH7LNo2I8-WxTS30hGUx08zp22btLmpP6CczjFe-Fe0H72NDYlskeex-jLUjxBwXgJDekSl9NBasgUtdF1_1UJm2qgA"
-                      "nF64WU3sRiGfglSxLdEPrweH1LuYEveYAlaw9GZcSfFM4Fy5MmHrIllSxo26W5KPiqMSpzXfgLPSbk6uBsJZPN8oMwEq5W"
-                      "y0Om9Kwi9WKVWvHbO4NLY-QRGMC9C1CbfJzjqwDMJMTBIkSlb72vB3J9Iehx1mNSgkhTvuqQHdsHLvwtNSzZqqO-18zXLr"
-                      "hIm5919N-DZsIm4igeD6nRHjH9qvrJ_L4x2ODJhZFU0C_AzqnqTlg7Q2EpxVdoZc5SFkMYJ6_ZdmldjMNzhXkDRxtv6F"
-                      "7ZPiEZy2_sxGzlDJyti-hEWMnIwdNlhYh7NmLiW76v9X7fGgUqaclerGHD0ZrPNTgT6-znK6RxRXLAOI0dN4qxk4YBJO"
-                      "QkN2wZGygtNfxwT7W9EJfqsc4l8M0wFPY3LJq-slh-dhGSA7Fto83YY7NVnqaYCM-vu0cG2t6fUd5ZYfzHMkda5LHmCSg"
-                      "GYMjsR9bSISXA3i59DA2S0OhQCRxSUSVhWHFxhcux9Zm62Q75j; __RequestVerificationToken_L3N6YmF50=4IEZ"
-                      "T4hvl46z7TiIe7c-hgx8bYQx20cA05isZAeianyHs86iOAkT2S5ue5yAYffIiSP3sQAwqvt0w8hWMxHoV6e3CIk1; "
-                      "XSRF-TOKEN=fbGUPZOehvXFs9qDSg2frrdgzr68aJn_goPByk0pbcU6jLh03Gehvta9GV6igShz0pYjzkeimbnGXo047"
-                      "Wh1MZgNg73NxTnV86Ixa6jA7bdVeU6qd3C99QTSbIXC_FcM5mab4Q2"
+            "Cookie": "HT.LoginType.1=20; HT.App.Type.1=10; HT.Weixin.ServiceType.1=30; HT.Weixin.AppID.1=wx6b10d95e92283e1c; HT.Weixin.OpenID.1=oH5RL5EWB5CjAPKVPOOLlfHm1bV8; HT.EmpID.1=4d5adfce-e849-48d5-b7fb-863cdf34bea0; HT.IsTrainer.1=False; HT.PartID.1=b700c053-71f2-47a6-88a1-6cf50b7cf863; HT.PartDisplayName.1=%e6%b7%b1%e5%9c%b3%e6%b9%be%e4%bd%93%e8%82%b2%e4%b8%ad%e5%bf%83; HT.ShopID.1=4f195d33-de51-495e-a345-09b23f98ce95; HT.ShopDisplayName.1=%e6%b7%b1%e5%9c%b3%e6%b9%be%e5%b0%8f%e7%a8%8b%e5%ba%8f; ASP.NET_SessionId=1xhxbb1yyqpmjcypqumoztea; .AspNet.ApplicationCookie=Cnb-TASkgjX0E1-o_ArAywzj8UtqhnqFmBQ0FYgU4Byn2ApklwCWUXyT7xk6CIIiKBamEWuMugmJKwwxCF4LJUWtZb3oOJ5t8eK1eglRUhzB15amvONEK5vir5mpZ5mCiwcPWvHLhQrKahlgAAwqKUswojGrcEgy5gW3Ya2EfrhDMel-1qAJsfK0zzb2cEChfz1weNH9TVpxnJuEOZdId1brTBRCaAaoc_5F327z3vWDBZqweEa8gFVsGI5_ZeOSSaXvxllLyg2csksyPU84MUCuHpk2HGAd5leA3y0vTpQgQeYzRv2bQwrBm94bK6uOVVGrE7dtYeFXwDGZj_WOPTpg37dYxXLWrFGskRoHRZBovXpZforDE4Vk2IRl7CJQv3QJVoPhPD8wbeKuCVSgHDvg3V5UGGE3RK-mvjCCdjGX38SVIzfCngcIuHuoDnz9A9UAFemQ2Yhh3FKY8IpSHZquImGhLA_ogtpEKP_SFGfb6bK_YqUsWaiiPNaJNrXb7aTFDR9F4VyKD8C_JbCZBHeimcXv0c35tAByPxbQ2GJ4iQ_xo-vYQD1bm6Tg2HkXwyHFVhJJ_nSFOjAjcypyJ8GBDkaWfGm98p3wZwq_aDpV9rT5; __RequestVerificationToken_L3N6YmF50=zrJsKAdLyCk1jTBF3s8r7D_MBOblkqHhvlYe2GbbdpKuQp2jSjvNLTnPj4hLO04lAlt2NgZmxR90VBzJuwGo6mlIXJ01; XSRF-TOKEN=51hioS7fXTugooFgvbPnHfpcXEUSLUDgGCjVxv3imqb5kAUZo7RKB7nX8qlWTtDyN6gO5-TY9UrrLUKR6ZTBNtsGSN2en6Vj3RT1RVTCX_qeD_JDftcg9go2IwktdWkW2cZcQA2"
             # "__RequestVerificationToken_L3N6YmF50": "FXMW3m5I9fZK71GaCXRca5Ay0WDTbMgOaZoHFQwHWHTw7S
             # _Dfa2vBwHOPqV0PffXA1NhlizVFX5OfyVUZeP5Zri3Du41",
             # "XSRF-TOKEN": "rs3gB5gQUqeG-YcaRXgB13JMlQAn9N4e_vS29wl-_HV5-MZb6gCL7eLhiC030tJP-cFa0"
