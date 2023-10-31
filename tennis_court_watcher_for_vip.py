@@ -385,7 +385,7 @@ if __name__ == '__main__':
                 continue
             else:
                 pass
-            
+
             # 最新的订阅生效
             valid_rule = rule_info_list[0]
             rule_id = valid_rule['_id']
