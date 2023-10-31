@@ -380,6 +380,12 @@ if __name__ == '__main__':
             start_time = sms_info['start_time']
             end_time = sms_info['end_time']
             rule_info_list = rule_infos.get(f"{phone}_{date}")
+
+            if court_name == "香蜜电话":
+                continue
+            else:
+                pass
+            
             # 最新的订阅生效
             valid_rule = rule_info_list[0]
             rule_id = valid_rule['_id']
