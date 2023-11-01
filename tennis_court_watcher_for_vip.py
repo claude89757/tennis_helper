@@ -185,15 +185,6 @@ if __name__ == '__main__':
         check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         check_date = datetime.datetime.strptime(check_date_str, "%Y-%m-%d")
         print(f"checking {check_date_str}")
-        # 剔除部分还没开发预定的时间的巡检
-        if datetime.time(0, 0) <= now < datetime.time(9, 3) \
-                and args.court_name in ["香蜜体育", "黄木岗", "莲花体育"] \
-                and check_date_str == last_check_date_str:
-            # 未开放预定，不推送消息
-            continue
-        else:
-            pass
-
         time_range = CD_TIME_RANGE_INFOS.get(args.court_name)
         task = loop.create_task(get_free_tennis_court_infos(args.app_name, check_date_str, proxy_list,
                                                             input_time_range=time_range,
@@ -347,18 +338,25 @@ if __name__ == '__main__':
                     send_court_name = "香蜜电话"
                 else:
                     send_court_name = args.court_name
+
                 # 加入待发送短信队里
                 phone = phone_date.split('_')[0]
                 date = phone_date.split('_')[1]
                 start_time = merge_slot_list[0][0]
                 end_time = merge_slot_list[0][1]
-                up_for_send_sms_list.append({"phone": phone,
-                                             "date": date,
-                                             "court_name": send_court_name,
-                                             "start_time": start_time,
-                                             "end_time": end_time,
-                                             "rule_start_date": rule_info_list[0]['start_date'],
-                                             "rule_end_date": rule_info_list[0]['end_date']})
+                if datetime.time(0, 0) <= now < datetime.time(9, 3) \
+                        and args.court_name in ["香蜜体育", "黄木岗", "莲花体育", "香蜜电话"] \
+                        and date == last_check_date_str:
+                    # 未开放预定，不推送消息
+                    continue
+                else:
+                    up_for_send_sms_list.append({"phone": phone,
+                                                 "date": date,
+                                                 "court_name": send_court_name,
+                                                 "start_time": start_time,
+                                                 "end_time": end_time,
+                                                 "rule_start_date": rule_info_list[0]['start_date'],
+                                                 "rule_end_date": rule_info_list[0]['end_date']})
                 # 更新本地文件缓存
                 cache[cache_key] = 1
         # 关闭本地文件缓存
