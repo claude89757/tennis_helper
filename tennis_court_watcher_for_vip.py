@@ -147,25 +147,25 @@ if __name__ == '__main__':
             rule_date_list.append(rule_end_date)
 
     # 获取公网HTTPS代理列表
-    # 先从本地文件获取，如果失败则从远程获取
     try:
         filename = f"https_proxies_{datetime.datetime.now().strftime('%Y-%m-%d')}.txt"
         with open(filename, "r") as file:
             content = file.read()
             print(content)
     except Exception as error:
-        print_with_timestamp(f"no local proxy list: {error}")
-        content = None
+        print_with_timestamp(f"no today proxy list: {error}")
+        print_with_timestamp(f"using yesterday proxy list")
+        filename = f"https_proxies_{(datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')}.txt"
+        with open(filename, "r") as file:
+            content = file.read()
+            print(content)
+
     if content:
         print_with_timestamp()
         proxy_list = [line.strip() for line in content.split()]
         print_with_timestamp(f"get local proxy_list({len(proxy_list)}): {proxy_list}")
     else:
-        url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
-        response = requests.get(url)
-        text = response.text.strip()
-        proxy_list = [line.strip() for line in text.split()]
-        print_with_timestamp(f"get remote proxy_list({len(proxy_list)}): {proxy_list}")
+        raise Exception(f"获取代理异常！！！")
 
     # 查询空闲的球场信息
     now = datetime.datetime.now().time()
