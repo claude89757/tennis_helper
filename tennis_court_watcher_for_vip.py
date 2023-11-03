@@ -345,8 +345,7 @@ if __name__ == '__main__':
                 start_time = merge_slot_list[0][0]
                 end_time = merge_slot_list[0][1]
                 if datetime.time(0, 0) <= now < datetime.time(9, 3) \
-                        and args.court_name in ["香蜜体育", "黄木岗", "莲花体育", "香蜜电话"] \
-                        and date == last_check_date_str:
+                        and args.court_name in ["香蜜体育", "黄木岗", "莲花体育", "香蜜电话"]:
                     # 未开放预定，不推送消息
                     continue
                 else:
