@@ -8,7 +8,6 @@
 """
 
 import argparse
-import requests
 import time
 import datetime
 import shelve
@@ -25,6 +24,7 @@ from weda import update_record_info_by_id
 from weda import create_record
 from common import merge_time_ranges
 from common import get_hit_court_infos
+from common import get_group_send_msg_list
 from common import print_with_timestamp
 from config import COURT_NAME_INFOS
 from common import get_free_tennis_court_infos_for_isz
@@ -448,6 +448,31 @@ if __name__ == '__main__':
 
             # 释放文件锁
             fcntl.flock(file, fcntl.LOCK_UN)
+
+    # 生成需要推送到微信群的消息
+    if args.court_name in ["大沙河"]:
+        msg_list = get_group_send_msg_list(args.court_name, available_tennis_court_slice_infos)
+        if msg_list:
+            # 打开文件，如果文件不存在则创建
+            with open(f"{args.court_name}_group_msg.txt", "a+") as file:
+                # 尝试获取文件锁，如果锁已被其他进程持有，则立即返回
+                try:
+                    fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except IOError:
+                    print("Unable to acquire lock")
+                else:
+                    cur_text = file.read()
+                    for msg in msg_list:
+                        if msg not in cur_text:
+                            # 追加模式写入一行
+                            file.write(f"{msg}@0\n")
+                        else:
+                            pass
+                    # 释放文件锁
+                    fcntl.flock(file, fcntl.LOCK_UN)
+            pass
+    else:
+        pass
 
     # 计算整体运行耗时
     run_end_time = time.time()

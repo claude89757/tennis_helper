@@ -1131,6 +1131,64 @@ def get_hit_court_infos(available_slice_infos: dict, rule_list: list) -> []:
     return found_court_infos
 
 
+def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
+    """
+    查找需要推送到群聊的时间
+    """
+    # 推送可预定时间段的消息列表，并特别标注晚上时间段的场地
+    msg_list = []
+    for date, free_slot_infos in available_slice_infos.items():
+        weekday = calendar.day_name[datetime.datetime.strptime(date, '%Y-%m-%d').date().weekday()]
+        weekday_cn = {'Monday': '星期一', 'Tuesday': '星期二', 'Wednesday': '星期三', 'Thursday': '星期四',
+                      'Friday': '星期五', 'Saturday': '星期六', 'Sunday': '星期日'}[weekday]
+        date_and_weekday = f'{date}（{weekday_cn}）'
+        msg_list.append(f"{date_and_weekday}")
+        up_for_send_slot_list = []
+        # 检查是否有符合条件的时间段
+        for court_name, slots in free_slot_infos.items():
+            # print(f"slots: {slots}")
+            # 将列表转换为元组，并将元组转换为集合，实现去重
+            unique_data = set(tuple(item) for item in slots)
+            # 将元组转换为列表，并按照第一个元素和第二个元素进行排序
+            sorted_slot_list = sorted([list(item) for item in unique_data], key=lambda x: (x[0], x[1]))
+            # print(f"sorted_slot_list: {sorted_slot_list}")
+            # print(f"sorted_slot_list: {sorted_slot_list}")
+            for slot in sorted_slot_list:
+                # 有推送规则，详细继续检查时间段
+                cur_start_time = slot[0]
+                cur_end_time = slot[1]
+                cur_start_time_obj = datetime.datetime.strptime(cur_start_time, "%H:%M")
+                cur_end_time_obj = datetime.datetime.strptime(cur_end_time, "%H:%M")
+                watch_start_time_obj = datetime.datetime.strptime("18:00", "%H:%M")
+                watch_end_time_obj = datetime.datetime.strptime("22:00", "%H:%M")
+                rule_duration = 1
+                # 计算两个时间范围的交集
+                start_time = max(cur_start_time_obj, watch_start_time_obj)
+                end_time = min(cur_end_time_obj, watch_end_time_obj)
+                # 计算交集的时间长度
+                duration = end_time - start_time
+                if duration >= datetime.timedelta(hours=int(rule_duration)):
+                    # print("两个时间范围有交集，且交集的时间大于等于60分钟")
+                    # 检查场地的结束时间比当前时间晚2小时以上
+                    time_str = f"{date} {cur_end_time}"
+                    time_obj = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M")
+                    if time_obj >= datetime.datetime.now() + datetime.timedelta(minutes=30):
+                        # print(f"{time_str}比当前时间大于x小时, 来得及去打球")
+                        up_for_send_slot_list.append(slot)
+                    else:
+                        # print(f"{time_str}比当前时间小于等于x小时， 来不及去打球")
+                        pass
+                else:
+                    # print("两个时间范围没有交集，或者交集的时间小于60分钟")
+                    pass
+        slot_msg_list = []
+        for slot in up_for_send_slot_list:
+            slot_msg_list.append(f"{slot[0]}-{slot[1]}")
+        slot_msg = "|".join(slot_msg_list)
+        msg_list.append(f"【{place_name}】 {date_and_weekday} 可预订时间: {slot_msg}")
+    return msg_list
+
+
 def print_with_timestamp(*args, **kwargs):
     """
     打印函数带上当前时间戳
