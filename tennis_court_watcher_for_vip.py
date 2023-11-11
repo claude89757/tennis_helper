@@ -450,8 +450,10 @@ if __name__ == '__main__':
 
     # 生成需要推送到微信群的消息
     if args.court_name in ["大沙河"]:
+        print(f"查询大沙河群消息推送中...")
         msg_list = get_group_send_msg_list(args.court_name, available_tennis_court_slice_infos)
         if msg_list:
+            print(f"需要发送的群消息：{len(msg_list)}")
             # 打开文件，如果文件不存在则创建
             with open(f"{args.court_name}_group_msg.txt", "a+") as file:
                 # 尝试获取文件锁，如果锁已被其他进程持有，则立即返回
@@ -470,6 +472,8 @@ if __name__ == '__main__':
                     # 释放文件锁
                     fcntl.flock(file, fcntl.LOCK_UN)
             pass
+        else:
+            print(f"无需要发送的群消息")
     else:
         pass
 
