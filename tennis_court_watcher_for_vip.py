@@ -462,6 +462,8 @@ if __name__ == '__main__':
                 except IOError:
                     print("Unable to acquire lock")
                 else:
+                    # 将文件指针移动到文件的开头
+                    file.seek(0)
                     cur_text = file.read()
                     print(f"当前文件内容")
                     print(cur_text)
@@ -473,10 +475,8 @@ if __name__ == '__main__':
                             pass
                     # 释放文件锁
                     fcntl.flock(file, fcntl.LOCK_UN)
-            pass
         else:
             print(f"无需要发送的群消息")
-    else:
         pass
 
     # 计算整体运行耗时
