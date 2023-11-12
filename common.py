@@ -1183,11 +1183,14 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
                 else:
                     # print("两个时间范围没有交集，或者交集的时间小于60分钟")
                     pass
-        slot_msg_list = []
-        for slot in up_for_send_slot_list:
-            slot_msg_list.append(f"{slot[0]}-{slot[1]}")
-        slot_msg = "|".join(slot_msg_list)
-        msg_list.append(f"【{place_name}】 {weekday_cn} 可预订时间: {slot_msg}")
+        if up_for_send_slot_list:
+            slot_msg_list = []
+            for slot in up_for_send_slot_list:
+                slot_msg_list.append(f"{slot[0]}-{slot[1]}")
+            slot_msg = "|".join(slot_msg_list)
+            msg_list.append(f"【{place_name}】 {weekday_cn} 可预订时间: {slot_msg}")
+        else:
+            pass
     return msg_list
 
 
