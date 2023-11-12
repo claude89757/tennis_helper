@@ -463,6 +463,8 @@ if __name__ == '__main__':
                     print("Unable to acquire lock")
                 else:
                     cur_text = file.read()
+                    print(f"当前文件内容")
+                    print(cur_text)
                     for msg in msg_list:
                         if msg not in cur_text:
                             # 追加模式写入一行
