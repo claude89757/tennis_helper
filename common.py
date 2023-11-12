@@ -1184,8 +1184,12 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
                     # print("两个时间范围没有交集，或者交集的时间小于60分钟")
                     pass
         if up_for_send_slot_list:
+            # 将列表转换为元组，并将元组转换为集合，实现去重
+            unique_data = set(tuple(item) for item in up_for_send_slot_list)
+            # 将元组转换为列表，并按照第一个元素和第二个元素进行排序
+            sorted_slot_list = sorted([list(item) for item in unique_data], key=lambda x: (x[0], x[1]))
             slot_msg_list = []
-            for slot in up_for_send_slot_list:
+            for slot in sorted_slot_list:
                 slot_msg_list.append(f"{slot[0]}-{slot[1]}")
             slot_msg = "|".join(slot_msg_list)
             msg_list.append(f"【{place_name}】 {weekday_cn} 可预订时间: {slot_msg}")
