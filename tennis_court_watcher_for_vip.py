@@ -449,7 +449,7 @@ if __name__ == '__main__':
             fcntl.flock(file, fcntl.LOCK_UN)
 
     # 生成需要推送到微信群的消息
-    if args.court_name in ["大沙河", "金地威新", "香蜜体育"]:
+    if args.court_name in ["大沙河", "金地威新", "香蜜体育", "深圳湾"]:
         print(f"查询大沙河群消息推送中...")
         msg_list = get_group_send_msg_list(args.court_name, available_tennis_court_slice_infos)
         if msg_list:
