@@ -1148,6 +1148,11 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
         up_for_send_slot_list = []
         # 检查是否有符合条件的时间段
         for court_name, slots in free_slot_infos.items():
+            if str(court_name) == "102930":
+                # 香蜜6号，剔除
+                continue
+            else:
+                pass
             # print(f"slots: {slots}")
             # 将列表转换为元组，并将元组转换为集合，实现去重
             unique_data = set(tuple(item) for item in slots)
