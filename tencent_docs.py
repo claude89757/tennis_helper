@@ -21,13 +21,13 @@ COLUMN = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 
 
 # 存储token到本地文件
 def save_token(token):
-    with open('TENCENT_DOCS_TOKEN', 'w') as f:
+    with open('/root/TENCENT_DOCS_TOKEN', 'w') as f:
         f.write(token)
 
 
 # 从本地文件读取token
 def load_token():
-    with open('TENCENT_DOCS_TOKEN', 'r') as f:
+    with open('/root/TENCENT_DOCS_TOKEN', 'r') as f:
         token = f.read()
     return token
 
