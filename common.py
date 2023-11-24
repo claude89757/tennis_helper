@@ -1144,7 +1144,14 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
         weekday = calendar.day_name[datetime.datetime.strptime(date, '%Y-%m-%d').date().weekday()]
         weekday_cn = {'Monday': '星期一', 'Tuesday': '星期二', 'Wednesday': '星期三', 'Thursday': '星期四',
                       'Friday': '星期五', 'Saturday': '星期六', 'Sunday': '星期日'}[weekday]
-        date_and_weekday = f'{date}（{weekday_cn}）'
+        # date_and_weekday = f'{date}（{weekday_cn}）'
+        if weekday_cn in ["星期六", "星期日"]:
+            watch_start_time_obj = datetime.datetime.strptime("15:00", "%H:%M")
+            watch_end_time_obj = datetime.datetime.strptime("22:00", "%H:%M")
+        else:
+            watch_start_time_obj = datetime.datetime.strptime("18:00", "%H:%M")
+            watch_end_time_obj = datetime.datetime.strptime("22:00", "%H:%M")
+
         up_for_send_slot_list = []
         # 检查是否有符合条件的时间段
         for court_name, slots in free_slot_infos.items():
@@ -1166,8 +1173,6 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
                 cur_end_time = slot[1]
                 cur_start_time_obj = datetime.datetime.strptime(cur_start_time, "%H:%M")
                 cur_end_time_obj = datetime.datetime.strptime(cur_end_time, "%H:%M")
-                watch_start_time_obj = datetime.datetime.strptime("18:00", "%H:%M")
-                watch_end_time_obj = datetime.datetime.strptime("22:00", "%H:%M")
                 rule_duration = 1
                 # 计算两个时间范围的交集
                 start_time = max(cur_start_time_obj, watch_start_time_obj)
