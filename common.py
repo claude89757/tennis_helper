@@ -1139,6 +1139,7 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
     查找需要推送到群聊的时间
     """
     # 推送可预定时间段的消息列表，并特别标注晚上时间段的场地
+    now = datetime.datetime.now()
     msg_list = []
     for date, free_slot_infos in available_slice_infos.items():
         weekday = calendar.day_name[datetime.datetime.strptime(date, '%Y-%m-%d').date().weekday()]
@@ -1155,8 +1156,8 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
         up_for_send_slot_list = []
         # 检查是否有符合条件的时间段
         for court_name, slots in free_slot_infos.items():
-            if str(court_name) == "102930":
-                # 香蜜6号，剔除
+            if str(court_name) == "102930" and now.hour < 12:
+                # 香蜜6号，在中午12点前剔除
                 continue
             else:
                 pass
