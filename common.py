@@ -1145,7 +1145,8 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
         weekday = calendar.day_name[datetime.datetime.strptime(date, '%Y-%m-%d').date().weekday()]
         weekday_cn = {'Monday': '星期一', 'Tuesday': '星期二', 'Wednesday': '星期三', 'Thursday': '星期四',
                       'Friday': '星期五', 'Saturday': '星期六', 'Sunday': '星期日'}[weekday]
-        date_and_weekday = f'{weekday_cn}({date})'
+        date_without_year = "-".join(date.split('-')[1:])
+        date_and_weekday = f'{weekday_cn}({date_without_year})'
         if weekday_cn in ["星期六", "星期日"]:
             watch_start_time_obj = datetime.datetime.strptime("15:00", "%H:%M")
             watch_end_time_obj = datetime.datetime.strptime("22:00", "%H:%M")
@@ -1202,7 +1203,7 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
             for slot in merged_slot_list:
                 slot_msg_list.append(f"{slot[0]}-{slot[1]}")
             slot_msg = "|".join(slot_msg_list)
-            msg_list.append(f"【{place_name}】 {date_and_weekday} 空场: {slot_msg}")
+            msg_list.append(f"【{place_name}】 {date_and_weekday}　空场: {slot_msg}")
         else:
             pass
     return msg_list
