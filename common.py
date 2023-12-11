@@ -1159,6 +1159,8 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
             if str(court_name) == "102930" and now.hour < 12:
                 # 香蜜6号，在中午12点前剔除
                 continue
+            elif str(court_name) == "102930" and now.hour >= 12:
+                place_name = f"{place_name}_6号电话"
             else:
                 pass
             # print(f"slots: {slots}")
