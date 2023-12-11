@@ -1163,7 +1163,7 @@ def get_group_send_msg_list(place_name: str, available_slice_infos: dict) -> []:
             elif str(court_name) == "102930" and now.hour >= 12:
                 place_name = f"{place_name}_6号电话"
             else:
-                pass
+                place_name = str(place_name).split('_')[0]
             # print(f"slots: {slots}")
             # 将列表转换为元组，并将元组转换为集合，实现去重
             unique_data = set(tuple(item) for item in slots)
