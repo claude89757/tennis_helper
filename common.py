@@ -149,7 +149,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             "salesItemId": sales_item_id,
             "curDate": str(check_data),
             "venueGroupId": "",
-            "_time": str(timestamp)
+            "t": str(timestamp)
         }
         param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&t={str(timestamp)}"  # 仅用于签名
         signature = signature_for_get(str(timestamp), nonce.replace('-', ''), param_str=param_str)
@@ -192,7 +192,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
         except Exception as error:  # pylint: disable=broad-except
             print(f"failed for {proxy}: {error}")
             continue
-    print(f"response: {response}")
+    print(f"response: {response.text}")
     # print(f"response: {response.text}")
     now = datetime.datetime.now().time()
     today_str = datetime.datetime.now().strftime('%Y-%m-%d')
