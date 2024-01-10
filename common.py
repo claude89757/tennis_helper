@@ -261,9 +261,9 @@ def get_free_tennis_court_infos_for_zjclub(date: str, proxy_list: list, time_ran
             "salesItemId": sales_item_id,
             "curDate": str(check_data),
             "venueGroupId": "",
-            "_time": str(timestamp)
+            "t": str(timestamp)
         }
-        param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&_time={str(timestamp)}"  # 仅用于签名
+        param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&t={str(timestamp)}"  # 仅用于签名
         signature = signature_for_get(str(timestamp), nonce.replace('-', ''), param_str=param_str)
         headers = {
             "Host": "isz.ydmap.cn",
