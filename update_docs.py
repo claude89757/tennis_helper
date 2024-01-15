@@ -156,7 +156,7 @@ if __name__ == '__main__':
         for row_index in range(len(TIME_SLOTS)):
             for col_index in range(check_days):
                 cell_key = f"{COLUMN[col_index+1]}{row_index+2}"
-                input_data_infos[cell_key] = "-"
+                input_data_infos[cell_key] = "赞助金主:\nTT室内发球机馆\n小程序搜索:TT网球俱乐部"
 
         for cell_key, data_list in court_infos.items():
             court_num_infos = {}
