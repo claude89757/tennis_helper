@@ -88,6 +88,7 @@ CD_INDEX_INFOS = {
     # 大生体育
     "莲花二村": 17,
     "山花馆": 18,
+    "九龙山": 19,
 }
 
 CD_ACTIVE_DAY_INFOS = {
@@ -115,6 +116,7 @@ CD_ACTIVE_DAY_INFOS = {
     # 大生体育
     "莲花二村": 7,
     "山花馆": 5,
+    "九龙山": 3,
 }
 
 
@@ -137,6 +139,7 @@ CD_TIME_RANGE_INFOS = {
     "梅林文体": {"start_time": "07:00", "end_time": "23:00"},
     "莲花二村": {"start_time": "07:00", "end_time": "23:00"},
     "山花馆": {"start_time": "09:00", "end_time": "22:00"},
+    "九龙山": {"start_time": "09:00", "end_time": "22:00"},
 }
 
 
