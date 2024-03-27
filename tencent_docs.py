@@ -3,7 +3,7 @@
 """
 @File:     tencent_docs.py
 @Time:     2022/7/12 17:34
-@Author:   claudexie
+@Author:   claude89757
 @Software: PyCharm
 """
 import os
