@@ -948,9 +948,11 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
                 print(venue_name_infos)
 
                 booked_court_infos = {}
-                if response.json()['result'][0].get("listWebVenueStatus"):
+                if response.json()['result'][0].get("listWebVenueStatus") \
+                        and response.json()['result'][0]['listWebVenueStatus']:
+                    print(response.json()['result'][0]['listWebVenueStatus'])
                     for venue_info in response.json()['result'][0]['listWebVenueStatus']:
-                        if venue_info['bookLinker'] == '可定' or venue_info['bookLinker'] == '可订':
+                        if str(venue_info.get('bookLinker')) == '可定' or str(venue_info.get('bookLinker')) == '可订':
                             pass
                         else:
                             start_time = str(venue_info['timeStartEndName']).split('-')[0].replace(":30", ":00")
@@ -962,7 +964,9 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
                                 booked_court_infos[venue_name] = [[start_time, end_time]]
                 else:
                     pass
-                if response.json()['result'][0].get("listWeixinVenueStatus"):
+                if response.json()['result'][0].get("listWeixinVenueStatus") and \
+                        response.json()['result'][0]['listWeixinVenueStatus']:
+                    print(response.json()['result'][0]['listWeixinVenueStatus'])
                     for venue_info in response.json()['result'][0]['listWeixinVenueStatus']:
                         if venue_info['status'] == 20:
                             pass
