@@ -964,22 +964,22 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
                                 booked_court_infos[venue_name] = [[start_time, end_time]]
                 else:
                     pass
-                if response.json()['result'][0].get("listWeixinVenueStatus") and \
-                        response.json()['result'][0]['listWeixinVenueStatus']:
-                    print(response.json()['result'][0]['listWeixinVenueStatus'])
-                    for venue_info in response.json()['result'][0]['listWeixinVenueStatus']:
-                        if venue_info['status'] == 20:
-                            start_time = str(venue_info['timeStartEndName']).split('-')[0].replace(":30", ":00")
-                            end_time = str(venue_info['timeStartEndName']).split('-')[1].replace(":30", ":00")
-                            venue_name = venue_name_infos[venue_info['venueID']]
-                            if booked_court_infos.get(venue_name):
-                                booked_court_infos[venue_name].append([start_time, end_time])
-                            else:
-                                booked_court_infos[venue_name] = [[start_time, end_time]]
-                        else:
-                            pass
-                else:
-                    pass
+                # if response.json()['result'][0].get("listWeixinVenueStatus") and \
+                #         response.json()['result'][0]['listWeixinVenueStatus']:
+                #     print(response.json()['result'][0]['listWeixinVenueStatus'])
+                #     for venue_info in response.json()['result'][0]['listWeixinVenueStatus']:
+                #         if venue_info['status'] == 20:
+                #             start_time = str(venue_info['timeStartEndName']).split('-')[0].replace(":30", ":00")
+                #             end_time = str(venue_info['timeStartEndName']).split('-')[1].replace(":30", ":00")
+                #             venue_name = venue_name_infos[venue_info['venueID']]
+                #             if booked_court_infos.get(venue_name):
+                #                 booked_court_infos[venue_name].append([start_time, end_time])
+                #             else:
+                #                 booked_court_infos[venue_name] = [[start_time, end_time]]
+                #         else:
+                #             pass
+                # else:
+                #     pass
 
                 available_slots_infos = {}
                 for venue_id, booked_slots in booked_court_infos.items():
