@@ -910,7 +910,7 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
             "Referer": "https://program.springcocoon.com/szbay/AppVenue/VenueBill/"
                        "VenueBill?VenueTypeID=d3bc78ba-0d9c-4996-9ac5-5a792324decb",
             "Accept-Language": "zh-CN,zh",
-            "Cookie": "ASP.NET_SessionId=0tidrgu43frdjmcao03yilhl; HT.LoginType.1=20; HT.App.Type.1=10; HT.Weixin.ServiceType.1=30; .AspNet.ApplicationCookie=ViyIS3y07qJREhYUBanCKdrsy-MxVgE-004MZ_QTKKQS-JAynl6yJPpKgpFGuAVlrre-oEz2sF5JXp6mR6AM8WftZeWVWP81lfTLNC0pnrMNeddPNUVMckrNq2cZp6K-xVLYKq94IuRA2UnZXSUPRpML_PAm4AZgkfvlCJ9R62aEi6hclM7qgsdZZfmqlNx8PteWMnyTqKfVyv7HCsFiguWankAP8jV4yllvgOOoBeGQaMvdrDvdxHi2PemD-J4dvzVUGCXtaIKlPrh1Rd__RgCHJ3FM5DH-ZHS8WvH9Asdxw-IDEFMLmNhBDgCUak4CkAThNdRWib9dNpn113v4b9skXyjSqRgdbUX-QGobYacZ2hi4_fuiQA8KJUsUQjQXi-MWhO_MUvVaY9kfGHlSjKpK4MboXI6XweM0D9dmWx_uSklZNifftScK6bMDJFTV2ujYIhoNEVwwkKPknhAf9kFF1ihAH3BQt_TfNe8pSpOKdGUSKKo_mHIVVy9YEZGM5lmjegBLJaDnIWfboC3DaW403foFbobl6Jr7W8ZwgllLTNThK_W7R0YbdO65z8jscYqYJcu8HtiuuAAqAY3VquxHTOwORFzzJNV5L9PVhtK2d8D9; HT.Weixin.AppID.1=wx6b10d95e92283e1c; HT.Weixin.OpenID.1=oH5RL5EWB5CjAPKVPOOLlfHm1bV8; HT.EmpID.1=4d5adfce-e849-48d5-b7fb-863cdf34bea0; HT.IsTrainer.1=False; HT.PartID.1=b700c053-71f2-47a6-88a1-6cf50b7cf863; HT.PartDisplayName.1=%e6%b7%b1%e5%9c%b3%e6%b9%be%e4%bd%93%e8%82%b2%e4%b8%ad%e5%bf%83; HT.ShopID.1=4f195d33-de51-495e-a345-09b23f98ce95; HT.ShopDisplayName.1=%e6%b7%b1%e5%9c%b3%e6%b9%be%e5%b0%8f%e7%a8%8b%e5%ba%8f; __RequestVerificationToken_L3N6YmF50=Nevk-j1Tmp3nnUdagcj05qmMw5CFDIVLcbYfl0pfuhMsPG8CwerkemiZqsW2KgbrMKRXcZ0P7lX7ktR1tx-ug2YDT201; XSRF-TOKEN=EL4bwklDPPVXwlPxSHRCff4ELHaucihWG9O4jdgYCxEMuG1RwEA7PvqCxNSqR6J7cczb6GPYL3Zz6IjCHlC6VeDCIkiykV-sdif3KaJrnIj7xyxEaXRd7xOg2KYpk9jMi5PPRQ2"
+            "Cookie": "HT.LoginType.1=20; HT.App.Type.1=10; HT.Weixin.ServiceType.1=30; HT.Weixin.AppID.1=wx6b10d95e92283e1c; HT.Weixin.OpenID.1=oH5RL5EWB5CjAPKVPOOLlfHm1bV8; HT.EmpID.1=4d5adfce-e849-48d5-b7fb-863cdf34bea0; HT.IsTrainer.1=False; HT.PartID.1=b700c053-71f2-47a6-88a1-6cf50b7cf863; HT.PartDisplayName.1=%e6%b7%b1%e5%9c%b3%e6%b9%be%e4%bd%93%e8%82%b2%e4%b8%ad%e5%bf%83; HT.ShopID.1=4f195d33-de51-495e-a345-09b23f98ce95; HT.ShopDisplayName.1=%e6%b7%b1%e5%9c%b3%e6%b9%be%e5%b0%8f%e7%a8%8b%e5%ba%8f; ASP.NET_SessionId=nqe1ep3xoawd3grj3tq3c1iz; .AspNet.ApplicationCookie=Wy5yXgbFHK_icvvhKCWUvZ7pf7Y6zT4fpXnT3Pq5DPdczIDxbaWxKZgX_jQb4dAZbETUNDfkXk-MKTCn-6ZjCGG5Os23Q4WRYtZz-VBMZ41FJFdAWvxJ7YuADJtcDCY3pADUD8BjeOwXyZfscd_-EkfXH7ralgF4gfkR6bIubTE9uQSYAtdoVHMC-bCdGCOVoGjm4KOeQtMq08wrrQiaAqTXx8hr-d67EMlasFbEcm35jXRESE7-HD1hILdc2VT6xsbdA804vkQ9E9l5GeVrb0yYeCf0eiMV3qmIO-9Wt0Ll6yeFeGiPc4316Qz2cix-qnGVIMVQfEpR1GUYzU9zkdlE5Mh5phYXKFMtAhneXKmKPhXnly08xoceKOrQB5pidqKQ9cIIoRjO9RUAxYe196LnBSgX9cDfUoCKQFCH2EucHyCWoq2dKCtwIX0OzSD5JYeRnZyyWwdtAR_teUwJIwzuX_v1EVjX4kktDWeoMcOwggkdl5DX7KKPgVSGujPT_9R26bgnyfwzsrn3JjhDX6VUgM_AvD_KAjjjpceVI5sLVU0G_ZwKakJK6CAbgd-3mv_fpxuPpqrcQQJzmlmVIjdIplkqF-WYGCBgGP3rpVVxWDfY; __RequestVerificationToken_L3N6YmF50=25mKhKsFdLHPQXtU2hzuJW_wC19OghfiChfeR2zRbOV4ax1pfzfKqXKxA9wbHJcx7MGRcM-O1c88frBZMuEwzzkaw7o1; XSRF-TOKEN=2BQOcPud5T3MFQdkuS3QHycrp6zqnOatIWYSN0d2aokklZSPYTwNFB0Rhm0xxAkgC9BEDvXGEhjjehBP39VTxj71LX33pHzNS1hvsuLyEc9egiz_z-s7WJLwxwKEZldNcjGwjQ2"
             # "__RequestVerificationToken_L3N6YmF50": "FXMW3m5I9fZK71GaCXRca5Ay0WDTbMgOaZoHFQwHWHTw7S
             # _Dfa2vBwHOPqV0PffXA1NhlizVFX5OfyVUZeP5Zri3Du41",
             # "XSRF-TOKEN": "rs3gB5gQUqeG-YcaRXgB13JMlQAn9N4e_vS29wl-_HV5-MZb6gCL7eLhiC030tJP-cFa0"
@@ -959,6 +959,19 @@ def get_free_tennis_court_infos_for_szw(date: str, proxy_list: list, time_range:
                             booked_court_infos[venue_name].append([start_time, end_time])
                         else:
                             booked_court_infos[venue_name] = [[start_time, end_time]]
+
+                for venue_info in response.json()['result'][0]['listWeixinVenueStatus']:
+                    if venue_info['status'] == 20:
+                        pass
+                    else:
+                        start_time = str(venue_info['timeStartEndName']).split('-')[0].replace(":30", ":00")
+                        end_time = str(venue_info['timeStartEndName']).split('-')[1].replace(":30", ":00")
+                        venue_name = venue_name_infos[venue_info['venueID']]
+                        if booked_court_infos.get(venue_name):
+                            booked_court_infos[venue_name].append([start_time, end_time])
+                        else:
+                            booked_court_infos[venue_name] = [[start_time, end_time]]
+
                 available_slots_infos = {}
                 for venue_id, booked_slots in booked_court_infos.items():
                     available_slots = find_available_slots(booked_slots, time_range)
