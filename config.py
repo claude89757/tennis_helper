@@ -89,6 +89,7 @@ CD_INDEX_INFOS = {
     "莲花二村": 17,
     "山花馆": 18,
     "九龙山": 19,
+    "网羽中心": 20,
 }
 
 CD_ACTIVE_DAY_INFOS = {
@@ -117,6 +118,7 @@ CD_ACTIVE_DAY_INFOS = {
     "莲花二村": 7,
     "山花馆": 5,
     "九龙山": 3,
+    "网羽中心": 2,
 }
 
 
@@ -140,6 +142,7 @@ CD_TIME_RANGE_INFOS = {
     "莲花二村": {"start_time": "07:00", "end_time": "23:00"},
     "山花馆": {"start_time": "09:00", "end_time": "22:00"},
     "九龙山": {"start_time": "09:00", "end_time": "22:00"},
+    "网羽中心": {"start_time": "07:00", "end_time": "23:00"},
 }
 
 
