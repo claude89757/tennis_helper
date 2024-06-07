@@ -5,8 +5,8 @@ import requests
 import json
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 import Config
 
 
@@ -207,10 +207,33 @@ def create_image_and_text(path_image: str, title: str, describe: str):
     # WebDriverWait(Config.Browser, 10, 0.2).until(
     #     lambda x: x.find_element(By.CSS_SELECTOR, "div.tab:nth-child(2)")).click()
 
-    # 等待并点击"上传图文"标签
-    WebDriverWait(Config.Browser, 10, 0.2).until(
-        EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'tab')]/span[contains(text(), '上传图文')]"))
-    ).click()
+    # 设置一个较长的等待时间，以便尝试不同的方法
+    wait_time = 20
+    # 初始化WebDriverWait对象
+    print("切换上传图文页面")
+    wait = WebDriverWait(Config.Browser, wait_time)
+    try:
+        # 首先尝试点击"上传图文"标签
+        upload_tab = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'tab')]/span[contains(text(), '上传图文')]")))
+        upload_tab.click()
+    except TimeoutException:
+        print("尝试点击'上传图文'时超时。尝试其他方法。")
+        try:
+            # 使用JavaScript尝试点击
+            upload_tab = wait.until(EC.presence_of_element_located(
+                (By.XPATH, "//div[contains(@class, 'tab')]/span[contains(text(), '上传图文')]")))
+            Config.Browser.execute_script("arguments[0].click();", upload_tab)
+        except NoSuchElementException:
+            print("页面上找不到'上传图文'的元素。请检查元素的XPath。")
+        except ElementClickInterceptedException:
+            print("元素被遮挡，无法点击。尝试滚动到元素。")
+            # 滚动到元素并尝试点击
+            Config.Browser.execute_script("arguments[0].scrollIntoView(true);", upload_tab)
+            Config.Browser.execute_script("arguments[0].click();", upload_tab)
+    except Exception as e:
+        print(f"尝试点击'上传图文'时发生未知错误：{e}")
+    print("切换成功")
 
     #  上传图片
     Config.Browser.find_element(By.CSS_SELECTOR, ".upload-wrapper > div:nth-child(1) > input:nth-child(1)").send_keys(
