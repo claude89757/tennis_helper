@@ -204,8 +204,13 @@ def create_image_and_text(path_image: str, title: str, describe: str):
     :param title: 空行分割点图片路径
     :param describe: 空行分割点图片路径
     """
+    # WebDriverWait(Config.Browser, 10, 0.2).until(
+    #     lambda x: x.find_element(By.CSS_SELECTOR, "div.tab:nth-child(2)")).click()
+
+    # 等待并点击"上传图文"标签
     WebDriverWait(Config.Browser, 10, 0.2).until(
-        lambda x: x.find_element(By.CSS_SELECTOR, "div.tab:nth-child(2)")).click()
+        EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'tab')]/span[contains(text(), '上传图文')]"))
+    ).click()
 
     #  上传图片
     Config.Browser.find_element(By.CSS_SELECTOR, ".upload-wrapper > div:nth-child(1) > input:nth-child(1)").send_keys(
