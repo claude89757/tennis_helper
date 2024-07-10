@@ -155,7 +155,7 @@ if __name__ == '__main__':
         for row_index in range(len(TIME_SLOTS)):
             for col_index in range(check_days):
                 cell_key = f"{COLUMN[col_index+1]}{row_index+2}"
-                input_data_infos[cell_key] = "西丽穿线 | 立等可取\n30元/支 | 群内联系"
+                input_data_infos[cell_key] = "广告位招租"
 
         for cell_key, data_list in court_infos.items():
             court_num_infos = {}
@@ -177,8 +177,7 @@ if __name__ == '__main__':
                     cell_value_list.append(f"{court_name} {len(set(sorted_court_num_list))}")
             cell_value = "\n".join(cell_value_list)
             if cell_key in expired_cell_key_list:
-                # input_data_infos[cell_key] = f"已过期\n{cell_value}"
-                input_data_infos[cell_key] = "西丽穿线 | 立等可取\n30元/支 | 群内联系"
+                input_data_infos[cell_key] = f"已过期\n{cell_value}"
             else:
                 input_data_infos[cell_key] = cell_value
         docs.update_cell("300000000$NLrsOYBdnaed", "BB08J2", input_data_infos)
