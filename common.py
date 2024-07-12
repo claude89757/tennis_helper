@@ -215,6 +215,9 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                     elif venue_id == 117557:
                         # 大沙河异常场地数据剔除
                         continue
+                    elif venue_id == 104867:
+                        # 网羽中心异常场地数据剔除
+                        continue
                     elif venue_id == 102930:
                         if date != today_str:
                             # 香蜜6号场，非当日的场地信息过滤
