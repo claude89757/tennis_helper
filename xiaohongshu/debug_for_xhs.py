@@ -3,12 +3,17 @@
 
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
 
-# 如果Geckodriver不在系统路径中，需要指定路径
-service = Service(executable_path='/usr/local/bin/geckodriver')
+print("loading firefox driver ...")
+# 设置Firefox选项
+options = Options()
+options.add_argument("--headless")  # Ensure GUI is off
 
-# 创建Firefox WebDriver实例
-driver = webdriver.Firefox(service=service)  # 如果需要指定service，加入参数：service=service
+# 指定geckodriver的路径
+service = Service('/usr/local/bin/geckodriver')
+# 创建一个WebDriver实例
+driver = webdriver.Firefox(service=service, options=options)
 
 try:
     # 访问小红书创建者平台登录页面
