@@ -22,5 +22,6 @@ describe = ""
 
 # 图片存放路径
 catalog_image = r"E:\Project\Python\小红书\image"
+
 # 文件后缀
 suffix = ['.jpg', '.jpeg', '.png', '.webp']
