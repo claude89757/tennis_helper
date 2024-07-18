@@ -91,6 +91,7 @@ def login():
     send_code_button.click()
 
     # 获取错误标签
+    print("获取错误标签")
     error_span = 'return document.querySelector(".css-1qf7tqh").innerText'
     error = Config.Browser.execute_script(error_span)
     if error != "":
@@ -144,6 +145,7 @@ def publish_image_and_text(path_images: str, title: str, describe: str):
     login()
 
     if Config.Browser.current_url != "https://creator.xiaohongshu.com/publish/publish":
+        print("getting: https://creator.xiaohongshu.com/publish/publish")
         Config.Browser.get("https://creator.xiaohongshu.com/publish/publish")
 
     Create.create_image_and_text(path_images, title, describe)
