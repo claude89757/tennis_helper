@@ -45,7 +45,7 @@ def get_topic_data(keyword):
     url = "https://edith.xiaohongshu.com/web_api/sns/v1/search/topic"
 
     headers = {
-        "authority": "edith.xiaohongshu.com",
+        "authority": "edith.xhs.com",
         "accept": "application/json, text/plain, */*",
         "accept-language": "zh-CN,zh;q=0.9",
         "content-type": "application/json;charset=UTF-8",
@@ -62,7 +62,7 @@ def get_topic_data(keyword):
         "x-s": "1BwJ16Z61lOv121i1BvKZ6ZUO2siO2sisgsG12dvOjs3",
         "x-t": "1697655265279",
         # 注意：你需要将下面的cookie替换为你自己的cookie
-        "cookie": "a1=189a24b299dzg9nw7kay0s5ghtexkjdqswji4885n50000398979; webId=c4f82c15c1fb37de66d15464eeb27e51; gid=yYj0J4DqJqMYyYj0J4DJjEYYjfukjIEWT0v8V2IM2kx9d328CTVfA4888qjYjWj8yj04JYWD; customerClientId=654263717538808; customerBeakerSessionId=498cab4b72364be0585c65a4be17fbe99c7dab20gAJ9cQAoWBAAAABjdXN0b21lclVzZXJUeXBlcQFLAVgOAAAAX2NyZWF0aW9uX3RpbWVxAkdB2UwMCm0OVlgJAAAAYXV0aFRva2VucQNYQQAAAGZlZDc3NzJiYmZhMTRlYWE5ZWYxOGY5MzY3MmUzNmNlLWIzNDg3MGNhMGY4MzRjN2M4NzZkZDE5YTBkZjBiNzE1cQRYAwAAAF9pZHEFWCAAAABkMWMzZTY3YjM1NDI0ZGU3YmFlNDk2NzFmNTlkYjE1N3EGWA4AAABfYWNjZXNzZWRfdGltZXEHR0HZTAwKbQ5WWAYAAAB1c2VySWRxCFgYAAAANWYwMzNmMTMwMDAwMDAwMDAxMDAwZGEwcQlYAwAAAHNpZHEKWBgAAAA2NTMwMzAyOTY0MDAwMDAwMDAwMDAwMDJxC3Uu; customer-sso-sid=653030296400000000000002; x-user-id-creator.xiaohongshu.com=5f033f130000000001000da0; access-token-creator.xiaohongshu.com=customer.ares.AT-d6d4fb70c58c4ab3bc1a75e64fa24473-06869bd40c3c46e4992ab4308a8eb570; galaxy_creator_session_id=XWBjFlieezagoNp5QLchTV2IWqfh2RrZAFHO; galaxy.creator.beaker.session.id=1697656873955095649557; abRequestId=c4f82c15c1fb37de66d15464eeb27e51; webBuild=3.11.3; xsecappid=xhs-pc-web; web_session=030037a3f6658a483fcc787648224aa8392c42; websectiga=f47eda31ec99545da40c2f731f0630efd2b0959e1dd10d5fedac3dce0bd1e04d; sec_poison_id=228a9b9a-a882-4caa-8d92-10a6274da427; acw_tc=3590b94f30dc14b3910006ac097b02facdff27f3d63dcec6b5866d16838d993a",
+        "cookie": "a1=189a24b299dzg9nw7kay0s5ghtexkjdqswji4885n50000398979; webId=c4f82c15c1fb37de66d15464eeb27e51; gid=yYj0J4DqJqMYyYj0J4DJjEYYjfukjIEWT0v8V2IM2kx9d328CTVfA4888qjYjWj8yj04JYWD; customerClientId=654263717538808; customerBeakerSessionId=498cab4b72364be0585c65a4be17fbe99c7dab20gAJ9cQAoWBAAAABjdXN0b21lclVzZXJUeXBlcQFLAVgOAAAAX2NyZWF0aW9uX3RpbWVxAkdB2UwMCm0OVlgJAAAAYXV0aFRva2VucQNYQQAAAGZlZDc3NzJiYmZhMTRlYWE5ZWYxOGY5MzY3MmUzNmNlLWIzNDg3MGNhMGY4MzRjN2M4NzZkZDE5YTBkZjBiNzE1cQRYAwAAAF9pZHEFWCAAAABkMWMzZTY3YjM1NDI0ZGU3YmFlNDk2NzFmNTlkYjE1N3EGWA4AAABfYWNjZXNzZWRfdGltZXEHR0HZTAwKbQ5WWAYAAAB1c2VySWRxCFgYAAAANWYwMzNmMTMwMDAwMDAwMDAxMDAwZGEwcQlYAwAAAHNpZHEKWBgAAAA2NTMwMzAyOTY0MDAwMDAwMDAwMDAwMDJxC3Uu; customer-sso-sid=653030296400000000000002; x-user-id-creator.xhs.com=5f033f130000000001000da0; access-token-creator.xhs.com=customer.ares.AT-d6d4fb70c58c4ab3bc1a75e64fa24473-06869bd40c3c46e4992ab4308a8eb570; galaxy_creator_session_id=XWBjFlieezagoNp5QLchTV2IWqfh2RrZAFHO; galaxy.creator.beaker.session.id=1697656873955095649557; abRequestId=c4f82c15c1fb37de66d15464eeb27e51; webBuild=3.11.3; xsecappid=xhs-pc-web; web_session=030037a3f6658a483fcc787648224aa8392c42; websectiga=f47eda31ec99545da40c2f731f0630efd2b0959e1dd10d5fedac3dce0bd1e04d; sec_poison_id=228a9b9a-a882-4caa-8d92-10a6274da427; acw_tc=3590b94f30dc14b3910006ac097b02facdff27f3d63dcec6b5866d16838d993a",
     }
 
     data = {

@@ -16,7 +16,7 @@ git clone https://github.com/LuckyTime1025/xiaohongshu.git
 ### 进入项目目录
 
 ```shell
-cd xiaohongshu
+cd xhs
 ```
 
 ### 创建虚拟环境
