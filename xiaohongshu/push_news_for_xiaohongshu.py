@@ -66,6 +66,7 @@ def cookie_login():
 
 
 def login():
+    print("登录中...")
     Config.Browser.get("https://creator.xiaohongshu.com/login")
     if not Config.login_status:
         cookie_login()
@@ -78,11 +79,13 @@ def login():
         print("手机号码不合法！")
 
     # 等待手机号输入框加载并可见
+    print("等待手机号输入框加载并可见")
     phone_input = WebDriverWait(Config.Browser, 20).until(
         EC.visibility_of_element_located((By.XPATH, "//input[@placeholder='手机号']")))
     phone_input.send_keys(phone)
 
     # 发送验证码
+    print(" 发送验证码")
     send_code_button = WebDriverWait(Config.Browser, 20).until(
         EC.element_to_be_clickable((By.XPATH, "//div[text()='发送验证码']")))
     send_code_button.click()
