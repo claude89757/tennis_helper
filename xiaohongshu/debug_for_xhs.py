@@ -8,7 +8,7 @@ from selenium.webdriver.firefox.service import Service
 service = Service(executable_path='/usr/local/bin/geckodriver')
 
 # 创建Firefox WebDriver实例
-driver = webdriver.Firefox()  # 如果需要指定service，加入参数：service=service
+driver = webdriver.Firefox(service=service)  # 如果需要指定service，加入参数：service=service
 
 try:
     # 访问小红书创建者平台登录页面
