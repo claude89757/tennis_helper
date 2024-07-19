@@ -197,7 +197,7 @@ if __name__ == '__main__':
                     if free_slot_list:
                         merged_free_slot_list = merge_time_ranges(free_slot_list)
                         up_for_send_data_list.append({"date": check_date_str2,
-                                                      "court_name": "卢湾室内", "free_slot_list": free_slot_list})
+                                                      "court_name": "卢湾室内", "free_slot_list": merged_free_slot_list})
                     else:
                         pass
                 else:
@@ -213,7 +213,7 @@ if __name__ == '__main__':
                     if free_slot_list:
                         merged_free_slot_list = merge_time_ranges(free_slot_list)
                         up_for_send_data_list.append({"date": check_date_str2,
-                                                      "court_name": "卢湾室外", "free_slot_list": free_slot_list})
+                                                      "court_name": "卢湾室外", "free_slot_list": merged_free_slot_list})
                     else:
                         pass
             else:
