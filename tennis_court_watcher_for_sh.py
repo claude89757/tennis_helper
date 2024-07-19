@@ -83,7 +83,7 @@ def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: lis
     if proxy_list:
         index_list = list(range(len(proxy_list)))
         random.shuffle(index_list)
-        print(index_list)
+        print("using proxy....")
         for index in index_list:
             proxy = proxy_list[index]
             print(f"trying for {index} time for {proxy}")
@@ -102,6 +102,7 @@ def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: lis
                 print(f"failed for {proxy}: {error}")
                 continue
     else:
+        print("no using proxy...")
         response = requests.post(url, headers=headers, data=data, verify=False)
 
         if response.status_code == 200:
