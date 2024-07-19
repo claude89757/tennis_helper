@@ -163,7 +163,7 @@ if __name__ == '__main__':
     get_start_time = time.time()
     up_for_send_data_list = []
     for filed_type in ['in', 'out']:
-        for index in range(0, 1):
+        for index in range(0, 3):
             check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y%m%d')
             check_date_str2 = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%m-%d')
             print(f"checking {check_date_str}")
