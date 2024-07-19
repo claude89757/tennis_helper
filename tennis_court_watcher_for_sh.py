@@ -168,6 +168,7 @@ if __name__ == '__main__':
             check_date_str2 = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%m-%d')
             print(f"checking {check_date_str}")
             data_list = get_free_tennis_court_data(filed_type, check_date_str)
+            time.sleep(1)
             if data_list:
                 if filed_type == 'in':
                     free_slot_list = []
@@ -191,7 +192,7 @@ if __name__ == '__main__':
                         hour_num = int(str(data['name']).split(':')[0])
                         start_time = str(data['name']).split('-')[0]
                         end_time = str(data['name']).split('-')[1]
-                        if 18 <= hour_num <= 21:
+                        if 18 <= hour_num <= 24:
                             free_slot_list.append([start_time, end_time])
                         else:
                             pass
