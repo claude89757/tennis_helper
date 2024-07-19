@@ -89,17 +89,17 @@ def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: lis
             print(f"trying for {index} time for {proxy}")
             try:
                 proxies = {"https": proxy}
-                response = requests.post(url, headers=headers, data=data, proxies=proxies, verify=False, timeout=5)
+                response = requests.post(url, headers=headers, data=data, proxies=proxies, verify=False, timeout=3)
                 if response.status_code == 200:
                     print(f"success for {proxy}")
                     res = response.json()
                     break
                 else:
-                    print(f"failed for {proxy}: {response}")
+                    print(f"failed for {proxy}")
                     time.sleep(1)
                     continue
             except Exception as error:  # pylint: disable=broad-except
-                print(f"failed for {proxy}: {error}")
+                print(f"failed for {proxy}")
                 continue
     else:
         print("no using proxy...")
@@ -115,7 +115,7 @@ def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: lis
         times_list = res["data"]["times_list"]
         free_time_list = []
         for time_slot in times_list:
-            print(f"时间段: {time_slot['name']}, 状态: {time_slot['status']}, 是否选择: {time_slot['is_select']}")
+            # print(f"时间段: {time_slot['name']}, 状态: {time_slot['status']}, 是否选择: {time_slot['is_select']}")
             if time_slot['status'] == 1:
                 free_time_list.append(time_slot)
             else:
