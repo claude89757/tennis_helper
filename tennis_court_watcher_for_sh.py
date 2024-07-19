@@ -167,7 +167,7 @@ if __name__ == '__main__':
             check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y%m%d')
             check_date_str2 = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%m-%d')
             print(f"checking {check_date_str}")
-            data_list = get_free_tennis_court_data(filed_type, check_date_str)
+            data_list = get_free_tennis_court_data(filed_type, check_date_str, proxy_list=proxy_list)
             time.sleep(1)
             if data_list:
                 if filed_type == 'in':
@@ -245,6 +245,6 @@ if __name__ == '__main__':
                 print_with_timestamp("短信发送成功, 刷新数据库计数")
             else:
                 print_with_timestamp("短信发送失败")
-            time.sleep(1)
+            time.sleep(5)
     else:
         print_with_timestamp(F"无需要通知的场地信息")
