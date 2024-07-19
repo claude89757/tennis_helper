@@ -59,9 +59,12 @@ def merge_time_ranges(data: List[List[str]]) -> List[List[str]]:
     return result
 
 
-def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: list = None):
+def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: list = None, ok_proxy_list: list = None):
+    """
+    查询空闲场地信息
+    """
+    success_proxy_list = []
     url = "https://api.go-sports.cn/home/timesListNew"
-
     headers = {
         "Host": "api.go-sports.cn",
         "ua": os.environ["SH_001_KEY"],
@@ -80,27 +83,33 @@ def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: lis
         "order_date": order_date,
     }
     res = None
-    if proxy_list:
-        index_list = list(range(len(proxy_list)))
-        random.shuffle(index_list)
-        print("using proxy....")
-        for index in index_list:
-            proxy = proxy_list[index]
-            print(f"trying for {index} time for {proxy}")
+    if proxy_list or ok_proxy_list:
+        all_proxy_list = []
+        if ok_proxy_list:
+            all_proxy_list.extend(ok_proxy_list)
+        if proxy_list:
+            all_proxy_list.extend(proxy_list)
+
+        try_time = 1
+        for proxy in all_proxy_list:
+            print(f"trying for {try_time} time for {proxy}")
+            try_time += 1
             try:
                 proxies = {"https": proxy}
-                response = requests.post(url, headers=headers, data=data, proxies=proxies, verify=False, timeout=3)
+                response = requests.post(url, headers=headers, data=data, proxies=proxies, verify=False, timeout=2)
                 if response.status_code == 200:
                     print(f"success for {proxy}")
+                    success_proxy_list.append(proxy)
                     res = response.json()
                     break
                 else:
                     print(f"failed for {proxy}")
                     time.sleep(1)
                     continue
-            except Exception as error:  # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-except
                 print(f"failed for {proxy}")
                 continue
+
     else:
         print("no using proxy...")
         response = requests.post(url, headers=headers, data=data, verify=False)
@@ -120,7 +129,7 @@ def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: lis
                 free_time_list.append(time_slot)
             else:
                 pass
-        return free_time_list
+        return free_time_list, success_proxy_list
     else:
         raise Exception("未知异常")
 
@@ -163,12 +172,15 @@ if __name__ == '__main__':
     now = datetime.datetime.now().time()
     get_start_time = time.time()
     up_for_send_data_list = []
+    ok_proxy_list = []
     for filed_type in ['in', 'out']:
         for index in range(0, 3):
             check_date_str = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y%m%d')
             check_date_str2 = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%m-%d')
             print(f"checking {check_date_str}")
-            data_list = get_free_tennis_court_data(filed_type, check_date_str, proxy_list=proxy_list)
+            data_list, ok_proxy_list = get_free_tennis_court_data(filed_type, check_date_str, proxy_list=proxy_list,
+                                                                  ok_proxy_list=ok_proxy_list)
+
             time.sleep(1)
             if data_list:
                 if filed_type == 'in':
