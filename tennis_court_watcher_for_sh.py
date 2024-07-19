@@ -192,7 +192,7 @@ if __name__ == '__main__':
                         hour_num = int(str(data['name']).split(':')[0])
                         start_time = str(data['name']).split('-')[0]
                         end_time = str(data['name']).split('-')[1]
-                        if 18 <= hour_num <= 24:
+                        if 18 <= hour_num <= 21:
                             free_slot_list.append([start_time, end_time])
                         else:
                             pass
