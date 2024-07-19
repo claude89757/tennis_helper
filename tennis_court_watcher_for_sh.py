@@ -166,6 +166,7 @@ if __name__ == '__main__':
         proxy_list = [line.strip() for line in content.split()]
     else:
         proxy_list = []
+    random.shuffle(proxy_list)  # 每次都打乱下
     print_with_timestamp(f"get proxy_list({len(proxy_list)}): {proxy_list}")
 
     # 查询空闲的球场信息
