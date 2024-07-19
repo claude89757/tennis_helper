@@ -23,6 +23,6 @@ def get_new_cookie():
 def save_cookie():
     """保存Cookie"""
     print("正在保存Cookie")
-    with open('/home/lighthouse/tennis_helper/xiaohongshu/cookies.json', 'w', encoding='utf-8') as f:
+    with open('/home/lighthouse/tennis_helper/xhs/cookies.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(Config.CookiesDict))
     print('cookies保存成功！')

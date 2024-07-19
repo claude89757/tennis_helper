@@ -29,8 +29,8 @@ def init_browser():
 
 def init_cookie():
     """读取本地 Cookie"""
-    if os.path.isfile("/home/lighthouse/tennis_helper/xiaohongshu/cookies.json"):
-        with open("/home/lighthouse/tennis_helper/xiaohongshu/cookies.json", "r+", encoding="utf-8") as f:
+    if os.path.isfile("/home/lighthouse/tennis_helper/xhs/cookies.json"):
+        with open("/home/lighthouse/tennis_helper/xhs/cookies.json", "r+", encoding="utf-8") as f:
             content = f.read()
             if content:
                 Config.CookiesDict.update(json.loads(content))
