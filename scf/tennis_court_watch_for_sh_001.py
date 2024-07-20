@@ -200,6 +200,7 @@ def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: lis
                     print(f"success for {proxy}")
                     success_proxy_list.append(proxy)
                     res = response.json()
+                    print(f"response: {response.text}")
                     break
                 else:
                     print(f"failed for {proxy}")
@@ -259,7 +260,7 @@ def main_handler(event, context):
     up_for_send_data_list = []
     ok_proxy_list = []
     for filed_type in ['in', 'out']:
-        for index in range(0, 7):
+        for index in range(0, 3):
             input_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y%m%d')
             inform_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%m-%d')
             data_list, ok_proxy_list = get_free_tennis_court_data(filed_type,
