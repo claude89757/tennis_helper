@@ -177,6 +177,7 @@ def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: lis
         "field_type": field_type,
         "order_date": order_date,
     }
+    print(f"post body: {data}")
     res = None
     if proxy_list or ok_proxy_list:
         all_proxy_list = []
