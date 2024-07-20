@@ -22,6 +22,7 @@ TENCENT_CLOUD_SECRET_KEY = os.environ.get("TENCENT_CLOUD_SECRET_KEY")
 def send_sms_for_news(phone_num_list: list, param_list: list, template_id: str = '1856675'):
     """
     发生短信通知
+    example: send_sms_for_news(["xxxxx"], param_list=["08-03", "大沙河", "21:00", "20:00"])
     """
     sign_name = "网球场预定助手小程序"
     try:
