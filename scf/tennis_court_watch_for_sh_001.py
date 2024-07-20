@@ -222,7 +222,7 @@ def get_free_tennis_court_data(field_type: str, order_date: str, proxy_list: lis
         times_list = res["data"]["times_list"]
         free_time_list = []
         for time_slot in times_list:
-            # print(f"时间段: {time_slot['name']}, 状态: {time_slot['status']}, 是否选择: {time_slot['is_select']}")
+            print(f"{order_date} 时间段: {time_slot['name']}, 状态: {time_slot['status']}")
             if time_slot['status'] == 1:
                 free_time_list.append(time_slot)
             else:
@@ -341,7 +341,7 @@ def main_handler(event, context):
             sms_res = send_sms_for_news([phone], [date, court_name, start_time, end_time])
             print(sms_res)
             if "send success" in str(sms_res):
-                print_with_timestamp("短信发送成功, 刷新数据库计数")
+                print_with_timestamp("短信发送成功")
             else:
                 print_with_timestamp("短信发送失败")
             time.sleep(5)
