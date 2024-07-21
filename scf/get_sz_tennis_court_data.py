@@ -213,7 +213,6 @@ def is_time_range_contained(range1, range2):
     :param range2: 第二个时间范围列表，例如 ["08:00", "12:00"]
     :return: 如果第一个时间范围被第二个时间范围包含，返回 True，否则返回 False
     """
-    print(f"checking {range1} in {range2}")
     # 将时间字符串转换为 datetime 对象
     time_format = "%H:%M"
     start1 = datetime.datetime.strptime(range1[0], time_format)
@@ -223,7 +222,6 @@ def is_time_range_contained(range1, range2):
 
     # 检查第一个时间范围是否被第二个时间范围包含
     res = start2 <= start1 and end1 <= end2
-    print(res)
     return res
 
 
