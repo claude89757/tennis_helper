@@ -251,6 +251,9 @@ def main_handler(event, context):
         else:
             raise Exception(f"input data wrong")
 
+        # 格式化日期为不包含年份的格式
+        formatted_date_str = datetime.datetime.strptime(date, "%Y-%m-%d").strftime("%m-%d")  # 输出为 "01-01"
+
         # 执行函数功能
         try:
             # 查询相关的场地信息
@@ -283,9 +286,9 @@ def main_handler(event, context):
                     else:
                         pass
             if is_input_time_range_free:
-                output_data = f"{place_name} {start_time}-{end_time} 空闲中"
+                output_data = f"【{place_name}】 {formatted_date_str} {start_time}-{end_time} 空闲中"
             else:
-                output_data = f"{place_name} {start_time}-{end_time} 已被预定"
+                output_data = f"【{place_name}】 {formatted_date_str} {start_time}-{end_time} 已被预定"
             return {"code": 0, "data": output_data, "msg": "success"}
         except Exception as error:  # pylint: disable=broad-except
             return {"code": -1, "data": None, "msg": str(error)}
