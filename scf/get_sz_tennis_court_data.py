@@ -18,8 +18,6 @@ import datetime
 
 # 读取指定环境变量的值
 SIGN_KEY = os.environ.get("SIGN_KEY")
-SALES_ID = os.environ.get("SALES_ID")
-SALES_ITEM_ID = os.environ.get("SALES_ITEM_ID")
 
 
 def gen_nonce(timestamp: int):
@@ -127,7 +125,7 @@ def find_available_slots(booked_slots, time_range):
     return available_slots
 
 
-def get_data_for_isz(date: str) -> dict:
+def get_data_for_isz(date: str, sales_id: str, sales_item_id: str) -> dict:
     """
     获取可预订的场地信息
     """
@@ -136,12 +134,12 @@ def get_data_for_isz(date: str) -> dict:
     timestamp = math.trunc(time.time() * 1000)
     nonce = gen_nonce(timestamp)
     params = {
-        "salesItemId": SALES_ITEM_ID,
+        "salesItemId": sales_item_id,
         "curDate": str(check_data),
         "venueGroupId": "",
         "t": str(timestamp)
     }
-    param_str = f"salesItemId={SALES_ITEM_ID}&curDate={check_data}&venueGroupId=&t={str(timestamp)}"  # 仅用于签名
+    param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&t={str(timestamp)}"  # 仅用于签名
     signature = signature_for_get(str(timestamp), nonce.replace('-', ''), param_str=param_str)
     headers = {
         "Host": "isz.ydmap.cn",
@@ -159,7 +157,7 @@ def get_data_for_isz(date: str) -> dict:
         "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X) AppleWebKit/605.1.15 "
                       "(KHTML, like Gecko) "
                       "Mobile/15E148/openweb=paschybrid/SZSMT_IOS,VERSION:4.5.0",
-        "referer": F"https://isz.ydmap.cn/booking/schedule/{SALES_ID}?salesItemId={SALES_ITEM_ID}",
+        "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
         "sec-fetch-dest": "empty"
     }
     url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
@@ -259,10 +257,22 @@ def main_handler(event, context):
         try:
             # 查询相关的场地信息
             if place_name == '大沙河':
-                data = get_data_for_isz(date)
+                data = get_data_for_isz(date, sales_id="100220", sales_item_id="100000")
+                print(data)
+            elif place_name == '黄木岗':
+                data = get_data_for_isz(date, sales_id="101333", sales_item_id="100344")
+                print(data)
+            elif place_name == '香蜜体育':
+                data = get_data_for_isz(date, sales_id="101332", sales_item_id="100341")
+                print(data)
+            elif place_name == '华侨城':
+                data = get_data_for_isz(date, sales_id="105143", sales_item_id="105347")
+                print(data)
+            elif place_name == '网羽中心':
+                data = get_data_for_isz(date, sales_id="102549", sales_item_id="100704")
                 print(data)
             else:
-                return {"code": -1, "data": None, "msg": f"不支持{place_name}的查询"}
+                return {"code": 0, "data": f"不支持{place_name}的查询", "msg": f"不支持{place_name}的查询"}
 
             # 检查查询的时间段是否可预定
             input_time_range = [start_time, end_time]
