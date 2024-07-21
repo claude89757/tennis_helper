@@ -165,6 +165,7 @@ def get_data_for_isz(date: str) -> dict:
     url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
     print(url)
     print(params)
+    today_str = datetime.datetime.now().strftime('%Y-%m-%d')
     response = requests.get(url, headers=headers, params=params, timeout=5)
     if response.status_code == 200:
         if response.json()['code'] == 0:
@@ -186,6 +187,9 @@ def get_data_for_isz(date: str) -> dict:
                     continue
                 elif venue_id == 104867:
                     # 网羽中心异常场地数据剔除
+                    continue
+                elif venue_id == 102930:
+                    # 香蜜6号场
                     continue
                 else:
                     pass
