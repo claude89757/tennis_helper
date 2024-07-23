@@ -18,11 +18,9 @@ def get_cookies(url):
     options = Options()
     options.headless = True
 
-    # 指定geckodriver的路径
-    service = Service('/usr/local/bin/geckodriver')
 
     # 创建一个WebDriver实例
-    driver = webdriver.Firefox(service=service, options=options)
+    driver = webdriver.Firefox(options=options)
 
     # 访问网站
     driver.get(url)
