@@ -193,7 +193,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             print(f"failed for {proxy}: {error}")
             continue
     print(f"response: {response.text}")
-    # print(f"response: {response.text}")
+    print(f"response: {response.text}")
     now = datetime.datetime.now().time()
     today_str = datetime.datetime.now().strftime('%Y-%m-%d')
     if got_response:
