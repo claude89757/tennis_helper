@@ -7,20 +7,25 @@
 @Software: PyCharm
 """
 
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
 import time
 import json
 
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+
+
+
 def get_cookies(url):
-    # 设置Firefox无头浏览器选项
+    print("loading firefox driver ...")
+    # 设置Firefox选项
     options = Options()
-    options.headless = True
+    options.add_argument("--headless")  # Ensure GUI is off
 
-
+    # 指定geckodriver的路径
+    service = Service('/usr/local/bin/geckodriver')
     # 创建一个WebDriver实例
-    driver = webdriver.Firefox(options=options)
+    driver = webdriver.Firefox(service=service, options=options)
 
     # 访问网站
     driver.get(url)
