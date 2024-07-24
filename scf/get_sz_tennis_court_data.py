@@ -186,7 +186,7 @@ def get_data_for_isz(date: str, sales_id: str, sales_item_id: str) -> dict:
                 elif venue_id == 117557:
                     # 大沙河异常场地数据剔除
                     continue
-                elif venue_id == 104867:
+                elif venue_id == 104867 or venue_id == 104861 or venue_id == 104862:
                     # 网羽中心异常场地数据剔除
                     continue
                 elif venue_id == 102930:
