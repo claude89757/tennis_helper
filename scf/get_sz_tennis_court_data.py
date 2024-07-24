@@ -163,8 +163,11 @@ def get_data_for_isz(date: str, sales_id: str, sales_item_id: str) -> dict:
     url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
     print(url)
     print(params)
-    today_str = datetime.datetime.now().strftime('%Y-%m-%d')
+    # today_str = datetime.datetime.now().strftime('%Y-%m-%d')
     response = requests.get(url, headers=headers, params=params, timeout=5)
+    print("-----------------------")
+    print(response.text)
+    print("-----------------------")
     if response.status_code == 200:
         if response.json()['code'] == 0:
             booked_court_infos = {}
@@ -273,7 +276,7 @@ def main_handler(event, context):
                 data = get_data_for_isz(date, sales_id="102549", sales_item_id="100704")
                 print(data)
             else:
-                return {"code": 0, "data": f"不支持{place_name}的查询", "msg": f"不支持{place_name}的查询"}
+                return {"code": 0, "data": f"这个场地我暂时无法查询😴", "msg": f"不支持{place_name}的查询"}
 
             # 检查查询的时间段是否可预定
             input_time_range = [start_time, end_time]

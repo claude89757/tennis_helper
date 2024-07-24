@@ -135,13 +135,65 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
     """
     获取可预订的场地信息
     """
-    got_response = False
-    response = None
-    index_list = list(range(len(proxy_list)))
-    # 打乱列表的顺序
-    random.shuffle(index_list)
-    print(index_list)
-    for index in index_list:
+    if proxy_list:
+        got_response = False
+        response = None
+        index_list = list(range(len(proxy_list)))
+        # 打乱列表的顺序
+        random.shuffle(index_list)
+        print(index_list)
+        for index in index_list:
+            check_data = str_to_timestamp(date)
+            timestamp = math.trunc(time.time() * 1000)
+            nonce = gen_nonce(timestamp)
+            params = {
+                "salesItemId": sales_item_id,
+                "curDate": str(check_data),
+                "venueGroupId": "",
+                "t": str(timestamp)
+            }
+            param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&t={str(timestamp)}"  # 仅用于签名
+            signature = signature_for_get(str(timestamp), nonce.replace('-', ''), param_str=param_str)
+            headers = {
+                "Host": "isz.ydmap.cn",
+                "accept": "application/json, text/plain, */*",
+                "openid-token": "",
+                "nonce": nonce.replace('-', ''),
+                "timestamp": str(timestamp),
+                "sec-fetch-site": "same-origin",
+                "x-requested-with": "XMLHttpRequest",
+                "accept-language": "zh-CN,zh-Hans;q=0.9",
+                "entry-tag": "",
+                "signature": signature,
+                "sec-fetch-mode": "cors",
+                # "access-token": access_token,  # get请求不需要
+                "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X) AppleWebKit/605.1.15 "
+                              "(KHTML, like Gecko) "
+                              "Mobile/15E148/openweb=paschybrid/SZSMT_IOS,VERSION:4.5.0",
+                "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
+                "sec-fetch-dest": "empty"
+            }
+            url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
+            print(url)
+            print(params)
+            # print(headers)
+            proxy = proxy_list[index]
+            print(f"trying for {index} time for {proxy}")
+            try:
+                proxies = {"https": proxy}
+                response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=5)
+                if response.status_code == 200:
+                    print(f"success for {proxy}")
+                    got_response = True
+                    time.sleep(1)
+                    break
+                else:
+                    print(f"failed for {proxy}: {response}")
+                    continue
+            except Exception as error:  # pylint: disable=broad-except
+                print(f"failed for {proxy}: {error}")
+                continue
+    else:
         check_data = str_to_timestamp(date)
         timestamp = math.trunc(time.time() * 1000)
         nonce = gen_nonce(timestamp)
@@ -176,22 +228,11 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
         print(url)
         print(params)
         # print(headers)
-        proxy = proxy_list[index]
-        print(f"trying for {index} time for {proxy}")
-        try:
-            proxies = {"https": proxy}
-            response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=5)
-            if response.status_code == 200:
-                print(f"success for {proxy}")
-                got_response = True
-                time.sleep(1)
-                break
-            else:
-                print(f"failed for {proxy}: {response}")
-                continue
-        except Exception as error:  # pylint: disable=broad-except
-            print(f"failed for {proxy}: {error}")
-            continue
+        response = requests.get(url, headers=headers, params=params, timeout=5)
+        if response.status_code == 200:
+            got_response = True
+        else:
+            got_response = False
     print(f"response: {response.text}")
     # print(f"response: {response.text}")
     now = datetime.datetime.now().time()
@@ -215,7 +256,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                     elif venue_id == 117557:
                         # 大沙河异常场地数据剔除
                         continue
-                    elif venue_id == 104867:
+                    elif venue_id == 104867 or venue_id == 104861 or venue_id == 104862:
                         # 网羽中心异常场地数据剔除
                         continue
                     elif venue_id == 102930:
