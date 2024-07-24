@@ -194,6 +194,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                 print(f"failed for {proxy}: {error}")
                 continue
     else:
+        # 不使用代理
         check_data = str_to_timestamp(date)
         timestamp = math.trunc(time.time() * 1000)
         nonce = gen_nonce(timestamp)
@@ -228,25 +229,15 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
         print(url)
         print(params)
         # print(headers)
-        proxy = proxy_list[index]
-        print(f"trying for {index} time for {proxy}")
-        try:
-            proxies = {"https": proxy}
-            response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=5)
-            if response.status_code == 200:
-                print(f"success for {proxy}")
-                got_response = True
-                time.sleep(1)
-                break
-            else:
-                print(f"failed for {proxy}: {response}")
-                continue
-        except Exception as error:  # pylint: disable=broad-except
-            print(f"failed for {proxy}: {error}")
-            continue
+        response = requests.get(url, headers=headers, params=params, timeout=5)
+        if response.status_code == 200:
+            got_response = True
+        else:
+            got_response = False
+
     # print(f"response: {response.text}")
     # print(f"response: {response.text}")
-    now = datetime.datetime.now().time()
+    # now = datetime.datetime.now().time()
     today_str = datetime.datetime.now().strftime('%Y-%m-%d')
     if got_response:
         if response.status_code == 200:
