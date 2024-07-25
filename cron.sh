@@ -9,6 +9,7 @@ KS_TOKEN=""
 WEDA_ACCESS_TOKEN=""
 TENCENT_DOCS_SECRET=""
 TENCENT_DOCS_REFRESH_TOKEN=""
+GIT_TOKEN=""
 
 # delete too old logs everyday
 0 3 * * * find /home/lighthouse/tennis_helper/logs -name "*.log" -type f -mtime +1 -delete
@@ -29,6 +30,7 @@ TENCENT_DOCS_REFRESH_TOKEN=""
 0 10 * * *  timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/inform_rule_expired.py >> /home/lighthouse/tennis_helper/logs/inform_rule_expired_$(date +\%Y-\%m-\%d).log 2>&1
 
 # check https proxy
+*/15 * * * * timeout 43200 /usr/bin/python3 /home/lighthouse/tennis_helper/scf/https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/https_proxy_watcher_$(date +\%Y-\%m-\%d).log 2>&1
 0 1 * * *  timeout 43200 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/proxy_watch_$(date +\%Y-\%m-\%d).log 2>&1
 
 # update docs for  tennis tools
