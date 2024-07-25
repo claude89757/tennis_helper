@@ -136,7 +136,7 @@ def upload_file_to_github(filename):
         'sha': get_file_sha(url, headers)  # You need to get the SHA if you're updating an existing file
     }
     response = requests.put(url, headers=headers, json=data)
-    if response.status_code == 201:
+    if response.status_code == 200:
         print("File uploaded successfully.")
     else:
         print("Failed to upload file:", response.status_code, response.text)
