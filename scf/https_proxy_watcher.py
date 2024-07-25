@@ -183,3 +183,7 @@ def main_handler(event, context):
     task_check_proxies()
 
     return "success"
+
+
+if __name__ == '__main__':
+    task_check_proxies()
