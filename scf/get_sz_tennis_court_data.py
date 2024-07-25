@@ -275,6 +275,9 @@ def main_handler(event, context):
             elif place_name == '网羽中心':
                 data = get_data_for_isz(date, sales_id="102549", sales_item_id="100704")
                 print(data)
+            elif place_name == '莲花体育':
+                data = get_data_for_isz(date, sales_id="101335", sales_item_id="100347")
+                print(data)
             else:
                 return {"code": 0, "data": f"这个场地我暂时无法查询😴", "msg": f"不支持{place_name}的查询"}
 
