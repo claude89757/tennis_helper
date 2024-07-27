@@ -770,7 +770,7 @@ def get_tennis_court_data_by_proxy(date: str, last_proxy: str = None):
                         start_time = "0" + start_time
                     if len(end_time) == 4:
                         end_time = "0" + end_time
-                    if status != '0':
+                    if status == '0':
                         free_time_slot_list.append([start_time, end_time])
                     else:
                         pass
@@ -968,8 +968,7 @@ if __name__ == '__main__':
                 pass
         else:
             pass
-        break
-    print(up_for_send_data_list)
+    print(f"up_for_send_data_list: {up_for_send_data_list}")
     if up_for_send_data_list:
         # 打开本地文件缓存，用于缓存标记已经发送过的短信
         up_for_send_sms_list = []
