@@ -1019,3 +1019,8 @@ if __name__ == '__main__':
             print("无需要发送的短信")
     else:
         print_with_timestamp(F"无需要通知的场地信息")
+
+    # 计算整体运行耗时
+    run_end_time = time.time()
+    execution_time = run_end_time - run_start_time
+    print_with_timestamp(f"Total cost time：{execution_time} s")
