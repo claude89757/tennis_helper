@@ -779,8 +779,8 @@ def get_tennis_court_data_by_proxy(date: str, last_proxy: str = None):
                 else:
                     pass
             return court_free_time_infos, proxy
-        except requests.exceptions.ProxyError:
-            print(f"[fail]: {PROXY}")
+        except Exception as error:
+            print(f"[fail]: {PROXY}, {str(error)}")
             continue
     raise Exception(f"all proxy failed!")
 
