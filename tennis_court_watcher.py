@@ -8,7 +8,6 @@
 """
 
 import argparse
-import requests
 import time
 import datetime
 import shelve
