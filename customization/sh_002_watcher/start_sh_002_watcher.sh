@@ -10,7 +10,7 @@ fi
 PHONE=$1
 
 # 生成一个 1 到 200 之间的随机数
-DELAY=$((RANDOM % 200 + 1))
+DELAY=$((RANDOM % 120 + 1))
 
 # 输出延迟时间
 echo "将在 $DELAY 秒后启动 Python 程序..." >> /home/lighthouse/tennis_helper/logs/sh_002_watcher_$(date +\%Y-\%m-\%d).log 2>&1
