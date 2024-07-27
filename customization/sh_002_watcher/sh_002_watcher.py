@@ -987,7 +987,7 @@ if __name__ == '__main__':
                     pass
                 else:
                     # 加入待发送短信队里
-                    up_for_send_sms_list.append({"phone": args.phone,
+                    up_for_send_sms_list.append({"phone": str(args.phone),
                                                  "date": date,
                                                  "court_name": court_name,
                                                  "start_time": free_slot[0],
