@@ -983,9 +983,11 @@ if __name__ == '__main__':
                 cache_key = f"{court_name}_{date}_{free_slot[0]}"
                 if cache_key in cache:
                     # 已通知过
+                    print(f"已通知: {up_for_send_data}")
                     pass
                 else:
                     # 加入待发送短信队里
+                    print(f"准备通知: {up_for_send_data}")
                     up_for_send_sms_list.append({"phone": str(args.phone),
                                                  "date": date,
                                                  "court_name": court_name,
@@ -997,20 +999,23 @@ if __name__ == '__main__':
         # 关闭本地文件缓存
         cache.close()
 
-        # 发送短信
-        for sms_info in up_for_send_sms_list:
-            print(f"sending {sms_info}...")
-            phone = sms_info['phone']
-            date = sms_info['date']
-            court_name = sms_info['court_name']
-            start_time = sms_info['start_time']
-            end_time = sms_info['end_time']
-            sms_res = send_sms_for_news([phone], [date, court_name, start_time, end_time])
-            print(sms_res)
-            if "send success" in str(sms_res):
-                print_with_timestamp("短信发送成功")
-            else:
-                print_with_timestamp("短信发送失败")
-            time.sleep(5)
+        if up_for_send_data_list:
+            # 发送短信
+            for sms_info in up_for_send_sms_list:
+                print(f"sending {sms_info}...")
+                phone = sms_info['phone']
+                date = sms_info['date']
+                court_name = sms_info['court_name']
+                start_time = sms_info['start_time']
+                end_time = sms_info['end_time']
+                sms_res = send_sms_for_news([phone], [date, court_name, start_time, end_time])
+                print(sms_res)
+                if "send success" in str(sms_res):
+                    print_with_timestamp("短信发送成功")
+                else:
+                    print_with_timestamp("短信发送失败")
+                time.sleep(5)
+        else:
+            print("无需要发送的短信")
     else:
         print_with_timestamp(F"无需要通知的场地信息")
