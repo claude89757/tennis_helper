@@ -16,8 +16,14 @@ for file in $LOG_DIR/{vip,hz,sh}*.log; do
         echo "Searching in file: $file"
         count=$(awk '/\[OUTPUT_DATA\]@{/{match($0, /\[OUTPUT_DATA\]@{.*}/, arr); if (arr[0] != "") print substr(arr[0], 15)}' "$file" | tee -a $TEMP_JSON | wc -l)
         echo "File: $file, Found: $count entries"
+    else
+        echo "File not found: $file"
     fi
 done
+
+# 检查临时文件内容
+echo "Temporary JSON data:"
+cat $TEMP_JSON
 
 # 如果临时文件不为空
 if [ -s $TEMP_JSON ]; then
@@ -28,8 +34,13 @@ if [ -s $TEMP_JSON ]; then
         EXISTING_DATA="[]"
     fi
 
-    # 读取新数据
-    NEW_DATA=$(cat $TEMP_JSON | jq -c -s '.')
+    # 读取新数据并验证其格式
+    if jq -e . >/dev/null 2>&1 <<<$(cat $TEMP_JSON); then
+        NEW_DATA=$(cat $TEMP_JSON | jq -c -s '.')
+    else
+        echo "Error: Invalid JSON data in $TEMP_JSON"
+        exit 1
+    fi
 
     # 合并新旧数据
     MERGED_DATA=$(echo $EXISTING_DATA $NEW_DATA | jq -s '.[0] + .[1]')
