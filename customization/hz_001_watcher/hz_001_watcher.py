@@ -293,7 +293,7 @@ if __name__ == '__main__':
                 for time_slot in free_time_slot_list:
                     print(time_slot)
                     hour_num = int(time_slot[0].split(':')[0])
-                    if 17 <= hour_num <= 21:
+                    if 18 <= hour_num <= 21:
                         free_slot_list.append(time_slot)
                     else:
                         pass
