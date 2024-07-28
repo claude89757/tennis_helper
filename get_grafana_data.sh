@@ -14,7 +14,7 @@ TEMP_JSON="/tmp/temp_data.json"
 for file in $LOG_DIR/{vip,hz,sh}*.log; do
     if [ -f "$file" ]; then
         echo "Searching in file: $file"
-        count=$(awk '/print\(F"OUTPUT_DATA@{/{match($0, /print\(F"OUTPUT_DATA@{.*}"\)/, arr); if (arr[0] != "") print substr(arr[0], 18, length(arr[0])-19)}' "$file" | tee -a $TEMP_JSON | wc -l)
+        count=$(awk '/\[OUTPUT_DATA\]@{/{match($0, /\[OUTPUT_DATA\]@{.*}/, arr); if (arr[0] != "") print substr(arr[0], 15)}' "$file" | tee -a $TEMP_JSON | wc -l)
         echo "File: $file, Found: $count entries"
     fi
 done
