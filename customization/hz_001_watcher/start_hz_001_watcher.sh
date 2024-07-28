@@ -9,7 +9,7 @@ fi
 PHONE=$1
 
 # 生成一个 1 到 200 之间的随机数
-DELAY=$((RANDOM % 120 + 1))
+DELAY=$((RANDOM % 60 + 1))
 
 # 输出当前时间和延迟时间
 CURRENT_TIME_BEFORE=$(date +"%Y-%m-%d %H:%M:%S")
