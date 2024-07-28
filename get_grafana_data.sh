@@ -7,8 +7,17 @@ TARGET_JSON="/home/lighthouse/data.json"
 # 临时文件
 TEMP_JSON="/tmp/temp_data.json"
 
-# 查找以vip、hz和sh开头的.log文件中的特定日志数据
-awk '/print\(F"OUTPUT_DATA@{/{match($0, /print\(F"OUTPUT_DATA@{.*}"\)/, arr); if (arr[0] != "") print substr(arr[0], 18, length(arr[0])-19)}' $LOG_DIR/{vip,hz,sh}*.log > $TEMP_JSON
+# 清空临时文件
+> $TEMP_JSON
+
+# 查找以vip、hz和sh开头的.log文件中的特定日志数据，并记录每个文件找到的数据数量
+for file in $LOG_DIR/{vip,hz,sh}*.log; do
+    if [ -f "$file" ]; then
+        echo "Searching in file: $file"
+        count=$(awk '/print\(F"OUTPUT_DATA@{/{match($0, /print\(F"OUTPUT_DATA@{.*}"\)/, arr); if (arr[0] != "") print substr(arr[0], 18, length(arr[0])-19)}' "$file" | tee -a $TEMP_JSON | wc -l)
+        echo "File: $file, Found: $count entries"
+    fi
+done
 
 # 如果临时文件不为空
 if [ -s $TEMP_JSON ]; then
