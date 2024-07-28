@@ -219,6 +219,7 @@ if __name__ == '__main__':
 
     # 汇总各时间段的场地信息，按照手机粒度聚合
     phone_slot_infos = {}  # 每个手机某日期命中的时间段列表
+    up_for_send_sms_list = []
     rule_infos = {}  # 每个手机某日期命中的订阅规则列表
     court_index_infos = {}  # 每个手机某日期命中的场地老板
     today_str = datetime.datetime.now().strftime('%m-%d')
@@ -271,7 +272,6 @@ if __name__ == '__main__':
     else:
         # 打开本地文件缓存，用于缓存标记已经发送过的短信，不重复发生
         # 梳理需要发送的短信列表
-        up_for_send_sms_list = []
         cache = shelve.open(f'{args.court_name}_cache')
         for phone_date, slot_list in phone_slot_infos.items():
             rule_info_list = rule_infos.get(phone_date)  # 一个手机号，可能命中多个订阅
@@ -434,3 +434,13 @@ if __name__ == '__main__':
     run_end_time = time.time()
     execution_time = run_end_time - run_start_time
     print_with_timestamp(f"Total cost time：{execution_time} s")
+
+    # 缓存记录到日志
+    if phone_slot_infos or up_for_send_sms_list:
+        status = 1
+    else:
+        status = 0
+    now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    output_data = {"time": now_time, "status": status, "place_name": args.court_name,
+                   "up_for_send_num": len(phone_slot_infos), "send_num": len(up_for_send_sms_list)}
+    print(F"[OUTPUT_DATA]@{json.dumps(output_data)}")

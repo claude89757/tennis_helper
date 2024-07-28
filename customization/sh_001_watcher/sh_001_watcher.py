@@ -319,9 +319,9 @@ if __name__ == '__main__':
             else:
                 pass
 
+    up_for_send_sms_list = []
     if up_for_send_data_list:
         # 打开本地文件缓存，用于缓存标记已经发送过的短信
-        up_for_send_sms_list = []
         cache = shelve.open(f'/tmp/sh_001_cache')
         for up_for_send_data in up_for_send_data_list:
             date = up_for_send_data['date']
@@ -367,3 +367,13 @@ if __name__ == '__main__':
     run_end_time = time.time()
     execution_time = run_end_time - run_start_time
     print_with_timestamp(f"Total cost time：{execution_time} s")
+
+    # 缓存记录到日志
+    if up_for_send_data_list or up_for_send_sms_list:
+        status = 1
+    else:
+        status = 0
+    now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    output_data = {"time": now_time, "status": status, "place_name": "卢湾中心",
+                   "up_for_send_num": len(up_for_send_data_list), "send_num": len(up_for_send_sms_list)}
+    print(F"[OUTPUT_DATA]@{json.dumps(output_data)}")
