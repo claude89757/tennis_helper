@@ -261,6 +261,10 @@ if __name__ == '__main__':
     :param context:
     :return:
     """
+    # 获取脚本运行的时间
+    start_min_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:00")
+    end_min_time = (datetime.datetime.now() + datetime.timedelta(minutes=2)).strftime("%Y-%m-%d %H:%M:00")
+
     # 网球场守望者开始时间
     run_start_time = time.time()
     print_with_timestamp("start to check...")
@@ -368,7 +372,7 @@ if __name__ == '__main__':
         status = 1
     else:
         status = 0
-    now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    output_data = {"time": now_time, "status": status, "place_name": "江南体验", "city": "杭州",
+    output_data = {"start_time": start_min_time, "end_time": end_min_time,
+                   "status": status, "place_name": "江南体验", "city": "杭州",
                    "up_for_send_num": len(up_for_send_data_list), "send_num": len(up_for_send_sms_list)}
-    print(F"[OUTPUT_DATA]@{json.dumps(output_data)}")
+    print(F"[GRAFANA_DATA]@{json.dumps(output_data)}")

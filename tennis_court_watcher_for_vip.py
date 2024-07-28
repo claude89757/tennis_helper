@@ -90,6 +90,10 @@ async def get_free_tennis_court_infos(app_name: str, input_check_date_str: str, 
 
 
 if __name__ == '__main__':
+    # 获取脚本运行的时间
+    start_min_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:00")
+    end_min_time = (datetime.datetime.now() + datetime.timedelta(minutes=2)).strftime("%Y-%m-%d %H:%M:00")
+
     # 网球场守望者开始时间
     run_start_time = time.time()
     print_with_timestamp("start to check...")
@@ -440,7 +444,7 @@ if __name__ == '__main__':
         status = 1
     else:
         status = 0
-    now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    output_data = {"time": now_time, "status": status, "place_name": args.court_name, "city": "深圳",
+    output_data = {"start_time": start_min_time, "end_time": end_min_time,
+                   "status": status, "place_name": args.court_name, "city": "深圳",
                    "up_for_send_num": len(phone_slot_infos), "send_num": len(up_for_send_sms_list)}
-    print(F"[OUTPUT_DATA]@{json.dumps(output_data)}")
+    print(F"[GRAFANA_DATA]@{json.dumps(output_data)}")
