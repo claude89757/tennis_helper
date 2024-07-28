@@ -282,7 +282,7 @@ if __name__ == '__main__':
     proxy_list = get_proxy_list()
     up_for_send_data_list = []
     success_proxy = None
-    for index in range(0, 7):
+    for index in range(0, 2):
         input_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         inform_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%m-%d')
         court_data, success_proxy = get_tennis_court_data_by_proxy(input_date, proxy_list, success_proxy)
