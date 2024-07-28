@@ -23,4 +23,4 @@ CURRENT_TIME_AFTER=$(date +"%Y-%m-%d %H:%M:%S")
 echo "[$CURRENT_TIME_AFTER] Python 程序已启动。"
 
 # 启动 Python 程序
-/usr/bin/python3 /home/lighthouse/tennis_helper/customization/sh_002_watcher/sh_002_watcher.py --phone "$PHONE"  >> /home/lighthouse/tennis_helper/logs/sh_002_watcher_$(date +\%Y-\%m-\%d).log 2>&1
+/usr/bin/python3 /home/lighthouse/tennis_helper/customization/sh_002_watcher/sh_001_watcher.py --phone "$PHONE"  >> /home/lighthouse/tennis_helper/logs/sh_001_watcher_$(date +\%Y-\%m-\%d).log 2>&1
