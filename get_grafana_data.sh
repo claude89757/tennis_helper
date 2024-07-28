@@ -8,7 +8,7 @@ TARGET_JSON="/home/lighthouse/data.json"
 TEMP_JSON="/tmp/temp_data.json"
 
 # 查找以vip、hz和sh开头的.log文件中的特定日志数据
-grep -h -o 'print(F"OUTPUT_DATA@\{.*\}")' $LOG_DIR/{vip,hz,sh}*.log | sed 's/print(F"OUTPUT_DATA@//' | sed 's/")//' > $TEMP_JSON
+awk '/print\(F"OUTPUT_DATA@{/{match($0, /print\(F"OUTPUT_DATA@{.*}"\)/, arr); if (arr[0] != "") print substr(arr[0], 18, length(arr[0])-19)}' $LOG_DIR/{vip,hz,sh}*.log > $TEMP_JSON
 
 # 如果临时文件不为空
 if [ -s $TEMP_JSON ]; then
