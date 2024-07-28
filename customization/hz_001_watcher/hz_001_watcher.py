@@ -369,6 +369,6 @@ if __name__ == '__main__':
     else:
         status = 0
     now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    output_data = {"time": now_time, "status": status, "place_name": "江南体验",
+    output_data = {"time": now_time, "status": status, "place_name": "江南体验", "city": "杭州",
                    "up_for_send_num": len(up_for_send_data_list), "send_num": len(up_for_send_sms_list)}
     print(F"[OUTPUT_DATA]@{json.dumps(output_data)}")
