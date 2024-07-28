@@ -1283,3 +1283,18 @@ def print_with_timestamp(*args, **kwargs):
     """
     timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
     print(timestamp, *args, **kwargs)
+
+
+def get_proxy_list() -> list:
+    """
+    获取代理列表
+    """
+    # 获取公网HTTPS代理列表
+    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
+    response = requests.get(url, verify=False)
+    text = response.text.strip()
+    lines = text.split("\n")
+    proxy_list = [line.strip() for line in lines]
+    random.shuffle(proxy_list)  # 每次都打乱下
+    print(f"Loaded {len(proxy_list)} proxies from {url}")
+    return proxy_list

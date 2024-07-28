@@ -22,10 +22,11 @@ from sms import send_sms_for_news
 from weda import get_active_rule_list
 from weda import update_record_info_by_id
 from weda import create_record
+from config import COURT_NAME_INFOS
 from common import merge_time_ranges
 from common import get_hit_court_infos
 from common import print_with_timestamp
-from config import COURT_NAME_INFOS
+from common import get_proxy_list
 from common import get_free_tennis_court_infos_for_isz
 from common import get_free_tennis_court_infos_for_hjd
 from common import get_free_tennis_court_infos_for_tns
@@ -146,25 +147,7 @@ if __name__ == '__main__':
             rule_date_list.append(rule_end_date)
 
     # 获取公网HTTPS代理列表
-    try:
-        filename = f"https_proxies_{datetime.datetime.now().strftime('%Y-%m-%d')}.txt"
-        with open(filename, "r") as file:
-            content = file.read()
-            print(content)
-    except Exception as error:
-        print_with_timestamp(f"no today proxy list: {error}")
-        print_with_timestamp(f"using yesterday proxy list")
-        filename = f"https_proxies_{(datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')}.txt"
-        with open(filename, "r") as file:
-            content = file.read()
-            print(content)
-
-    if content:
-        print_with_timestamp()
-        proxy_list = [line.strip() for line in content.split()]
-        print_with_timestamp(f"get local proxy_list({len(proxy_list)}): {proxy_list}")
-    else:
-        raise Exception(f"获取代理异常！！！")
+    proxy_list = get_proxy_list()
 
     # 查询空闲的球场信息
     now = datetime.datetime.now().time()
