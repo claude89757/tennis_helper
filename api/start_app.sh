@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# crontab
+# */10 * * * * chmod +x /usr/bin/python3 /home/lighthouse/tennis_helper/api/start_app.sh && /usr/bin/python3 /home/lighthouse/tennis_helper/api/start_app.sh
+
 # 定义日志文件路径
 LOG_FILE="/home/lighthouse/tennis_helper/api/app.log"
 
