@@ -273,7 +273,7 @@ if __name__ == '__main__':
     up_for_send_data_list = []
     ok_proxy_list = []
     for filed_type in ['in', 'out']:
-        for index in range(0, 3):
+        for index in range(0, 7):
             input_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y%m%d')
             inform_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%m-%d')
             data_list, ok_proxy_list = get_free_tennis_court_data(filed_type,
