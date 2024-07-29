@@ -261,6 +261,11 @@ if __name__ == '__main__':
     :param context:
     :return:
     """
+    if datetime.time(0, 0) <= datetime.datetime.now().time() < datetime.time(8, 0):
+        print("每天0点-8点不巡检")
+        exit()
+    else:
+        pass
     # 获取脚本运行的时间
     start_min_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:00")
     end_min_time = (datetime.datetime.now() + datetime.timedelta(minutes=2)).strftime("%Y-%m-%d %H:%M:00")
