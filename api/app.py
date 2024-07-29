@@ -18,6 +18,7 @@ DATA_FILE = '/home/lighthouse/data.json'
 @app.route('/data', methods=['GET'])
 def get_data():
     # 获取可选参数
+    city = request.args.get('city')
     place_name = request.args.get('place_name')
     start_time = request.args.get('start_time')
 
@@ -28,6 +29,9 @@ def get_data():
 
         # 过滤数据
         filtered_data = data['data']
+
+        if city:
+            filtered_data = [entry for entry in filtered_data if entry.get('city') == city]
 
         if place_name:
             filtered_data = [entry for entry in filtered_data if entry.get('place_name') == place_name]
@@ -48,6 +52,7 @@ def get_data():
         return jsonify({"data": filtered_data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
