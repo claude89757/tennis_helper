@@ -3,7 +3,7 @@
 """
 @Time    : 2024/7/28 17:45
 @Author  : claudexie
-@File    : app.py.py
+@File    : app.py
 @Software: PyCharm
 """
 from flask import Flask, jsonify, request
@@ -14,7 +14,6 @@ app = Flask(__name__)
 
 # 定义数据文件路径
 DATA_FILE = '/home/lighthouse/data.json'
-
 
 @app.route('/data', methods=['GET'])
 def get_data():
@@ -40,11 +39,15 @@ def get_data():
                     entry.get('start_time'), "%Y-%m-%d %H:%M:%S") >= start_time_dt]
             except ValueError:
                 return jsonify({"error": "Invalid start_time format. Use YYYY-MM-DD HH:MM:SS"}), 400
+        else:
+            # 默认只返回今天的数据
+            today = datetime.datetime.now().date()
+            filtered_data = [entry for entry in filtered_data if datetime.datetime.strptime(
+                entry.get('start_time'), "%Y-%m-%d %H:%M:%S").date() == today]
 
         return jsonify({"data": filtered_data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
