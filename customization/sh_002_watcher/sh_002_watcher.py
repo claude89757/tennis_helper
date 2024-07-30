@@ -609,6 +609,11 @@ def get_api_sign_from_serverless(sign_info: dict, serverless_token: str, api_acc
         "Referer": "https://servicewechat.com/wxbb9c3b35727d8ce8/149/page-frame.html",
         "Accept-Language": "zh-CN,zh;q=0.9"
     }
+
+    print("-------------------[GET API SIGN]--------------------------------")
+    print(f"url: {url}")
+    print(f"headers: {headers}")
+    print(f"data: {data}")
     print(url)
     if PROXY:
         print(f"PROXY: {PROXY}")
@@ -617,6 +622,7 @@ def get_api_sign_from_serverless(sign_info: dict, serverless_token: str, api_acc
     else:
         response = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
     print(response.text)
+    print("---------------------------------------------------")
     if response.status_code == 200:
         response_json = response.json()
         if response_json.get("success"):
@@ -688,13 +694,17 @@ def get_tennis_court_data(sign_info: dict, api_access_token: str, login_token: s
     print(f"api_sign: {api_sign}")
     params['api_sign'] = serverless_api_sign_info['data']
 
-    print(url)
+    print("------------------[GET DATA]---------------------------------")
+    print(f"url: {url}")
+    print(f"headers: {headers}")
+    print(f"params: {params}")
     if PROXY:
         print(f"PROXY: {PROXY}")
         response = requests.get(url, headers=headers, params=params, verify=False, proxies={"https": PROXY}, timeout=5)
     else:
         response = requests.get(url, headers=headers, params=params, verify=False)
     print(response.text)
+    print("---------------------------------------------------")
     if response.status_code == 200:
         response_json = response.json()
         if response_json.get("status") == "0000":
@@ -958,7 +968,7 @@ if __name__ == '__main__':
         input_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         inform_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%m-%d')
         court_data, success_proxy = get_tennis_court_data_by_proxy(input_date, success_proxy)
-        time.sleep(1)
+        time.sleep(5)
         if court_data:
             free_slot_list = []
             for court_name, free_time_slot_list in court_data.items():
