@@ -35,6 +35,10 @@ warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 
 CURRENT_TIME = int(time.time() * 1000)  # 当前时间戳（毫秒）
 
+# FORT TEST
+os.environ['SERVERLESS_CLIENT_SECRET'] = ""
+os.environ['SERVERLESS_SPACE_ID'] = ""
+
 SERVERLESS_CLIENT_SECRET = os.environ['SERVERLESS_CLIENT_SECRET']
 SERVERLESS_SPACE_ID = os.environ['SERVERLESS_SPACE_ID']
 
@@ -43,7 +47,29 @@ SIGN_INFO = 'QYD_SIGN_INFO'
 API_ACCESS_TOKEN = 'QYD_API_ACCESS_TOKEN'
 LOGIN_TOKEN = 'QYD_LOGIN_TOKEN'
 
+# 请求用的固定参数
+APP_VERSION = "3.0.9"
+LATITUDE = "21.53092098"
+LONGITUDE = "114.94631578"
+CITY_ID = 321
+CITY_NAME = "上海"
+VER = "2.9"
+VENUES_ID = "22377"
+CAT_ID = "12"
+RAISE_PACKAGE_ID = 0
+PHONE_ENCODE = "ks/Whad334TXSmRMAqxKvw=="
+
 PROXY = None
+
+
+def generate_nonce():
+    timestamp = str(int(time.time() * 1000))  # current time in milliseconds
+    random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+    noncestr = f"{timestamp}{random_str}"
+    return noncestr
+
+
+NONCE = generate_nonce()
 
 
 def save_date_to_local_file(filename: str, data: str):
@@ -142,16 +168,6 @@ def load_login_token(using_cached: bool = True):
     return load_data_from_local_file(LOGIN_TOKEN, 4320000, using_cached)
 
 
-def generate_nonce():
-    timestamp = str(int(time.time() * 1000))  # current time in milliseconds
-    random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
-    noncestr = f"{timestamp}{random_str}"
-    return noncestr
-
-
-nonce = generate_nonce()
-
-
 def Ae(body, secret):
     """
     云函数的签名函数
@@ -224,7 +240,7 @@ def get_sign_info_from_serverless(access_token: str):
                 "client_time": CURRENT_TIME,
                 "device_id": CURRENT_TIME,
                 "sign_key": "",
-                "noncestr": nonce,
+                "noncestr": NONCE,
                 "utm_source": "miniprogram",
                 "utm_medium": "wechatapp",
                 "app_version": "3.0.9",
@@ -438,7 +454,7 @@ def get_api_access_token(sign_info: dict):
         "app_version": "3.0.9",
         "latitude": "0",
         "longitude": "0",
-        "noncestr": nonce,
+        "noncestr": NONCE,
         "access_token": "",
         "login_token": "",
         "city_id": "0",
@@ -503,20 +519,20 @@ def get_api_sign_from_serverless(sign_info: dict, serverless_token: str, api_acc
                     "client_time": CURRENT_TIME,
                     "sign_key": sign_info['set_time'],
                     "device_id": sign_info['set_device_id'],
-                    "app_version": "3.0.9",
-                    "latitude": "22.53092098",
-                    "longitude": "113.94631578",
-                    "noncestr": nonce,
+                    "app_version": APP_VERSION,
+                    "latitude": LATITUDE,
+                    "longitude": LONGITUDE,
+                    "noncestr": NONCE,
                     "access_token": api_access_token,
                     "login_token": login_token,
-                    "city_id": 321,
-                    "city_name": "上海",
-                    "ver": "2.9",
-                    "venues_id": "22377",
-                    "cat_id": "12",
+                    "city_id": CITY_ID,
+                    "city_name": CITY_NAME,
+                    "ver": VER,
+                    "venues_id": VENUES_ID,
+                    "cat_id": CAT_ID,
                     "book_date": date,
-                    "raise_package_id": 0,
-                    "phone_encode": "ks/Whad3C1TXSmRMAqxKvw=="
+                    "raise_package_id": RAISE_PACKAGE_ID,
+                    "phone_encode": PHONE_ENCODE
                 },
                 "clientInfo": {
                     "PLATFORM": "mp-weixin",
@@ -642,7 +658,7 @@ def get_tennis_court_data(sign_info: dict, api_access_token: str, login_token: s
     print(f"api_access_token: {api_access_token}")
     print(f"login_token: {login_token}")
     print(f"serverless_api_sign_info: {serverless_api_sign_info}")
-    print(f"nonce: {nonce}")
+    print(f"nonce: {NONCE}")
 
     url = "https://xapi.quyundong.com/Api/Venues/bookTable"
     headers = {
@@ -672,20 +688,20 @@ def get_tennis_court_data(sign_info: dict, api_access_token: str, login_token: s
                 "client_time": CURRENT_TIME,
                 "sign_key": sign_info['set_time'],
                 "device_id": sign_info['set_device_id'],
-                "app_version": "3.0.9",
-                "latitude": "22.53092098",
-                "longitude": "113.94631578",
-                "noncestr": nonce,
+                "app_version": APP_VERSION,
+                "latitude": LATITUDE,
+                "longitude": LONGITUDE,
+                "noncestr": NONCE,
                 "access_token": api_access_token,
                 "login_token": login_token,
-                "city_id": 321,
-                "city_name": "上海",
-                "ver": "2.9",
-                "venues_id": "22377",
-                "cat_id": "12",
+                "city_id": CITY_ID,
+                "city_name": CITY_NAME,
+                "ver": VER,
+                "venues_id": VENUES_ID,
+                "cat_id": CAT_ID,
                 "book_date": date,
-                "raise_package_id": 0,
-                "phone_encode": "ks/Whad3C1TXSmRMAqxKvw=="
+                "raise_package_id": RAISE_PACKAGE_ID,
+                "phone_encode": PHONE_ENCODE
     }
     # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
     # pprint.pprint(params)
@@ -742,6 +758,7 @@ def get_tennis_court_data_by_proxy(date: str, last_proxy: str = None):
     通过代理查询场地数据
     """
     global PROXY
+    global NONCE
     proxy_list = get_proxy_list()
     if last_proxy:
         proxy_list.insert(0, last_proxy)
@@ -757,6 +774,8 @@ def get_tennis_court_data_by_proxy(date: str, last_proxy: str = None):
             login_token = load_login_token(using_cached=True)
 
             print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            NONCE = generate_nonce()
+            print(f"NONCE: {NONCE}")
             print(f"sign_info: {sign_info}")
             print(f"access_token: {access_token}")
             print(f"api_access_token: {api_access_token}")
@@ -967,6 +986,7 @@ if __name__ == '__main__':
     for index in range(0, 7):
         input_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%Y-%m-%d')
         inform_date = (datetime.datetime.now() + datetime.timedelta(days=index)).strftime('%m-%d')
+        print(f"checking {input_date}")
         court_data, success_proxy = get_tennis_court_data_by_proxy(input_date, success_proxy)
         time.sleep(5)
         if court_data:
