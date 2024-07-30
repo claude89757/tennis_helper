@@ -732,6 +732,13 @@ def get_tennis_court_data(sign_info: dict, api_access_token: str, login_token: s
                                                          date)
             data = get_tennis_court_data(sign_info, api_access_token, login_token, api_sign_info, date, is_retry=True)
             return data
+        elif response_json.get('msg') == "AccessToken已失效或不存在" and not is_retry:
+            api_access_token = load_api_access_token(using_cached=False)
+            serverless_token = load_serverless_token(using_cached=False)
+            api_sign_info = get_api_sign_from_serverless(sign_info, serverless_token, api_access_token, login_token,
+                                                         date)
+            data = get_tennis_court_data(sign_info, api_access_token, login_token, api_sign_info, date, is_retry=True)
+            return data
         else:
             raise Exception(response.text)
     else:
