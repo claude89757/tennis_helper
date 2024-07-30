@@ -36,8 +36,8 @@ warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 CURRENT_TIME = int(time.time() * 1000)  # 当前时间戳（毫秒）
 
 # FORT TEST
-os.environ['SERVERLESS_CLIENT_SECRET'] = ""
-os.environ['SERVERLESS_SPACE_ID'] = ""
+# os.environ['SERVERLESS_CLIENT_SECRET'] = ""
+# os.environ['SERVERLESS_SPACE_ID'] = ""
 
 SERVERLESS_CLIENT_SECRET = os.environ['SERVERLESS_CLIENT_SECRET']
 SERVERLESS_SPACE_ID = os.environ['SERVERLESS_SPACE_ID']
