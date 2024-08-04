@@ -323,6 +323,8 @@ if __name__ == '__main__':
                         up_for_send_data_list.append({"date": inform_date,
                                                       "court_name": "卢湾室外",
                                                       "free_slot_list": merged_free_slot_list})
+                        # 有场地第一时间通知，不检查其他时间的了
+                        break
                     else:
                         pass
             else:
