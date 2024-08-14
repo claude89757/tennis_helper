@@ -6,50 +6,33 @@
 @File    : app.py
 @Software: PyCharm
 """
-from flask import Flask, jsonify, request
-import json
-import datetime
+from flask import Flask, jsonify
+import os
 
 app = Flask(__name__)
 
-# 定义数据文件路径
-DATA_FILE = '/home/lighthouse/data.json'
 
-@app.route('/data', methods=['GET'])
-def get_data():
-    # 获取可选参数
-    city = request.args.get('city')
-    place_name = request.args.get('place_name')
-    start_time = request.args.get('start_time')
+@app.route('/available_courts', methods=['GET'])
+def get_available_courts():
+    """
+    查询 /root 文件夹下的 available_court.txt 结尾的文件，并返回其内容
+    """
+    local_path = "/root"
+    matching_files = []
 
-    # 每次请求时重新加载数据文件
     try:
-        with open(DATA_FILE, 'r') as file:
-            data = json.load(file)
+        for root, dirs, files in os.walk(local_path):
+            for file in files:
+                if file.endswith('available_court.txt'):
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r') as f:
+                        file_content = f.read()
+                    matching_files.append({
+                        'filename': file_path,
+                        'content': file_content
+                    })
 
-        # 过滤数据
-        filtered_data = data['data']
-
-        if city:
-            filtered_data = [entry for entry in filtered_data if entry.get('city') == city]
-
-        if place_name:
-            filtered_data = [entry for entry in filtered_data if entry.get('place_name') == place_name]
-
-        if start_time:
-            try:
-                start_time_dt = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-                filtered_data = [entry for entry in filtered_data if datetime.datetime.strptime(
-                    entry.get('start_time'), "%Y-%m-%d %H:%M:%S") >= start_time_dt]
-            except ValueError:
-                return jsonify({"error": "Invalid start_time format. Use YYYY-MM-DD HH:MM:SS"}), 400
-        else:
-            # 默认只返回今天的数据
-            today = datetime.datetime.now().date()
-            filtered_data = [entry for entry in filtered_data if datetime.datetime.strptime(
-                entry.get('start_time'), "%Y-%m-%d %H:%M:%S").date() == today]
-
-        return jsonify({"data": filtered_data})
+        return jsonify({"data": matching_files})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
