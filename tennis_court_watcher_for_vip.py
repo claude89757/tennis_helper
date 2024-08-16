@@ -456,13 +456,3 @@ if __name__ == '__main__':
     run_end_time = time.time()
     execution_time = run_end_time - run_start_time
     print_with_timestamp(f"Total cost time：{execution_time} s")
-
-    # 缓存记录到日志
-    if phone_slot_infos or up_for_send_sms_list:
-        status = 1
-    else:
-        status = 0
-    output_data = {"start_time": start_min_time, "end_time": end_min_time,
-                   "status": status, "place_name": args.court_name, "city": "深圳",
-                   "up_for_send_num": len(phone_slot_infos), "send_num": len(up_for_send_sms_list)}
-    print(F"[GRAFANA_DATA]@{json.dumps(output_data)}")
