@@ -17,6 +17,7 @@ import json
 
 from config import CD_INDEX_INFOS
 from config import CD_TIME_RANGE_INFOS
+from redis_client import RedisClient
 
 from sms import send_sms_for_news
 from weda import get_active_rule_list
@@ -98,6 +99,8 @@ if __name__ == '__main__':
     run_start_time = time.time()
     print_with_timestamp("start to check...")
 
+    redis_client = RedisClient()
+
     # 创建命令行解析器, 添加命令行参数
     parser = argparse.ArgumentParser(description='Help Message')
     parser.add_argument('--app_name', type=str, help='App Name')
@@ -133,6 +136,14 @@ if __name__ == '__main__':
 
     # 从微搭的数据库，获取订阅规则列表
     active_rule_list = get_active_rule_list(CD_INDEX_INFOS.get(args.court_name), is_vip=True)
+
+    # 从redis读取新的订阅规则
+    new_rule_list = redis_client.get_json_data(key="subscriptions")
+    if new_rule_list:
+        active_rule_list.extend(new_rule_list)
+    else:
+        pass
+
     rule_date_list = []
     print_with_timestamp(f"active_rule_list: {len(active_rule_list)}")
     for rule in active_rule_list:
@@ -433,6 +444,13 @@ if __name__ == '__main__':
 
             # 释放文件锁
             fcntl.flock(file, fcntl.LOCK_UN)
+
+    if available_tennis_court_slice_infos:
+        redis_client.set_json_data(f"tennis_court_infos",
+                                   {str(args.court_name): available_tennis_court_slice_infos},
+                                   use_lock=True)
+    else:
+        pass
 
     # 计算整体运行耗时
     run_end_time = time.time()
