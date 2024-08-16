@@ -230,6 +230,34 @@ class RedisClient:
             if identifier:
                 self.release_lock(lock_name, identifier)
 
+    def update_subscription_list(self, key, rule_id, updates, use_lock=False, lock_timeout=10):
+        """更新Redis中的JSON数据，如果不存在则初始化一个空的字段"""
+        identifier = None
+        lock_name = self._get_lock_name(key) if use_lock else None
+        if use_lock:
+            identifier = self.acquire_lock(lock_name, lock_timeout=lock_timeout)
+            if not identifier:
+                return
+
+        try:
+            existing_data = self.get_json_data(key)
+            if not existing_data:
+                self._print_with_timestamp(
+                    f"No existing JSON data found for key '{key}', initializing with an empty dictionary")
+            else:
+                # 更新现有的数据
+                for data in existing_data:
+                    if data['_id'] == rule_id:
+                        for k, v in updates.items():
+                            data[k] = v
+                    else:
+                        pass
+                self.set_json_data(key, existing_data, use_lock=False)
+                self._print_with_timestamp(f"Updated JSON data for key '{key}' with updates: {updates}")
+        finally:
+            if identifier:
+                self.release_lock(lock_name, identifier)
+
     def get_int_data(self, key, use_lock=False, lock_timeout=10):
         """获取Redis中存储的整数数据"""
         identifier = None

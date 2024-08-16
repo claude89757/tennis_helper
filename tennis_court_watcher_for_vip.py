@@ -139,9 +139,11 @@ if __name__ == '__main__':
 
     # 从redis读取新的订阅规则
     new_rule_list = redis_client.get_json_data(key="subscriptions")
+    new_rule_ids = []
     if new_rule_list:
         print("new rule==============================================================================================")
         for rule in new_rule_list:
+            new_rule_ids.append(rule['_id'])
             print(rule)
         print("===============================================================================================")
         time.sleep(10)
@@ -407,7 +409,7 @@ if __name__ == '__main__':
 
         # 刷新订阅的计数器
         for rule in active_rule_list:
-            if rule_send_count_infos.get(rule['_id']):
+            if rule_send_count_infos.get(rule['_id']) and rule['_id'] not in new_rule_ids:
                 rule_send_count = rule_send_count_infos[rule['_id']]
                 cur_rule_today_send_num = rule['jrtzcs']
                 cur_rule_total_send_num = rule['jrtzcs']
@@ -422,6 +424,15 @@ if __name__ == '__main__':
                         update_record_info_by_id(rule['_id'], {"zjtzcs": rule_send_count})
                 except Exception as error:
                     print_with_timestamp(f"record rule_today_send_count_infos error: {error}")
+            elif rule_send_count_infos.get(rule['_id']) and rule['_id'] in new_rule_ids:
+                rule_send_count = rule_send_count_infos[rule['_id']]
+                cur_rule_today_send_num = rule['jrtzcs'] + rule_send_count
+                cur_rule_total_send_num = rule['zjtzcs'] + rule_send_count
+                updates = {
+                    'jrtzcs': cur_rule_today_send_num,
+                    'zjtzcs': cur_rule_total_send_num,
+                }
+                redis_client.update_subscription_list("subscriptions", rule['_id'], updates, use_lock=True)
             else:
                 pass
 
