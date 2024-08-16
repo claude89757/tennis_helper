@@ -140,10 +140,10 @@ if __name__ == '__main__':
     # 从redis读取新的订阅规则
     new_rule_list = redis_client.get_json_data(key="subscriptions")
     if new_rule_list:
-        print("new rule==========================")
+        print("new rule==============================================================================================")
         for rule in new_rule_list:
             print(rule)
-        print("====================================================")
+        print("===============================================================================================")
         time.sleep(10)
         active_rule_list.extend(new_rule_list)
     else:
