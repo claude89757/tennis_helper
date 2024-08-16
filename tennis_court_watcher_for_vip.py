@@ -208,12 +208,8 @@ if __name__ == '__main__':
     # 每天0点-8点不发短信
     if datetime.time(0, 0) <= now < datetime.time(8, 0):
         print_with_timestamp('Skipping task execution between 0am and 8am')
-        if available_tennis_court_slice_infos:
-            redis_client.set_json_data(f"tennis_court_infos",
-                                       {str(args.court_name): available_tennis_court_slice_infos},
-                                       use_lock=True, timeout=720000)
-        else:
-            pass
+        redis_client.update_json_data(f"tennis_court_infos", {str(args.court_name): available_tennis_court_slice_infos},
+                                      use_lock=True)
         exit()
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
@@ -438,12 +434,8 @@ if __name__ == '__main__':
             # 释放文件锁
             fcntl.flock(file, fcntl.LOCK_UN)
 
-    if available_tennis_court_slice_infos:
-        redis_client.set_json_data(f"tennis_court_infos",
-                                   {str(args.court_name): available_tennis_court_slice_infos},
-                                   use_lock=True, timeout=720000)
-    else:
-        pass
+    redis_client.update_json_data(f"tennis_court_infos", {str(args.court_name): available_tennis_court_slice_infos},
+                                  use_lock=True)
 
     # 计算整体运行耗时
     run_end_time = time.time()
