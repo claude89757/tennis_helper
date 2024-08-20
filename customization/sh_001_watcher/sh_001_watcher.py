@@ -379,12 +379,12 @@ if __name__ == '__main__':
     execution_time = run_end_time - run_start_time
     print_with_timestamp(f"Total cost time：{execution_time} s")
 
-    # 缓存记录到日志
-    if up_for_send_data_list or up_for_send_sms_list:
-        status = 1
-    else:
-        status = 0
-    output_data = {"start_time": start_min_time, "end_time": end_min_time,
-                   "status": status, "place_name": "卢湾中心", "city": "上海",
-                   "up_for_send_num": len(up_for_send_data_list), "send_num": len(up_for_send_sms_list)}
-    print(F"[GRAFANA_DATA]@{json.dumps(output_data)}")
+    # # 缓存记录到日志
+    # if up_for_send_data_list or up_for_send_sms_list:
+    #     status = 1
+    # else:
+    #     status = 0
+    # output_data = {"start_time": start_min_time, "end_time": end_min_time,
+    #                "status": status, "place_name": "卢湾中心", "city": "上海",
+    #                "up_for_send_num": len(up_for_send_data_list), "send_num": len(up_for_send_sms_list)}
+    # print(F"[GRAFANA_DATA]@{json.dumps(output_data)}")
