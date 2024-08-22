@@ -142,12 +142,14 @@ if __name__ == '__main__':
     new_rule_ids = []
     if new_rule_list:
         print("new rule==============================================================================================")
+        active_new_rule_list = []
         for rule in new_rule_list:
-            new_rule_ids.append(rule['_id'])
-            print(rule)
+            if rule['xjcd'] == args.court_name:
+                print(rule)
+                active_new_rule_list.append(rule)
+                active_new_rule_list.append(rule['_id'])
         print("===============================================================================================")
-        time.sleep(10)
-        active_rule_list.extend(new_rule_list)
+        active_rule_list.extend(active_new_rule_list)
     else:
         pass
 
