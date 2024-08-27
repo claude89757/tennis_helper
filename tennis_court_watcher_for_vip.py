@@ -147,7 +147,7 @@ if __name__ == '__main__':
             if rule['xjcd'] == args.court_name:
                 print(rule)
                 active_new_rule_list.append(rule)
-                active_new_rule_list.append(rule['_id'])
+                new_rule_ids.append(rule['_id'])
         print("===============================================================================================")
         active_rule_list.extend(active_new_rule_list)
     else:
