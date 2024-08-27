@@ -163,11 +163,11 @@ if __name__ == '__main__':
     else:
         # 打印运行中的规则
         for rule in active_rule_list:
-            print(f"checking: {rule}")
+            # print(f"checking: {rule}")
             # 判断订阅的状态，根据日期范围是否有交集
             rule_start_date = datetime.datetime.strptime(rule['start_date'], "%Y-%m-%d")
             rule_end_date = datetime.datetime.strptime(rule['end_date'], "%Y-%m-%d")
-            print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
+            # print(f"{check_start_date} - {check_end_date} vs {rule['start_date']} - {rule['end_date']}")
             rule_date_list.append(rule_start_date)
             rule_date_list.append(rule_end_date)
 
