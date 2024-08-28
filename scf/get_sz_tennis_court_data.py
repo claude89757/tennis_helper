@@ -127,8 +127,9 @@ def find_available_slots(booked_slots, time_range):
 
 
 def generate_param_str(params):
-    sorted_params = sorted(params.items())
-    param_str = urllib.parse.urlencode(sorted_params)
+    # 生成参数字符串
+    sorted_keys = sorted(params.keys())
+    param_str = "&".join(f"{key}={params[key]}" for key in sorted_keys)
     return param_str
 
 
