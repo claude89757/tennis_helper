@@ -14,6 +14,7 @@ import random
 import json
 import hashlib
 import datetime
+import urllib.parse
 
 
 # 读取指定环境变量的值
@@ -125,6 +126,12 @@ def find_available_slots(booked_slots, time_range):
     return available_slots
 
 
+def generate_param_str(params):
+    sorted_params = sorted(params.items())
+    param_str = urllib.parse.urlencode(sorted_params)
+    return param_str
+
+
 def get_data_for_isz(date: str, sales_id: str, sales_item_id: str) -> dict:
     """
     获取可预订的场地信息
@@ -139,7 +146,11 @@ def get_data_for_isz(date: str, sales_id: str, sales_item_id: str) -> dict:
         "venueGroupId": "",
         "t": str(timestamp)
     }
-    param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&t={str(timestamp)}"  # 仅用于签名
+    new_param_str = generate_param_str(params)
+    print(new_param_str)
+    # param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&t={str(timestamp)}"  # 仅用于签名
+    param_str = f"curDate={check_data}&salesItemId={sales_item_id}&t={str(timestamp)}&venueGroupId="
+    print(param_str)
     signature = signature_for_get(str(timestamp), nonce.replace('-', ''), param_str=param_str)
     headers = {
         "Host": "isz.ydmap.cn",
@@ -262,21 +273,27 @@ def main_handler(event, context):
             # 查询相关的场地信息
             if place_name == '大沙河':
                 data = get_data_for_isz(date, sales_id="100220", sales_item_id="100000")
+                court_url = "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000"
                 print(data)
             elif place_name == '黄木岗':
                 data = get_data_for_isz(date, sales_id="101333", sales_item_id="100344")
+                court_url = "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344"
                 print(data)
             elif place_name == '香蜜体育':
                 data = get_data_for_isz(date, sales_id="101332", sales_item_id="100341")
+                court_url = "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341"
                 print(data)
             elif place_name == '华侨城':
                 data = get_data_for_isz(date, sales_id="105143", sales_item_id="105347")
+                court_url = "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347"
                 print(data)
             elif place_name == '网羽中心':
                 data = get_data_for_isz(date, sales_id="102549", sales_item_id="100704")
+                court_url = "https://wxsports.ydmap.cn/booking/schedule/102549?salesItemId=100704"
                 print(data)
             elif place_name == '莲花体育':
                 data = get_data_for_isz(date, sales_id="101335", sales_item_id="100347")
+                court_url = "https://wxsports.ydmap.cn/booking/schedule/101335?salesItemId=100347"
                 print(data)
             else:
                 return {"code": 0, "data": f"这个场地我暂时无法查询😴", "msg": f"不支持{place_name}的查询"}
@@ -292,7 +309,11 @@ def main_handler(event, context):
                     else:
                         pass
             if is_input_time_range_free:
-                output_data = f"🟢【{place_name}】 {formatted_date_str} {start_time}-{end_time} 可预订"
+                if court_url:
+                    output_data = f"🟢【{place_name}】 {formatted_date_str} {start_time}-{end_time} 可预订\n" \
+                                  f"预定链接: {court_url}"
+                else:
+                    output_data = f"🟢【{place_name}】 {formatted_date_str} {start_time}-{end_time} 可预订"
             else:
                 output_data = f"🔴【{place_name}】 {formatted_date_str} {start_time}-{end_time} 已被预定"
             return {"code": 0, "data": output_data, "msg": "success"}
