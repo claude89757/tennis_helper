@@ -171,7 +171,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                 "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X) AppleWebKit/605.1.15 "
                               "(KHTML, like Gecko) "
                               "Mobile/15E148/openweb=paschybrid/SZSMT_IOS,VERSION:4.5.0",
-                "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
+                # "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
                 "sec-fetch-dest": "empty"
             }
             url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
@@ -329,7 +329,7 @@ def get_free_tennis_court_infos_for_zjclub(date: str, proxy_list: list, time_ran
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X) AppleWebKit/605.1.15 "
                           "(KHTML, like Gecko) "
                           "Mobile/15E148/openweb=paschybrid/SZSMT_IOS,VERSION:4.5.0",
-            "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
+            # "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
             "sec-fetch-dest": "empty"
         }
         url = "https://zjclub.ydmap.cn/srv100292/api/pub/sport/venue/getVenueOrderList"
