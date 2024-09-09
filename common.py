@@ -174,7 +174,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                 # "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
                 "sec-fetch-dest": "empty"
             }
-            url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
+            url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwfqaGYWDRrD"
             print(url)
             print(params)
             # print(headers)
@@ -227,18 +227,17 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
             "sec-fetch-dest": "empty"
         }
-        url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
+        url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwfqaGYWDRrD"
         print(url)
         print(params)
         # print(headers)
         response = requests.get(url, headers=headers, params=params, timeout=5)
+        print(response.text)
         if response.status_code == 200:
             got_response = True
         else:
             got_response = False
 
-    # print(f"response: {response.text}")
-    # print(f"response: {response.text}")
     # now = datetime.datetime.now().time()
     today_str = datetime.datetime.now().strftime('%Y-%m-%d')
     if got_response:
