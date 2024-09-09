@@ -174,7 +174,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                 # "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
                 "sec-fetch-dest": "empty"
             }
-            url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwfqaGYWDRrD"
+            url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwbExR270hrD"
             print(url)
             print(params)
             # print(headers)
@@ -227,7 +227,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
             "sec-fetch-dest": "empty"
         }
-        url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwfqaGYWDRrD"
+        url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwbExR270hrD"
         print(url)
         print(params)
         # print(headers)
