@@ -130,11 +130,29 @@ def find_available_slots(booked_slots, time_range):
     return available_slots
 
 
+def read_url_md5_file_value(file_name: str = "ISZ_URL_MD5"):
+    # 定义文件路径
+    base_path = '/home/lighthouse/tennis_helper/api'
+    file_path = os.path.join(base_path, file_name)
+
+    # 检查文件是否存在
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"The file {file_path} does not exist.")
+
+    # 读取文件内容
+    with open(file_path, 'r') as file:
+        content = file.read()
+
+    return content
+
+
 def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range: dict,
                                         sales_item_id: str, sales_id: str) -> dict:
     """
     获取可预订的场地信息
     """
+    url_md5 = read_url_md5_file_value()
+    url = F"https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182={url_md5}"
     if proxy_list:
         got_response = False
         response = None
@@ -174,7 +192,6 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                 # "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
                 "sec-fetch-dest": "empty"
             }
-            url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwbExR270hrD"
             print(url)
             print(params)
             # print(headers)
@@ -227,7 +244,6 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
             "sec-fetch-dest": "empty"
         }
-        url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwbExR270hrD"
         print(url)
         print(params)
         # print(headers)
