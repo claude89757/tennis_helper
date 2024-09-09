@@ -172,7 +172,7 @@ def get_data_for_isz(date: str, sales_id: str, sales_item_id: str) -> dict:
         # "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
         "sec-fetch-dest": "empty"
     }
-    url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
+    url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwfqaGYWDRrD"
     print(url)
     print(params)
     # today_str = datetime.datetime.now().strftime('%Y-%m-%d')
