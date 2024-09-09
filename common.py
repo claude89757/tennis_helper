@@ -141,7 +141,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
         index_list = list(range(len(proxy_list)))
         # 打乱列表的顺序
         random.shuffle(index_list)
-        print(index_list)
+        # print(index_list)
         for index in index_list:
             check_data = str_to_timestamp(date)
             timestamp = math.trunc(time.time() * 1000)
