@@ -357,7 +357,7 @@ def get_free_tennis_court_infos_for_zjclub(date: str, proxy_list: list, time_ran
         try:
             proxies = {"https": proxy}
             response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=5)
-            if response.status_code == 200:
+            if response.status_code == 200 and "html" not in str(response.text):
                 print(f"success for {proxy}")
                 got_response = True
                 time.sleep(1)
