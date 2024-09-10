@@ -706,7 +706,7 @@ def get_free_tennis_court_infos_for_wcjt(date: str, proxy_list: list = None) -> 
             "Referer": "http://mlwtzxwx.x-saas.com/Booking/ArenaBooking.aspx?ArenaId=3&IsSee=1",
             "Accept-Language": "zh-CN,zh",
         }
-        url = "http://mlwtzxwx.x-saas.com/Booking/Booking.ashx?ajaxGuid=0720174245636"
+        url = "http://mlwtzxwx.x-saas.com/Booking/Booking.ashx?ajaxGuid=0910115243210"
         print(url)
         print(data)
         # print(headers)
