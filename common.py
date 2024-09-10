@@ -310,6 +310,8 @@ def get_free_tennis_court_infos_for_zjclub(date: str, proxy_list: list, time_ran
     """
     获取可预订的场地信息
     """
+    url_md5 = read_url_md5_file_value()
+    url = F"https://zjclub.ydmap.cn/srv100292/api/pub/sport/venue/getVenueOrderList?md5__1182={url_md5}"
     got_response = False
     response = None
     index_list = list(range(len(proxy_list)))
@@ -347,7 +349,6 @@ def get_free_tennis_court_infos_for_zjclub(date: str, proxy_list: list, time_ran
             # "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
             "sec-fetch-dest": "empty"
         }
-        url = "https://zjclub.ydmap.cn/srv100292/api/pub/sport/venue/getVenueOrderList"
         print(url)
         print(params)
         # print(headers)
