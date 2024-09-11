@@ -49,16 +49,18 @@ def check_proxy(proxy_url):
     检查代理是否可用
     """
     try:
-        # 确保代理 URL 包含协议方案(requests==2.25.1版本才需要！！)
-        if not proxy_url.startswith("http://") and not proxy_url.startswith("https://"):
-            proxy_url = "http://" + proxy_url  # 假设代理支持 HTTP，也可以根据实际情况选择 https://
-
-        response = requests.get("https://www.baidu.com/", proxies={"https": proxy_url}, timeout=2)
-        if response.status_code == 200:
+        print(f"checking {proxy_url}")
+        proxy_url = f"http://{proxy_url}"
+        response = requests.get("https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList", proxies={"https": proxy_url}, timeout=3)
+        print(str(response.text)[:100])
+        if response.status_code == 200 and "html" in str(response.text):
             print(f"HTTPS Proxy {proxy_url} is working")
             return proxy_url
-    except:
-        pass
+        if response.status_code == 200 and response.json()['code'] == -1 and response.json()['msg'] == '签名错误,接口未签名':
+            print(f"HTTPS Proxy {proxy_url} is working")
+            return proxy_url
+    except Exception as error:
+        print(error)
     return None
 
 
@@ -94,7 +96,6 @@ def update_proxy_file(filename, available_proxies):
 def task_check_proxies():
     # 下载文件
     download_file()
-    filename = f"/tmp/{FILENAME}"
     # 获取待检查的proxy列表
     proxies = generate_proxies()
     print(f"start checking {len(proxies)} proxies")
@@ -106,9 +107,9 @@ def task_check_proxies():
             now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             print(f"{now} Available proxies: {len(available_proxies)}")
             # 更新文件
-            update_proxy_file(filename, available_proxies)
+            update_proxy_file(FILENAME, available_proxies)
             # 上传到GIT
-            upload_file_to_github(filename)
+            upload_file_to_github(FILENAME)
         else:
             pass
         if len(available_proxies) >= 5:
@@ -128,7 +129,7 @@ def upload_file_to_github(filename):
         'Authorization': f'token {token}',
         'Accept': 'application/vnd.github.v3+json'
     }
-    with open(f"/tmp/{FILENAME}", 'rb') as file:
+    with open(FILENAME, 'rb') as file:
         content = file.read()
     data = {
         'message': f'Update proxy list by scf',
@@ -147,7 +148,6 @@ def download_file():
     从指定的 URL 下载文件并保存到 /tmp 目录下，如果存在同名文件则覆盖。
     """
     # 完整的文件路径
-    full_path = f"/tmp/{FILENAME}"
     try:
         # 发送 GET 请求
         url = 'https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt'
@@ -155,9 +155,9 @@ def download_file():
         response.raise_for_status()  # 确保请求成功，否则抛出异常
 
         # 写入文件
-        with open(full_path, 'wb') as file:
+        with open(FILENAME, 'wb') as file:
             file.write(response.content)
-        print(f"File downloaded and saved to {full_path}")
+        print(f"File downloaded and saved to {FILENAME}")
     except requests.RequestException as e:
         print(f"Failed to download the file: {e}")
 
