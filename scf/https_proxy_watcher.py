@@ -49,18 +49,18 @@ def check_proxy(proxy_url):
     检查代理是否可用
     """
     try:
-        print(f"checking {proxy_url}")
-        proxy_url = f"http://{proxy_url}"
-        response = requests.get("https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList", proxies={"https": proxy_url}, timeout=3)
+        print(f"Checking {proxy_url}")
+        response = requests.get("https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList",
+                                proxies={"https": f"http://{proxy_url}"}, timeout=3)
         print(str(response.text)[:100])
-        if response.status_code == 200 and "html" in str(response.text):
-            print(f"HTTPS Proxy {proxy_url} is working")
+        if response.status_code == 200 and "html" in str(response.text) and "滑动验证页面" not in str(response.text):
+            print(f"[OK]  {proxy_url}")
             return proxy_url
         if response.status_code == 200 and response.json()['code'] == -1 and response.json()['msg'] == '签名错误,接口未签名':
-            print(f"HTTPS Proxy {proxy_url} is working")
+            print(f"[OK] {proxy_url}")
             return proxy_url
     except Exception as error:
-        print(error)
+        print(str(error).split()[0])
     return None
 
 
@@ -70,13 +70,13 @@ def update_proxy_file(filename, available_proxies):
         with open(filename, "r") as file:
             existing_proxies = file.readlines()
     except FileNotFoundError:
-        existing_proxies = []
+        existing_proxies = ""
 
     # 清理现有代理列表中的换行符
     existing_proxies = [proxy.strip() for proxy in existing_proxies]
 
     # 过滤出不在文件中的新代理
-    new_proxies = [proxy for proxy in available_proxies if proxy + "\n" not in existing_proxies]
+    new_proxies = [proxy for proxy in available_proxies if proxy not in existing_proxies]
 
     # 如果有新的有效代理，追加到文件
     if new_proxies:
