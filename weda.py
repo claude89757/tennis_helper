@@ -86,7 +86,7 @@ def query_data_by_filter(env_type: str, datasource_name: str, filter_str: str = 
     return all_data
 
 
-def get_active_rule_list(cd_index: int, is_vip: bool = False):
+def get_active_rule_list(cd_index: int):
     """
     从微搭数据源获取用户的推送规则
     :parm: cd_index 场地代号，映射见全局变量
@@ -101,15 +101,9 @@ def get_active_rule_list(cd_index: int, is_vip: bool = False):
         fcntl.flock(f, fcntl.LOCK_UN)
     # 将JSON格式的字符串转换为列表
     all_rule_list = json.loads(data)
-    if is_vip:
-        for rule in all_rule_list:
-            if rule['status'] == '2' and rule['user_level'] == '2' and rule['xjcd'] == str(cd_index):
-                rule_list.append(rule)
-    else:
-        for rule in all_rule_list:
-            if rule['status'] == '2' and rule['user_level'] != '2' and rule['user_level'] != '3' \
-                    and rule['xjcd'] == str(cd_index):
-                rule_list.append(rule)
+    for rule in all_rule_list:
+        if rule['status'] == '2' and rule['xjcd'] == str(cd_index):
+            rule_list.append(rule)
     return rule_list
 
 

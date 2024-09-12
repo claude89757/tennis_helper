@@ -14,6 +14,7 @@ import shelve
 import asyncio
 import fcntl
 import json
+import random
 
 from config import CD_INDEX_INFOS
 from config import CD_TIME_RANGE_INFOS
@@ -135,7 +136,7 @@ if __name__ == '__main__':
     print_with_timestamp(f"check_date_list: {check_date_list}")
 
     # 从微搭的数据库，获取订阅规则列表
-    active_rule_list = get_active_rule_list(CD_INDEX_INFOS.get(args.court_name), is_vip=True)
+    active_rule_list = get_active_rule_list(CD_INDEX_INFOS.get(args.court_name))
 
     # 从redis读取新的订阅规则
     new_rule_list = redis_client.get_json_data(key="subscriptions")
@@ -288,8 +289,9 @@ if __name__ == '__main__':
         # 梳理需要发送的短信列表
         cache = shelve.open(f'{args.court_name}_cache')
         for phone_date, slot_list in phone_slot_infos.items():
-            rule_info_list = rule_infos.get(phone_date)  # 一个手机号，可能命中多个订阅
-            print(f"rule_info_list: {rule_info_list}")
+            rule_info_list = rule_infos.get(phone_date)  # 一个手机号，只能命中最新的规则
+            latest_rule = rule_info_list[0]
+            print(f"{phone_date} rule_info_list: {latest_rule}")
             merge_slot_list = merge_time_ranges(slot_list)  # 聚合后，可能还有多个时间段，短信只发送第一个时间段
             # print(f"raw_slot_list: {slot_list}")
             # print(f"merged_slot_list: {merge_slot_list}")
@@ -307,12 +309,12 @@ if __name__ == '__main__':
                 if hours > 12:
                     # 这类场地默认没人需要打， 过滤
                     print_with_timestamp(f"时长过大：{hours}")
-                elif rule_info_list[0].get('duration') and hours < int(rule_info_list[0].get('duration')):
+                elif latest_rule.get('duration') and hours < int(latest_rule.get('duration')):
                     # 小于订阅的时长pass
-                    print_with_timestamp(f"{phone_date} 小于订阅时长：{rule_info_list[0].get('duration')}")
-                elif rule_info_list[0].get('duration') and hours >= int(rule_info_list[0].get('duration')):
+                    print_with_timestamp(f"{phone_date} 小于订阅时长：{latest_rule.get('duration')}")
+                elif latest_rule.get('duration') and hours >= int(latest_rule.get('duration')):
                     filter_merge_slot_list.append(slot)
-                elif not rule_info_list[0].get('duration') and hours < 2:
+                elif not latest_rule.get('duration') and hours < 2:
                     # 默认仅2小时以上的场地
                     print_with_timestamp(f"{phone_date} 默认仅2小时以上的场地")
                 else:
@@ -345,13 +347,25 @@ if __name__ == '__main__':
                     # 未开放预定，不推送消息
                     continue
                 else:
-                    up_for_send_sms_list.append({"phone": phone,
-                                                 "date": date,
-                                                 "court_name": send_court_name,
-                                                 "start_time": start_time,
-                                                 "end_time": end_time,
-                                                 "rule_start_date": rule_info_list[0]['start_date'],
-                                                 "rule_end_date": rule_info_list[0]['end_date']})
+                    if str(latest_rule['user_level']) == '2':
+                        # VIP规则，直接推送
+                        up_for_send_sms_list.append({"phone": phone,
+                                                     "date": date,
+                                                     "court_name": send_court_name,
+                                                     "start_time": start_time,
+                                                     "end_time": end_time,
+                                                     "rule_start_date": latest_rule['start_date'],
+                                                     "rule_end_date": latest_rule['end_date']})
+                    else:
+                        # 非VIP的情况下，随机50%的概率决定是否推送
+                        if random.random() < 0.5:
+                            up_for_send_sms_list.append({"phone": phone,
+                                                         "date": date,
+                                                         "court_name": send_court_name,
+                                                         "start_time": start_time,
+                                                         "end_time": end_time,
+                                                         "rule_start_date": latest_rule['start_date'],
+                                                         "rule_end_date": latest_rule['end_date']})
                 # 更新本地文件缓存
                 cache[cache_key] = 1
         # 关闭本地文件缓存
@@ -364,7 +378,6 @@ if __name__ == '__main__':
         send_sms_start_time = time.time()
         rule_send_count_infos = {}
         try_send_sms_list = []
-        rude_infos = {}
         for sms_info in sorted_up_for_send_sms_list:
             print(f"sending {sms_info}...")
             phone = sms_info['phone']
@@ -382,7 +395,6 @@ if __name__ == '__main__':
             # 最新的订阅生效
             valid_rule = rule_info_list[0]
             rule_id = valid_rule['_id']
-            rude_infos[rule_id] = valid_rule
 
             sms_res = send_sms_for_news([phone], [date, court_name, start_time, end_time])
             print(sms_res)
