@@ -14,6 +14,7 @@ import requests
 import json
 import base64
 
+import selenium
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -128,7 +129,14 @@ class TwitterWatcher:
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
 
-        self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        # Check Selenium version
+        selenium_version = selenium.__version__
+
+        if selenium_version.startswith('3'):
+            self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
+        else:
+            service = Service(self.driver_path)
+            self.driver = webdriver.Chrome(service=service, options=chrome_options)
 
     def teardown_driver(self):
         if self.driver:
