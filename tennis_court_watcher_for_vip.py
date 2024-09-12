@@ -407,9 +407,15 @@ if __name__ == '__main__':
                     rule_send_count_infos[rule_id] = 1
             else:
                 print_with_timestamp("短信发送失败")
-            try_send_sms_list.append([phone,
-                                      f"[vip] {date} {court_name} 可预定时间: {start_time}~{end_time}",
-                                      sms_res['SendStatusSet'][0]['Message']])
+
+            if str(valid_rule['user_level']) == '2':
+                try_send_sms_list.append([phone,
+                                          f"[vip] {date} {court_name} 可预定时间: {start_time}~{end_time}",
+                                          sms_res['SendStatusSet'][0]['Message']])
+            else:
+                try_send_sms_list.append([phone,
+                                          f"{date} {court_name} 可预定时间: {start_time}~{end_time}",
+                                          sms_res['SendStatusSet'][0]['Message']])
             time.sleep(1)
         send_sms_end_time = time.time()
         send_sms_cost_time = send_sms_end_time - send_sms_start_time
