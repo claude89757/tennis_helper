@@ -193,7 +193,9 @@ if __name__ == '__main__':
     缓存各代理访问ISZ的方式
     """
     output_data = []
-    for server_and_port in generate_proxies():
+    proxy_list = generate_proxies()
+    for server_and_port in proxy_list:
+        print(f"Checking {server_and_port}")
         watcher = TwitterWatcher(headless=True)
         proxy = f"http://{server_and_port}"
         watcher.setup_driver(proxy=proxy)
@@ -207,10 +209,8 @@ if __name__ == '__main__':
             # 等待页面加载完成
             watcher.wait_for_element(By.TAG_NAME, "body")
 
-            # 打印当前网页的内容
-            print(watcher.driver.page_source)
-
             if "签名错误,接口未签名" in str(watcher.driver.page_source):
+                print(f"[1] processing directly...")
                 # 无需滑块验证
                 current_url = watcher.driver.current_url
                 print(f"Current URL: {current_url}")
@@ -220,14 +220,12 @@ if __name__ == '__main__':
                     "target_url": current_url,
                 })
             else:
+                print(f"[2] processing by slider...")
                 # 解决滑块验证
                 watcher.solve_slider_captcha()
 
                 # 等待页面加载完成
                 WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-
-                # 打印当前网页的内容
-                print(watcher.driver.page_source)
 
                 # 获取并打印当前的URL
                 current_url = watcher.driver.current_url
