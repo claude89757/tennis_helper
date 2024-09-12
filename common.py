@@ -200,7 +200,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             try:
                 proxies = {"https": proxy}
                 response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=3)
-                if response.status_code == 200:
+                if response.status_code == 200 and response.json()['code'] == 0:
                     print(f"success for {proxy}")
                     got_response = True
                     time.sleep(1)
@@ -249,7 +249,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
         # print(headers)
         response = requests.get(url, headers=headers, params=params, timeout=3)
         print(response.text)
-        if response.status_code == 200:
+        if response.status_code == 200 and response.json()['code'] == 0:
             got_response = True
         else:
             got_response = False
