@@ -178,6 +178,10 @@ if __name__ == '__main__':
         proxy_list = get_proxy_info_list()  # 有md5的url信息
     else:
         proxy_list = get_proxy_list()
+    print("[PROXY]=========================")
+    for proxy in proxy_list[:5]:
+        print(proxy)
+    print("[PROXY]=========================")
 
     # 查询空闲的球场信息
     now = datetime.datetime.now().time()
