@@ -151,16 +151,10 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
     """
     获取可预订的场地信息
     """
-    url_md5 = read_url_md5_file_value()
-    url = F"https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182={url_md5}"
     if proxy_list:
         got_response = False
         response = None
-        index_list = list(range(len(proxy_list)))
-        # 打乱列表的顺序
-        random.shuffle(index_list)
-        # print(index_list)
-        for index in index_list:
+        for proxy_info in proxy_list:
             check_data = str_to_timestamp(date)
             timestamp = math.trunc(time.time() * 1000)
             nonce = gen_nonce(timestamp)
@@ -192,25 +186,29 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
                 # "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
                 "sec-fetch-dest": "empty"
             }
-            print(url)
-            print(params)
-            # print(headers)
-            proxy = proxy_list[index]
-            print(f"trying for {index} time for {proxy}")
-            try:
-                proxies = {"https": proxy}
-                response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=3)
-                if response.status_code == 200 and response.json()['code'] == 0:
-                    print(f"success for {proxy}")
-                    got_response = True
-                    time.sleep(1)
-                    break
-                else:
-                    print(f"failed for {proxy}: {response}")
+            if proxy_info['type'] == 'direct':
+                proxy_url = proxy_info['proxy']
+                url = proxy_url['target_url']
+                print(f"trying {proxy_info}")
+                print(url)
+                print(params)
+                try:
+                    proxies = {"https": f"http://{proxy_url}"}
+                    response = requests.get(url, headers=headers, params=params, proxies=proxies, timeout=3)
+                    if response.status_code == 200 and response.json()['code'] == 0:
+                        print(f"success for {proxy_url}")
+                        got_response = True
+                        time.sleep(1)
+                        break
+                    else:
+                        print(f"failed for {proxy_url}: {response}")
+                        continue
+                except Exception as error:  # pylint: disable=broad-except
+                    print(f"failed for {proxy_url}: {error}")
                     continue
-            except Exception as error:  # pylint: disable=broad-except
-                print(f"failed for {proxy}: {error}")
-                continue
+            else:
+                print(f"not support for {proxy_info}")
+                pass
     else:
         # 不使用代理
         check_data = str_to_timestamp(date)
@@ -244,6 +242,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
             "sec-fetch-dest": "empty"
         }
+        url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList"
         print(url)
         print(params)
         # print(headers)
@@ -1316,3 +1315,23 @@ def get_proxy_list() -> list:
     random.shuffle(proxy_list)  # 每次都打乱下
     print(f"Loaded {len(proxy_list)} proxies from {url}")
     return proxy_list
+
+
+def get_proxy_info_list() -> list:
+    """
+    获取代理列表
+    """
+    # 获取公网HTTPS代理列表
+    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/isz_https_proxies_infos.json"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # 检查请求是否成功
+        proxies_list = response.json()  # 解析JSON响应为Python对象
+        random.shuffle(proxies_list)  # 每次都打乱下
+        return proxies_list
+    except requests.exceptions.RequestException as e:
+        print(f"请求错误: {e}")
+        return []
+    except ValueError as e:
+        print(f"JSON解析错误: {e}")
+        return []

@@ -28,6 +28,7 @@ from config import COURT_NAME_INFOS
 from common import merge_time_ranges
 from common import get_hit_court_infos
 from common import print_with_timestamp
+from common import get_proxy_info_list
 from common import get_proxy_list
 from common import get_free_tennis_court_infos_for_isz
 from common import get_free_tennis_court_infos_for_hjd
@@ -173,7 +174,10 @@ if __name__ == '__main__':
             rule_date_list.append(rule_end_date)
 
     # 获取公网HTTPS代理列表
-    proxy_list = get_proxy_list()
+    if args.app_name == 'ISZ':
+        proxy_list = get_proxy_info_list()  # 有md5的url信息
+    else:
+        proxy_list = get_proxy_list()
 
     # 查询空闲的球场信息
     now = datetime.datetime.now().time()

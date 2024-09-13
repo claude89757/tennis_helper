@@ -133,10 +133,31 @@ def generate_param_str(params):
     return param_str
 
 
+def fetch_isz_https_proxies_infos():
+    """
+    查询代理及其相关信息
+    """
+    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/isz_https_proxies_infos.json"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # 检查请求是否成功
+        proxies_list = response.json()  # 解析JSON响应为Python对象
+        return proxies_list
+    except requests.exceptions.RequestException as e:
+        print(f"请求错误: {e}")
+        return []
+    except ValueError as e:
+        print(f"JSON解析错误: {e}")
+        return []
+
+
 def get_data_for_isz(date: str, sales_id: str, sales_item_id: str) -> dict:
     """
     获取可预订的场地信息
     """
+    proxy_info_list = fetch_isz_https_proxies_infos()
+    print(f"proxy_info_list: {proxy_info_list}")
+
     time_range = {"start_time": "07:00", "end_time": "22:30"}  # 场地的运营时间范围
     check_data = str_to_timestamp(date)
     timestamp = math.trunc(time.time() * 1000)
@@ -169,17 +190,28 @@ def get_data_for_isz(date: str, sales_id: str, sales_item_id: str) -> dict:
         "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5_1 like Mac OS X) AppleWebKit/605.1.15 "
                       "(KHTML, like Gecko) "
                       "Mobile/15E148/openweb=paschybrid/SZSMT_IOS,VERSION:4.5.0",
-        # "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
+        "referer": F"https://isz.ydmap.cn/booking/schedule/{sales_id}?salesItemId={sales_item_id}",
         "sec-fetch-dest": "empty"
     }
-    url = "https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList?md5__1182=YqGxcDuDBDnDyDjxeqq05E31qwfqaGYWDRrD"
-    print(url)
-    print(params)
-    # today_str = datetime.datetime.now().strftime('%Y-%m-%d')
-    response = requests.get(url, headers=headers, params=params, timeout=5)
-    print("-----------------------")
-    print(response.text)
-    print("-----------------------")
+    response = None
+    for proxy_info in proxy_info_list:
+        try:
+            if proxy_info['type'] == 'direct':
+                url = proxy_info['target_url']
+                proxy_url = proxy_info['proxy']
+                print(url)
+                print(params)
+                response = requests.get(url, headers=headers, params=params,
+                                        proxies={"https": f"http://{proxy_url}"}, timeout=3)
+                print("-----------------------")
+                print(response.text)
+                print("-----------------------")
+                break
+            else:
+                continue
+        except Exception as error:
+            print(error)
+            continue
     if response.status_code == 200:
         if response.json()['code'] == 0:
             booked_court_infos = {}
