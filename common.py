@@ -188,7 +188,7 @@ def get_free_tennis_court_infos_for_isz(date: str, proxy_list: list, time_range:
             }
             if proxy_info['type'] == 'direct':
                 proxy_url = proxy_info['proxy']
-                url = proxy_url['target_url']
+                url = proxy_info['target_url']
                 print(f"trying {proxy_info}")
                 print(url)
                 print(params)
