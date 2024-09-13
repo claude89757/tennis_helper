@@ -355,8 +355,8 @@ if __name__ == '__main__':
                     # 未开放预定，不推送消息
                     continue
                 else:
-                    if str(latest_rule['user_level']) == '2':
-                        # VIP规则，直接推送
+                    if str(latest_rule['user_level']) == '2' or random.random() < 0.5:
+                        # VIP规则，直接推送, 非VIP的情况下，随机50%的概率决定是否推送
                         up_for_send_sms_list.append({"phone": phone,
                                                      "date": date,
                                                      "court_name": send_court_name,
@@ -364,16 +364,6 @@ if __name__ == '__main__':
                                                      "end_time": end_time,
                                                      "rule_start_date": latest_rule['start_date'],
                                                      "rule_end_date": latest_rule['end_date']})
-                    else:
-                        # 非VIP的情况下，随机50%的概率决定是否推送
-                        if random.random() < 0.5:
-                            up_for_send_sms_list.append({"phone": phone,
-                                                         "date": date,
-                                                         "court_name": send_court_name,
-                                                         "start_time": start_time,
-                                                         "end_time": end_time,
-                                                         "rule_start_date": latest_rule['start_date'],
-                                                         "rule_end_date": latest_rule['end_date']})
                 # 更新本地文件缓存
                 cache[cache_key] = 1
         # 关闭本地文件缓存
