@@ -93,7 +93,6 @@ class TwitterWatcher:
         self.headless = headless
 
     def setup_driver(self, proxy=None):
-        service = Service(self.driver_path)
         chrome_options = Options()
         chrome_options.add_argument("--lang=cn")
         if self.headless:
@@ -192,6 +191,7 @@ if __name__ == '__main__':
     """
     缓存各代理访问ISZ的方式
     """
+    start_time = time.time()
     output_data = []
     proxy_list = generate_proxies()
     for server_and_port in proxy_list:
@@ -262,3 +262,7 @@ if __name__ == '__main__':
         finally:
             watcher.teardown_driver()
     upload_file_to_github(output_data)
+
+    # 记录耗时
+    cost_time = time.time() - start_time
+    print(f"Total cost time：{cost_time} s")

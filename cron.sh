@@ -30,6 +30,8 @@ GIT_TOKEN=""
 0 10 * * *  timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/inform_rule_expired.py >> /home/lighthouse/tennis_helper/logs/inform_rule_expired_$(date +\%Y-\%m-\%d).log 2>&1
 
 # check isz https proxy
+ISZ_URL=""
+GIT_TOKEN=""
 */60 * * * * timeout 3600 /usr/local/bin/python3.8 /home/lighthouse/tennis_helper/proxy_tools/https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/https_proxy_watcher_$(date +\%Y-\%m-\%d).log 2>&1
 */15 * * * * timeout 900 /usr/local/bin/python3.8 /home/lighthouse/tennis_helper/proxy_tools/pass_slide_captcha.py >> /home/lighthouse/tennis_helper/logs/pass_slide_captcha_$(date +\%Y-\%m-\%d).log 2>&1
 
