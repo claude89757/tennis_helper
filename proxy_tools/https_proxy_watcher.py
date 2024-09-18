@@ -22,10 +22,10 @@ def generate_proxies():
     """
     urls = [
         "https://raw.githubusercontent.com/parserpp/ip_ports/refs/heads/main/proxyinfo.txt",
-        # "https://github.com/roosterkid/openproxylist/raw/main/HTTPS_RAW.txt",
-        # "https://raw.githubusercontent.com/yoannchb-pro/https-proxies/main/proxies.txt",
-        # "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/https.txt",
-        # "https://raw.githubusercontent.com/ErcinDedeoglu/proxies/main/proxies/https.txt",
+        "https://github.com/roosterkid/openproxylist/raw/main/HTTPS_RAW.txt",
+        "https://raw.githubusercontent.com/yoannchb-pro/https-proxies/main/proxies.txt",
+        "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/https.txt",
+        "https://raw.githubusercontent.com/ErcinDedeoglu/proxies/main/proxies/https.txt",
     ]
     proxies = []
 
@@ -52,14 +52,50 @@ def check_proxy(proxy_url, proxy_url_infos):
     """
     try:
         print(f"Checking {proxy_url}")
-        target_url = os.environ['ISZ_URL']
-        response = requests.get(target_url, proxies={"https": f"http://{proxy_url}"}, timeout=3)
+        target_url = 'https://wxsports.ydmap.cn/srv100140/api/pub/sport/venue/getVenueOrderList'
+
+        # 构建请求头
+        headers = {
+            'accept': 'application/json, text/plain, */*',
+            'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+            'access-token': 'test',
+            'cookie': 'test',
+            'cross-token': '',
+            'entry-tag': '',
+            'nonce': 'test',
+            'openid-token': '',
+            'priority': 'u=1, i',
+            'referer': 'https://wxsports.ydmap.cn/booking/schedule/101335?salesItemId=100347',
+            'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"macOS"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-origin',
+            'signature': 'test',
+            'tab-id': 'ydmap_e09fe4d23269b962cd7b8d4ee3ac8e6f',
+            'timestamp': '1726636302285',
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+                          '(KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+            'visitor-id': 'test',
+            'x-requested-with': 'XMLHttpRequest'
+        }
+
+        # 使用代理发送请求
+        proxies = {
+            "http": f"http://{proxy_url}",
+            "https": f"http://{proxy_url}"
+        }
+
+        response = requests.get(target_url, headers=headers, proxies=proxies, timeout=3)
         print(str(response.text)[:100])
+
         if response.status_code == 200 and "html" in str(response.text):
             print(f"[OK]  {proxy_url}, from {proxy_url_infos.get(proxy_url)}")
             return proxy_url
-        if response.status_code == 200 and response.json()['code'] == -1 \
-                and response.json()['msg'] == '签名错误,接口未签名':
+
+        if response.status_code == 200 and response.json().get('code') == -1 and "签名错误" in response.json().get('msg',
+                                                                                                               ''):
             print(f"[OK] {proxy_url} from {proxy_url_infos.get(proxy_url)}")
             return proxy_url
     except Exception as error:
