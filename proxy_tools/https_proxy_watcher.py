@@ -114,10 +114,6 @@ def task_check_proxies():
             upload_file_to_github(FILENAME)
         else:
             pass
-        if len(available_proxies) >= 10:
-            break
-        else:
-            continue
     print("check end.")
 
 
