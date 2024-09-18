@@ -21,10 +21,11 @@ def generate_proxies():
     获取待检查的代理列表
     """
     urls = [
-        "https://github.com/roosterkid/openproxylist/raw/main/HTTPS_RAW.txt",
-        "https://raw.githubusercontent.com/yoannchb-pro/https-proxies/main/proxies.txt",
-        "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/https.txt",
-        "https://raw.githubusercontent.com/ErcinDedeoglu/proxies/main/proxies/https.txt",
+        "https://github.com/parserpp/ip_ports/blob/main/proxyinfo.txt",
+        # "https://github.com/roosterkid/openproxylist/raw/main/HTTPS_RAW.txt",
+        # "https://raw.githubusercontent.com/yoannchb-pro/https-proxies/main/proxies.txt",
+        # "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/https.txt",
+        # "https://raw.githubusercontent.com/ErcinDedeoglu/proxies/main/proxies/https.txt",
     ]
     proxies = []
 
