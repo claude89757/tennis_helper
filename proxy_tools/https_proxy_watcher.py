@@ -59,7 +59,7 @@ def check_proxy(proxy_url, proxy_url_infos):
         # 使用 curl 命令发送请求
         curl_command = [
             'curl',
-            '-x', proxy_url,
+            '-x', f"http://{proxy_url}",
             '--max-time', '3',
             '-s',  # 静默模式，不输出进度信息
             '-o', '-',  # 输出到标准输出
