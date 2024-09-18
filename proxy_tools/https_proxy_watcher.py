@@ -65,12 +65,12 @@ def check_proxy(proxy_url, proxy_url_infos):
             'curDate': '1726588800000',
             'venueGroupId': '',
             't': '1726638536209',
-            'timestamp__1762': 'eqmx9QqGqWqxnDGx051DUg7Dun9K%2BxGCIKeD'
+            'timestamp__1762': 'test'
         }
         headers = {
             'accept': 'application/json, text/plain, */*',
             'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-            'access-token': 'eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eJyN0FFLwzAQB_Dvcs8l5JI00b5pLWyMUXGCjyFN01Fd05J0c0P87qZIwUdf7_7_H9x9QR8jFPB5jdMY5khu7WAmYj1k4K4TFKg4Uww5pxm8z32KWrS5sazjrlFCOdtwydGIFu1d3hmGqdnHJ9ecj1B05hRdBsH4dhx27pbquZCUSyVT7BxdeB0_nP-fehqPva_8JaWfS_1WPepy81Lvq7SaF2Xb_uE1UoqCar4Wt-kYQLwnKBRBShiV66pePrB_KHV9WK1DuCzcL5LB4IbGhWWy-t8_45dZ7Q.cb9-mwluehZcdNqSZbYPdoyvBJlvBl5j43OvvZdcAbo',
+            'access-token': 'test',
             'cookie': 'test',
             'cross-token': '',
             'entry-tag': '',
@@ -84,11 +84,11 @@ def check_proxy(proxy_url, proxy_url_infos):
             'sec-fetch-dest': 'empty',
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-origin',
-            'signature': 'B0320F221D64F35F6AD1B81E1E7B7D54',
+            'signature': 'test',
             'tab-id': 'ydmap_fb2fd7837857e118f6d3861c83d449fc',
             'timestamp': '1726638536213',
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
-            'visitor-id': '7a37d3ad9deef88dbf10d1b21cb6f27d',
+            'visitor-id': 'test123',
             'x-requested-with': 'XMLHttpRequest'
         }
 
