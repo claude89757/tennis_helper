@@ -50,7 +50,7 @@ def check_proxy(proxy_url):
     try:
         print(f"Checking {proxy_url}")
         response = requests.get("https://wxsports.ydmap.cn/venue/100220",
-                                proxies={"https": f"http://{proxy_url}"}, timeout=3)
+                                proxies={"https": f"http://{proxy_url}"}, timeout=5)
         print(str(response.text)[:100])
         if response.status_code == 200 and "html" in str(response.text):
             print(f"[OK]  {proxy_url}")
