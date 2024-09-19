@@ -200,7 +200,7 @@ if __name__ == '__main__':
         proxy = f"http://{server_and_port}"
         watcher.setup_driver(proxy=proxy)
         try:
-            url = "https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig"
+            url = "https://wxsports.ydmap.cn/srv100140/api/pub/sport/venue/getVenueOrderList?salesItemId=100000&curDate=1726761600000&venueGroupId=&t=1726724596580"
             watcher.driver.get(url)
 
             # 随机延迟模拟人类行为
