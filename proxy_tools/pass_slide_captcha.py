@@ -208,7 +208,9 @@ if __name__ == '__main__':
 
             # 等待页面加载完成
             watcher.wait_for_element(By.TAG_NAME, "body")
-
+            print(f"Current URL: {watcher.driver.current_url}")
+            print(f"page: {str(watcher.driver.page_source)}")
+            
             if "data" in str(watcher.driver.page_source):
                 print(f"[1] processing directly...")
                 # 无需滑块验证

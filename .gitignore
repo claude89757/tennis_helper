@@ -1,5 +1,6 @@
 /.idea
 /venv
+/.venv
 *.pyc
 test*
 !test_dags

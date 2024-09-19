@@ -21,7 +21,7 @@ def generate_proxies():
     获取待检查的代理列表
     """
     urls = [
-        "https://raw.githubusercontent.com/parserpp/ip_ports/refs/heads/main/proxyinfo.txt",
+        # "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/isz_https_proxies.txt",
         "https://github.com/roosterkid/openproxylist/raw/main/HTTPS_RAW.txt",
         "https://raw.githubusercontent.com/yoannchb-pro/https-proxies/main/proxies.txt",
         "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/https.txt",
@@ -46,67 +46,38 @@ def generate_proxies():
     return proxies, proxy_url_infos
 
 
+import subprocess
+
 def check_proxy(proxy_url, proxy_url_infos):
     """
     检查代理是否可用
     """
     try:
         print(f"Checking {proxy_url}")
-        # target_url = 'https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList'
-        #
-        # # 构建请求头
-        # headers = {
-        #     'visitor-id': 'test',
-        # }
+        target_url = 'https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig'
 
-        target_url = 'https://wxsports.ydmap.cn/srv100140/api/pub/sport/venue/getVenueOrderList'
-        params = {
-            'salesItemId': '100341',
-            'curDate': '1726588800000',
-            'venueGroupId': '',
-            't': '1726638536209',
-            'timestamp__1762': 'test'
-        }
-        headers = {
-            'accept': 'application/json, text/plain, */*',
-            'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-            'access-token': 'test',
-            'cookie': 'test',
-            'cross-token': '',
-            'entry-tag': '',
-            'nonce': 'effa788631ae4ade9911616e0d3e8324',
-            'openid-token': '',
-            'priority': 'u=1, i',
-            'referer': 'https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341',
-            'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"macOS"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-origin',
-            'signature': 'test',
-            'tab-id': 'ydmap_fb2fd7837857e118f6d3861c83d449fc',
-            'timestamp': '1726638536213',
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
-            'visitor-id': 'test123',
-            'x-requested-with': 'XMLHttpRequest'
-        }
+        # 使用 curl 命令发送请求
+        curl_command = [
+            'curl',
+            '-x', f"http://{proxy_url}",
+            '--max-time', '3',
+            '-s',  # 静默模式，不输出进度信息
+            '-o', '-',  # 输出到标准输出
+            '-w', '%{http_code}',  # 输出 HTTP 状态码
+            target_url
+        ]
 
-        # 使用代理发送请求
-        proxies = {
-            "http": f"http://{proxy_url}",
-            "https": f"http://{proxy_url}"
-        }
+        result = subprocess.run(curl_command, capture_output=True, text=True)
+        response_text = result.stdout[:-3]  # 去掉最后的 HTTP 状态码
+        http_code = result.stdout[-3:]  # 获取 HTTP 状态码
 
-        response = requests.get(target_url, headers=headers, params=params, proxies=proxies, timeout=3)
-        print(str(response.text)[:100])
+        print(response_text[:100])
 
-        if response.status_code == 200 and "html" in str(response.text):
+        if http_code == '200' and "html" in response_text:
             print(f"[OK]  {proxy_url}, from {proxy_url_infos.get(proxy_url)}")
             return proxy_url
 
-        if response.status_code == 200 and response.json().get('code') == -1 and "签名错误" in response.json().get('msg',
-                                                                                                               ''):
+        if http_code == '200' and '"code":-1' in response_text and "签名错误" in response_text:
             print(f"[OK] {proxy_url} from {proxy_url_infos.get(proxy_url)}")
             return proxy_url
     except Exception as error:
