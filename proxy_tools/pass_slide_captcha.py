@@ -207,60 +207,61 @@ if __name__ == '__main__':
             watcher.random_delay()
 
             # 等待页面加载完成
-            watcher.wait_for_element(By.TAG_NAME, "body")
+            watcher.wait_for_element(By.TAG_NAME, "body", timeout=3)
             # print(f"Current URL: {watcher.driver.current_url}")
             # print(f"page: {str(watcher.driver.page_source)}")
             
-            if "data" in str(watcher.driver.page_source):
+            if "操作成功" in str(watcher.driver.page_source):
                 print(f"[1] processing directly...")
                 # 无需滑块验证
                 current_url = watcher.driver.current_url
                 print(f"Current URL: {current_url}")
+                print(f"page: {str(watcher.driver.page_source)}")
                 output_data.append({
                     "proxy": server_and_port,
                     "type": "direct",
                     "target_url": current_url,
                 })
             else:
-                print(f"[2] processing by slider...")
-                # 解决滑块验证
-                watcher.solve_slider_captcha()
-
-                # 等待页面加载完成
-                WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-
-                # 获取并打印当前的URL
-                current_url = watcher.driver.current_url
-                print(f"Current URL: {current_url}")
-
-                # 使用requests通过代理请求current_url
-                cookies = watcher.driver.get_cookies()
-                session = requests.Session()
-                for cookie in cookies:
-                    session.cookies.set(cookie['name'], cookie['value'])
-                headers = {
-                    'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
-                }
-                print(f"cookies: {cookies}")
-                print(f"headers: {headers}")
-                proxies = {
-                    "http": proxy,
-                    "https": proxy,
-                }
-                response = session.get(current_url, headers=headers, proxies=proxies)
-                print(f"Response from {current_url}:")
-                print(response.text)
-
-                output_data.append({
-                    "proxy": server_and_port,
-                    "type": "by cookies",
-                    "target_url": current_url,
-                    "cookies": cookies,
-                    "headers": headers,
-                })
-
+                print(f"[2] processing by slider...?")
+                raise Exception("can not access directly ")
+                # # 解决滑块验证
+                # watcher.solve_slider_captcha()
+                #
+                # # 等待页面加载完成
+                # WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                #
+                # # 获取并打印当前的URL
+                # current_url = watcher.driver.current_url
+                # print(f"Current URL: {current_url}")
+                #
+                # # 使用requests通过代理请求current_url
+                # cookies = watcher.driver.get_cookies()
+                # session = requests.Session()
+                # for cookie in cookies:
+                #     session.cookies.set(cookie['name'], cookie['value'])
+                # headers = {
+                #     'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
+                # }
+                # print(f"cookies: {cookies}")
+                # print(f"headers: {headers}")
+                # proxies = {
+                #     "http": proxy,
+                #     "https": proxy,
+                # }
+                # response = session.get(current_url, headers=headers, proxies=proxies)
+                # print(f"Response from {current_url}:")
+                # print(response.text)
+                #
+                # output_data.append({
+                #     "proxy": server_and_port,
+                #     "type": "by cookies",
+                #     "target_url": current_url,
+                #     "cookies": cookies,
+                #     "headers": headers,
+                # })
         except Exception as error:
-            print(f"proxy {server_and_port} failed: {error}")
+            print(f"proxy {server_and_port} failed: {str(error).splitlines()[0]}")
         finally:
             watcher.teardown_driver()
     upload_file_to_github(output_data)
