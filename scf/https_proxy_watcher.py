@@ -22,7 +22,6 @@ def generate_proxies():
     获取待检查的代理列表
     """
     urls = [
-        "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt",
         "https://github.com/roosterkid/openproxylist/raw/main/HTTPS_RAW.txt",
         "https://raw.githubusercontent.com/yoannchb-pro/https-proxies/main/proxies.txt",
         "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/https.txt",
@@ -50,13 +49,13 @@ def check_proxy(proxy_url):
     """
     try:
         print(f"Checking {proxy_url}")
-        response = requests.get("https://isz.ydmap.cn/srv100352/api/pub/sport/venue/getVenueOrderList",
+        response = requests.get("https://wxsports.ydmap.cn/venue/100220",
                                 proxies={"https": f"http://{proxy_url}"}, timeout=3)
         print(str(response.text)[:100])
-        if response.status_code == 200 and "html" in str(response.text) and "滑动验证页面" not in str(response.text):
+        if response.status_code == 200 and "html" in str(response.text):
             print(f"[OK]  {proxy_url}")
             return proxy_url
-        if response.status_code == 200 and response.json()['code'] == -1 and response.json()['msg'] == '签名错误,接口未签名':
+        if response.status_code == 200 and "危险访问" not in response.json()['msg']:
             print(f"[OK] {proxy_url}")
             return proxy_url
     except Exception as error:
