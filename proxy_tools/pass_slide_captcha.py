@@ -207,6 +207,7 @@ if __name__ == '__main__':
             watcher.random_delay()
 
             # 等待页面加载完成
+            time.sleep(5)
             watcher.wait_for_element(By.TAG_NAME, "body", timeout=3)
             print(f"Current URL: {watcher.driver.current_url}")
             print(f"page: {str(watcher.driver.page_source)}")
