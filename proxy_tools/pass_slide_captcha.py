@@ -198,9 +198,9 @@ if __name__ == '__main__':
         print(f"Checking {server_and_port}")
         watcher = TwitterWatcher(headless=True)
         proxy = f"http://{server_and_port}"
-        watcher.setup_driver(proxy=proxy)
+        watcher.setup_driver()
         try:
-            url = os.environ['ISZ_URL']
+            url = "https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig"
             watcher.driver.get(url)
 
             # 随机延迟模拟人类行为
@@ -209,7 +209,7 @@ if __name__ == '__main__':
             # 等待页面加载完成
             watcher.wait_for_element(By.TAG_NAME, "body")
 
-            if "签名错误,接口未签名" in str(watcher.driver.page_source):
+            if "data" in str(watcher.driver.page_source):
                 print(f"[1] processing directly...")
                 # 无需滑块验证
                 current_url = watcher.driver.current_url
