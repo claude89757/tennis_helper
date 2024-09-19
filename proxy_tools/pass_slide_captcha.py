@@ -260,6 +260,10 @@ if __name__ == '__main__':
                 #     "cookies": cookies,
                 #     "headers": headers,
                 # })
+            if len(output_data) >= 5:
+                break
+            else:
+                pass
         except Exception as error:
             print(f"proxy {server_and_port} failed: {str(error).splitlines()[0]}")
         finally:
