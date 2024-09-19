@@ -212,7 +212,7 @@ if __name__ == '__main__':
             print(f"Current URL: {watcher.driver.current_url}")
             print(f"page: {str(watcher.driver.page_source)}")
             
-            if "操作成功" in str(watcher.driver.page_source):
+            if "签名" in str(watcher.driver.page_source):
                 print(f"[1] processing directly...")
                 # 无需滑块验证
                 current_url = watcher.driver.current_url
