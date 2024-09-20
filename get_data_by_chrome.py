@@ -86,7 +86,6 @@ def get_file_sha(url, headers):
 
 class TwitterWatcher:
     def __init__(self, timeout=10, headless: bool = True, driver_mode='local', chromium_path=None):
-        self.driver_path = "/usr/local/bin/chromedriver"
         self.timeout = timeout
         self.interaction_timeout = 10
         self.driver = None
@@ -134,11 +133,13 @@ class TwitterWatcher:
         if self.driver_mode == 'local':
             if self.chromium_path:
                 print("uc.Chrome...")
-                service = Service(self.driver_path)
-                self.driver = uc.Chrome(service=service, options=chrome_options,
-                                        browser_executable_path=self.chromium_path)
+                # service = Service("/usr/local/bin/chromedriver")
+                self.driver = uc.Chrome(options=chrome_options,
+                                        browser_executable_path=self.chromium_path,
+                                        driver_executable_path='/path/to/chromedriver',
+                                        version_main=126, log_level=0)
             else:
-                service = Service(self.driver_path)
+                service = Service("/usr/local/bin/chromedriver")
                 self.driver = uc.Chrome(service=service, options=chrome_options)
         elif self.driver_mode == 'remote':
             selenium_grid_url = 'http://localhost:4444/wd/hub'
