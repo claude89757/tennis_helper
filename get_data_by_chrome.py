@@ -165,7 +165,7 @@ class TwitterWatcher:
                     browser_executable_path=browser_executable_path,
                     version_main=129,  # 例如 115
                 )
-                self.driver = uc.Chrome(service=service, options=chrome_options)
+                # self.driver = uc.Chrome(service=service, options=chrome_options)
                 # self.driver = webdriver.Chrome(service=service, options=chrome_options)
         elif self.driver_mode == 'remote':
             # Use Remote WebDriver to connect to selenium/standalone-chrome
