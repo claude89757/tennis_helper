@@ -145,6 +145,7 @@ class TwitterWatcher:
             raise ValueError(f"Invalid driver mode: {self.driver_mode}")
 
         # 执行CDP命令，修改浏览器属性
+        print("execute_cdp_cmd...")
         self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
             "source": """
             Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
@@ -154,6 +155,7 @@ class TwitterWatcher:
         })
 
         # 使用selenium-stealth
+        print("stealth...")
         from selenium_stealth import stealth
         stealth(self.driver,
                 languages=["zh-CN", "zh", "en"],
@@ -492,4 +494,4 @@ if __name__ == '__main__':
             print(error)
             pass
         print("Sleeping...")
-        time.sleep(900)
+        time.sleep(600)
