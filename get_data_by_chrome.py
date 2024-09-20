@@ -256,9 +256,10 @@ if __name__ == '__main__':
     else:
         watcher.driver.get(url)
         print(f"没有找到缓存，直接访问页面。")
+
     # 随机延迟模拟人类行为
-    watcher.random_delay()
-    watcher.random_delay()
+    watcher.random_delay(max_delay=10, min_delay=3)
+
     # 等待页面加载完成
     watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
     if "网球" in str(watcher.driver.page_source):
@@ -286,6 +287,9 @@ if __name__ == '__main__':
             watcher.driver.add_cookie(cookie)
         watcher.driver.get(url)  # 使用 cookies 重新加载页面
     else:
+        current_url = watcher.driver.current_url
+        print(f"Current URL: {current_url}")
+        print(watcher.driver.page_source)
         raise Exception(f"未知错误?")
     print(f"=====Success=====")
 
