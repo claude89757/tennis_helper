@@ -100,7 +100,10 @@ class TwitterWatcher:
 
     def setup_driver(self, proxy=None):
         # chrome_options = Options()
-        chrome_options = uc.ChromeOptions()
+        if self.driver_mode == 'local':
+            chrome_options = Options()
+        else:
+            chrome_options = uc.ChromeOptions()
         chrome_options.add_argument("--lang=cn")
         if self.headless:
             chrome_options.add_argument("--headless")
