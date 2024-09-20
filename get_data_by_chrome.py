@@ -292,8 +292,10 @@ if __name__ == '__main__':
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
     start_time = time.time()
+    print("setting driver...")
     watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
     watcher.setup_driver()
+    print("end driver...")
 
     # 先正常登录网站
     url = "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000"
