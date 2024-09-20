@@ -15,7 +15,7 @@ import requests
 import json
 import base64
 import datetime
-import argparse  # Added for command-line argument parsing
+import argparse
 
 import selenium
 from selenium import webdriver
@@ -28,9 +28,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
 
-
 FILENAME = "isz_data_infos.json"
-
 
 def generate_proxies():
     """
@@ -53,7 +51,6 @@ def generate_proxies():
     print(f"Total {len(proxies)} proxies loaded")
     random.shuffle(proxies)
     return proxies
-
 
 # 上传文件（相当于推送）
 def upload_file_to_github(input_data):
@@ -81,25 +78,23 @@ def upload_file_to_github(input_data):
     else:
         print("Failed to upload file:", response.status_code, response.text)
 
-
 def get_file_sha(url, headers):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return response.json()['sha']
     return None
 
-
 class TwitterWatcher:
-    def __init__(self, timeout=10, headless: bool = True, driver_mode='local'):
+    def __init__(self, timeout=10, headless: bool = True, driver_mode='local', chromium_path=None):
         self.driver_path = "/usr/local/bin/chromedriver"
         self.timeout = timeout
         self.interaction_timeout = 10
         self.driver = None
         self.headless = headless
         self.driver_mode = driver_mode  # 'local' or 'remote'
+        self.chromium_path = chromium_path  # Chromium 浏览器的路径
 
     def setup_driver(self, proxy=None):
-        # chrome_options = Options()
         if self.driver_mode == 'local':
             chrome_options = uc.ChromeOptions()
         else:
@@ -107,62 +102,36 @@ class TwitterWatcher:
         chrome_options.add_argument("--lang=cn")
         if self.headless:
             chrome_options.add_argument("--headless=new")
-            # chrome_options.add_argument("--disable-gpu")
             chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--no-sandbox")
-        # chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 
-        # Define multiple User-Agent strings
+        # 设置 Chromium 可执行文件路径
+        if self.chromium_path:
+            chrome_options.binary_location = self.chromium_path
+
+        # 定义 User-Agent
         user_agents = [
-            # Windows 10 Chrome
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            # "Chrome/114.0.5735.199 Safari/537.36",
-            # # Windows 10 Edge
-            # "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            # "Chrome/103.0.0.0 Safari/537.36 Edg/103.0.1264.62",
-            # # Windows 7 Chrome
-            # "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            # "Chrome/90.0.4430.212 Safari/537.36",
-            # # Windows 10 Firefox
-            # "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0",
-            # # macOS Chrome
-            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
-            # "Chrome/114.0.0.0 Safari/537.36",
-            # # macOS Safari
-            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_4_0) AppleWebKit/605.1.15 (KHTML, like Gecko) "
-            # "Version/14.1.1 Safari/605.1.15",
-            # # macOS Firefox
-            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7; rv:90.0) Gecko/20100101 Firefox/90.0",
-            # # iPhone Safari
-            # "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
-            # "Version/15.0 Mobile/15E148 Safari/604.1",
-            # # iPad Safari
-            # "Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
-            # "Version/15.0 Mobile/15E148 Safari/604.1",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
         ]
 
-        # Randomly select a User-Agent
+        # 随机选择一个 User-Agent
         random_user_agent = random.choice(user_agents)
         chrome_options.add_argument(f"user-agent={random_user_agent}")
 
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
 
-        # Set up driver based on driver_mode
+        # 设置驱动
         if self.driver_mode == 'local':
-            # Existing local driver code
+            # 获取 Chromium 驱动的版本
             selenium_version = selenium.__version__
             if selenium_version.startswith('3'):
                 self.driver = uc.Chrome(executable_path=self.driver_path, options=chrome_options)
-                # self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
             else:
                 service = Service(self.driver_path)
                 self.driver = uc.Chrome(service=service, options=chrome_options)
-                # self.driver = webdriver.Chrome(service=service, options=chrome_options)
         elif self.driver_mode == 'remote':
-            # Use Remote WebDriver to connect to selenium/standalone-chrome
-            # selenium_grid_url = 'http://localhost:4444/wd/hub'
-            # self.driver = webdriver.Remote(command_executor=selenium_grid_url, options=chrome_options)
+            # 使用远程 WebDriver
             selenium_grid_url = 'http://localhost:4444/wd/hub'
             self.driver = uc.Chrome(options=chrome_options, command_executor=selenium_grid_url)
         else:
@@ -243,10 +212,8 @@ class TwitterWatcher:
         }
         return headers
 
-
 COOKIES_FILE = 'cookies.json'
 HEADERS_FILE = 'headers.json'
-
 
 def load_cookies_and_headers():
     if os.path.exists(COOKIES_FILE) and os.path.exists(HEADERS_FILE):
@@ -256,7 +223,6 @@ def load_cookies_and_headers():
             headers = json.load(f)
         return cookies, headers
     return None, None
-
 
 def save_cookies_and_headers(cookies, headers):
     with open(COOKIES_FILE, 'w') as f:
@@ -275,15 +241,18 @@ def print_with_timestamp(*args, **kwargs):
 
 if __name__ == '__main__':
     """
-    遍历查询多个网球场的信息，并缓存到github上
+    遍历查询多个网球场的信息，并缓存到 GitHub 上
     """
     while True:
         try:
             parser = argparse.ArgumentParser(description='Script to fetch data.')
             parser.add_argument('--driver-mode', choices=['local', 'remote'], default='local',
                                 help='Driver mode: local or remote (default: local)')
+            parser.add_argument('--chromium-path', type=str, default=None,
+                                help='Path to the Chromium executable')
             args = parser.parse_args()
             driver_mode = args.driver_mode
+            chromium_path = args.chromium_path
 
             # Skip execution between midnight and 8 AM
             now = datetime.datetime.now().time()
@@ -294,10 +263,10 @@ if __name__ == '__main__':
                 print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
             start_time = time.time()
-            print("setting driver...")
-            watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
+            print("Setting up driver...")
+            watcher = TwitterWatcher(headless=True, driver_mode=driver_mode, chromium_path=chromium_path)
             watcher.setup_driver()
-            print("end driver...")
+            print("Driver setup complete.")
 
             # 先正常登录网站
             url = "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000"
@@ -328,11 +297,11 @@ if __name__ == '__main__':
             # 等待页面加载完成
             watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
             if "网球" in str(watcher.driver.page_source):
-                print(f"[1] processing directly...")
+                print(f"[1] Processing directly...")
                 current_url = watcher.driver.current_url
                 print(f"Current URL: {current_url}")
             elif "验证" in str(watcher.driver.page_source):
-                print(f"[2] processing by slider...")
+                print(f"[2] Processing by solving slider captcha...")
                 watcher.random_delay()
                 watcher.solve_slider_captcha()
                 WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
@@ -384,10 +353,10 @@ if __name__ == '__main__':
                         print(f"Current URL: {watcher.driver.current_url}")
 
                         if "网球" in str(watcher.driver.page_source):
-                            print(f"[1] processing directly...")
+                            print(f"[1] Processing directly...")
                             current_url = watcher.driver.current_url
                             print(f"Current URL: {current_url}")
-                            # Get the page source
+                            # 获取页面源代码
                             page_source = watcher.driver.page_source
 
                             # 等待日期滑动条加载
@@ -413,7 +382,7 @@ if __name__ == '__main__':
                                     watcher.random_delay()
                                     watcher.random_delay()
 
-                                # 使用BeautifulSoup解析页面
+                                # 使用 BeautifulSoup 解析页面
                                 soup = BeautifulSoup(page_source, 'html.parser')
 
                                 # 提取场馆名称
@@ -430,23 +399,22 @@ if __name__ == '__main__':
                                 # 初始化数据结构
                                 venue_times = {venue: [] for venue in venue_names}
 
-                                # 处理rowspan和colspan的函数
+                                # 处理 rowspan 和 colspan 的函数
                                 def expand_cell(row_index, col_index, rowspan, colspan):
                                     for i in range(rowspan):
                                         for j in range(colspan):
                                             key = (row_index + i, col_index + j)
                                             occupied_cells.add(key)
 
-
                                 # 正则表达式匹配时间间隔
                                 time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
 
-                                # 处理body表格
+                                # 处理 body 表格
                                 body_table = soup.find('table', class_='schedule-table__body')
                                 if body_table:
                                     body_rows = body_table.find_all('tr')
                                     num_cols = len(venue_names)
-                                    # 记录因rowspan和colspan占用的单元格
+                                    # 记录因 rowspan 和 colspan 占用的单元格
                                     occupied_cells = set()
                                     for row_index, row in enumerate(body_rows):
                                         col_index = 0
@@ -455,7 +423,7 @@ if __name__ == '__main__':
                                             # 跳过被占用的单元格
                                             while (row_index, col_index) in occupied_cells:
                                                 col_index += 1
-                                            # 获取rowspan和colspan
+                                            # 获取 rowspan 和 colspan
                                             rowspan = int(cell.get('rowspan', 1))
                                             colspan = int(cell.get('colspan', 1))
                                             # 获取当前列对应的场馆
@@ -475,12 +443,11 @@ if __name__ == '__main__':
                                                             'time': time_slot,
                                                             'status': status
                                                         })
-                                            # 标记因rowspan和colspan占用的单元格
+                                            # 标记因 rowspan 和 colspan 占用的单元格
                                             expand_cell(row_index, col_index, rowspan, colspan)
                                             col_index += colspan  # 移动到下一个列
 
-                                # 将数据输出为JSON格式
-                                # json_output = json.dumps(venue_times, ensure_ascii=False, indent=4)
+                                # 将数据添加到输出
                                 if output_data.get(place_name):
                                     output_data[place_name][f"{date_text}({week_text})"] = venue_times
                                 else:
@@ -488,7 +455,7 @@ if __name__ == '__main__':
                                 print(output_data)
                                 index += 1
                         elif "验证" in str(watcher.driver.page_source):
-                            print(f"[2] processing by slider...")
+                            print(f"[2] Processing by solving slider captcha...")
                             watcher.random_delay()
                             watcher.solve_slider_captcha()
                             WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
@@ -506,7 +473,7 @@ if __name__ == '__main__':
                             # 重新缓存 cookies 和 headers
                             save_cookies_and_headers(cookies, headers)
                         else:
-                            print("[3] ？？？？？")
+                            print("[3] 未知状态，跳过处理。")
                     except Exception as error:
                         print(f"{place_name} failed: {str(error).splitlines()[0]}")
                 upload_file_to_github(output_data)
@@ -519,5 +486,5 @@ if __name__ == '__main__':
         except Exception as error:
             print(error)
             pass
-        print("sleeping...")
+        print("Sleeping...")
         time.sleep(900)
