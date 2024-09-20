@@ -15,6 +15,7 @@ import requests
 import json
 import base64
 import datetime
+import argparse  # Added for command-line argument parsing
 
 import selenium
 from selenium import webdriver
@@ -88,12 +89,13 @@ def get_file_sha(url, headers):
 
 
 class TwitterWatcher:
-    def __init__(self, timeout=10, headless: bool = True):
+    def __init__(self, timeout=10, headless: bool = True, driver_mode='local'):
         self.driver_path = "/usr/local/bin/chromedriver"
         self.timeout = timeout
         self.interaction_timeout = 10
         self.driver = None
         self.headless = headless
+        self.driver_mode = driver_mode  # 'local' or 'remote'
 
     def setup_driver(self, proxy=None):
         chrome_options = Options()
@@ -105,7 +107,7 @@ class TwitterWatcher:
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 
-        # 定义多个 User-Agent 字符串
+        # Define multiple User-Agent strings
         user_agents = [
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/128.0.0.0 Safari/537.36",
@@ -113,7 +115,8 @@ class TwitterWatcher:
             "Chrome/91.0.4472.124 Safari/537.36",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/128.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/91.0.4472.124 Safari/537.36",
             "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
             "Version/14.1.1 Mobile/15E148 Safari/604.1",
             "Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
@@ -124,21 +127,28 @@ class TwitterWatcher:
             "Mozilla/5.0 (X11; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0"
         ]
 
-        # 随机选择一个 User-Agent
+        # Randomly select a User-Agent
         random_user_agent = random.choice(user_agents)
         chrome_options.add_argument(f"user-agent={random_user_agent}")
 
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
 
-        # Check Selenium version
-        selenium_version = selenium.__version__
-
-        if selenium_version.startswith('3'):
-            self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
+        # Set up driver based on driver_mode
+        if self.driver_mode == 'local':
+            # Existing local driver code
+            selenium_version = selenium.__version__
+            if selenium_version.startswith('3'):
+                self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
+            else:
+                service = Service(self.driver_path)
+                self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        elif self.driver_mode == 'remote':
+            # Use Remote WebDriver to connect to selenium/standalone-chrome
+            selenium_grid_url = 'http://localhost:4444/wd/hub'
+            self.driver = webdriver.Remote(command_executor=selenium_grid_url, options=chrome_options)
         else:
-            service = Service(self.driver_path)
-            self.driver = webdriver.Chrome(service=service, options=chrome_options)
+            raise ValueError(f"Invalid driver mode: {self.driver_mode}")
 
     def teardown_driver(self):
         if self.driver:
@@ -223,7 +233,13 @@ if __name__ == '__main__':
     """
     遍历查询多个网球场的信息，并缓存到github上
     """
-    # 每天0点-8点不巡检
+    parser = argparse.ArgumentParser(description='Script to fetch data.')
+    parser.add_argument('--driver-mode', choices=['local', 'remote'], default='local',
+                        help='Driver mode: local or remote (default: local)')
+    args = parser.parse_args()
+    driver_mode = args.driver_mode
+
+    # Skip execution between midnight and 8 AM
     now = datetime.datetime.now().time()
     if datetime.time(0, 0) <= now < datetime.time(8, 0):
         print_with_timestamp('Skipping task execution between 0am and 8am')
@@ -232,7 +248,7 @@ if __name__ == '__main__':
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
     start_time = time.time()
-    watcher = TwitterWatcher(headless=True)
+    watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
     watcher.setup_driver()
 
     # 先正常登录网站
