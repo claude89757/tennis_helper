@@ -232,7 +232,7 @@ if __name__ == '__main__':
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
     start_time = time.time()
-    watcher = TwitterWatcher(headless=False)
+    watcher = TwitterWatcher(headless=True)
     watcher.setup_driver()
 
     # 先正常登录网站
