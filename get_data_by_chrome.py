@@ -3,7 +3,7 @@
 """
 @Time    : 2024-09-13
 @Author  : claude
-@File    : pass_slide_captcha.py
+@File    : get_data_by_chrome.py
 @Software: PyCharm
 """
 
