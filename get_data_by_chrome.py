@@ -149,13 +149,13 @@ class TwitterWatcher:
 
         # 执行CDP命令，修改浏览器属性
         print("execute_cdp_cmd...")
-        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-            "source": """
-            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5], });
-            Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh', 'en'], });
-            """
-        })
+        # self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+        #     "source": """
+        #     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        #     Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5], });
+        #     Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh', 'en'], });
+        #     """
+        # })
 
         # 使用selenium-stealth
         print("stealth...")
@@ -336,6 +336,11 @@ if __name__ == '__main__':
                 # 保存当前屏幕截图
                 screenshot_path = 'screenshot.png'
                 watcher.driver.save_screenshot(screenshot_path)
+                # 获取页面源码
+                page_source = watcher.driver.page_source
+                # 保存到文件以便检查
+                with open("page_source.html", "w", encoding='utf-8') as f:
+                    f.write(page_source)
                 raise Exception(f"未知错误?")
             print(f"=====Success=====")
 
