@@ -258,12 +258,10 @@ if __name__ == '__main__':
         print(f"没有找到缓存，直接访问页面。")
 
     # 随机延迟模拟人类行为
-    watcher.driver.refresh()
-    watcher.random_delay(max_delay=15, min_delay=5)
+    time.sleep(10)
 
     # 等待页面加载完成
     watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
-
     if "网球" in str(watcher.driver.page_source):
         print(f"[1] processing directly...")
         current_url = watcher.driver.current_url
