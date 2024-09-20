@@ -104,15 +104,17 @@ class TwitterWatcher:
             chrome_options.add_argument("--headless=chrome")
             chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--no-sandbox")
-        # chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        # chrome_options.add_argument("--disable-infobars")
-        # chrome_options.add_argument("--disable-dev-shm-usage")
-        # chrome_options.add_argument("--disable-gpu")
-        # chrome_options.add_argument("--disable-extensions")
-        # chrome_options.add_argument("--profile-directory=Default")
-        # chrome_options.add_argument("--user-data-dir=/tmp/chrome_user_data")
-        # chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        # chrome_options.add_experimental_option('useAutomationExtension', False)
+        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument("--disable-infobars")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-automation")  # 隐藏自动化特征
+        chrome_options.add_argument("--disable-browser-side-navigation")
+        chrome_options.add_argument("--incognito")
+        chrome_options.add_argument('--disable-plugins-discovery')
+        chrome_options.add_argument("--profile-directory=Default")
+        chrome_options.add_argument("--user-data-dir=/tmp/chrome_user_data")
 
         # 设置随机的User-Agent
         user_agents = [
