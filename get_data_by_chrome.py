@@ -14,6 +14,7 @@ import random
 import requests
 import json
 import base64
+import datetime
 
 import selenium
 from selenium import webdriver
@@ -26,7 +27,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 
 
-FILENAME = "isz_free_court_infos.json"
+FILENAME = "isz_data_infos.json"
 
 
 def generate_proxies():
@@ -55,7 +56,7 @@ def generate_proxies():
 # 上传文件（相当于推送）
 def upload_file_to_github(input_data):
     token = os.environ['GIT_TOKEN']
-    repo = 'claude89757/free_https_proxies'
+    repo = 'claude89757/tennis_helper'
     url = f'https://api.github.com/repos/{repo}/contents/{FILENAME}'
 
     headers = {
@@ -210,12 +211,28 @@ def save_cookies_and_headers(cookies, headers):
         json.dump(headers, f)
 
 
+def print_with_timestamp(*args, **kwargs):
+    """
+    打印函数带上当前时间戳
+    """
+    timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
+    print(timestamp, *args, **kwargs)
+
+
 if __name__ == '__main__':
     """
     遍历查询多个网球场的信息，并缓存到github上
     """
+    # 每天0点-8点不巡检
+    now = datetime.datetime.now().time()
+    if datetime.time(0, 0) <= now < datetime.time(8, 0):
+        print_with_timestamp('Skipping task execution between 0am and 8am')
+        exit()
+    else:
+        print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
+
     start_time = time.time()
-    watcher = TwitterWatcher(headless=True)
+    watcher = TwitterWatcher(headless=False)
     watcher.setup_driver()
 
     # 先正常登录网站
@@ -233,7 +250,8 @@ if __name__ == '__main__':
         for cookie in cookies:
             watcher.driver.add_cookie(cookie)
         watcher.driver.get(url)  # 使用 cookies 重新加载页面
-
+        watcher.driver.refresh()
+        watcher.random_delay()
         print(f"使用缓存的 cookies 和 headers 访问页面。")
     else:
         watcher.driver.get(url)
@@ -301,76 +319,103 @@ if __name__ == '__main__':
                     # Get the page source
                     page_source = watcher.driver.page_source
 
-                    # Parse with BeautifulSoup
-                    soup = BeautifulSoup(page_source, 'html.parser')
+                    # 等待日期滑动条加载
+                    date_slider = WebDriverWait(watcher.driver, 10).\
+                        until(EC.presence_of_element_located((By.CLASS_NAME, 'slider-box-datetime')))
+                    # 获取所有日期元素
+                    date_elements = date_slider.find_elements(By.CLASS_NAME, 'new-datetime')
+                    # 遍历每个日期元素
+                    index = 0
+                    for date_element in date_elements:
+                        # 获取日期文本
+                        date_text = date_element.find_element(By.CLASS_NAME, 'datetime').text
+                        week_text = date_element.find_element(By.CLASS_NAME, 'week').text
+                        print(f"Processing date: {date_text}")
+                        print(f"Processing week: {week_text}")
 
-                    # Extract venue names from the header
-                    header_table = soup.find('table', class_='schedule-table__header')
-                    venue_names = []
-                    if header_table:
-                        header_row = header_table.find('thead').find('tr')
-                        header_cells = header_row.find_all('th')
-                        for cell in header_cells:
-                            venue_name = cell.get_text(strip=True)
-                            if venue_name:  # Exclude empty cells
-                                venue_names.append(venue_name)
+                        # 点击日期
+                        if index == 0:
+                            print("跳过点击今天的日期")
+                            pass
+                        else:
+                            date_element.click()
+                            watcher.random_delay()
+                            watcher.random_delay()
 
-                    # Initialize data structures
-                    venue_times = {venue: [] for venue in venue_names}
-                    # Function to handle rowspan and colspan
-                    def expand_cell(row_index, col_index, rowspan, colspan):
-                        for i in range(rowspan):
-                            for j in range(colspan):
-                                key = (row_index + i, col_index + j)
-                                occupied_cells.add(key)
+                        # 使用BeautifulSoup解析页面
+                        soup = BeautifulSoup(page_source, 'html.parser')
+
+                        # 提取场馆名称
+                        header_table = soup.find('table', class_='schedule-table__header')
+                        venue_names = []
+                        if header_table:
+                            header_row = header_table.find('thead').find('tr')
+                            header_cells = header_row.find_all('th')
+                            for cell in header_cells:
+                                venue_name = cell.get_text(strip=True)
+                                if venue_name:  # 排除空单元格
+                                    venue_names.append(venue_name)
+
+                        # 初始化数据结构
+                        venue_times = {venue: [] for venue in venue_names}
+
+                        # 处理rowspan和colspan的函数
+                        def expand_cell(row_index, col_index, rowspan, colspan):
+                            for i in range(rowspan):
+                                for j in range(colspan):
+                                    key = (row_index + i, col_index + j)
+                                    occupied_cells.add(key)
 
 
-                    # Regular expression to match time intervals
-                    time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
+                        # 正则表达式匹配时间间隔
+                        time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
 
-                    # Process the body table
-                    body_table = soup.find('table', class_='schedule-table__body')
-                    if body_table:
-                        body_rows = body_table.find_all('tr')
-                        num_cols = len(venue_names)
-                        # Keep track of occupied cells due to rowspan and colspan
-                        occupied_cells = set()
-                        for row_index, row in enumerate(body_rows):
-                            col_index = 0
-                            cells = row.find_all(['td', 'th'])
-                            for cell in cells:
-                                # Skip occupied cells
-                                while (row_index, col_index) in occupied_cells:
-                                    col_index += 1
-                                # Get rowspan and colspan
-                                rowspan = int(cell.get('rowspan', 1))
-                                colspan = int(cell.get('colspan', 1))
-                                # Get the venue corresponding to the current column
-                                if col_index < num_cols:
-                                    venue = venue_names[col_index]
-                                    # Extract time slot and status
-                                    cell_text = cell.get_text(strip=True)
-                                    # Use regex to extract time and status
-                                    if cell_text:
-                                        time_matches = time_pattern.findall(cell_text)
-                                        if time_matches:
-                                            time_slot = '-'.join(time_matches)
-                                            # Remove the time from the cell text to get the status
-                                            status = time_pattern.sub('', cell_text).strip()
-                                            # Append to the venue's list
-                                            venue_times[venue].append({
-                                                'time': time_slot,
-                                                'status': status
-                                            })
-                                # Mark cells as occupied due to rowspan and colspan
-                                expand_cell(row_index, col_index, rowspan, colspan)
-                                col_index += colspan  # Move to the next column
+                        # 处理body表格
+                        body_table = soup.find('table', class_='schedule-table__body')
+                        if body_table:
+                            body_rows = body_table.find_all('tr')
+                            num_cols = len(venue_names)
+                            # 记录因rowspan和colspan占用的单元格
+                            occupied_cells = set()
+                            for row_index, row in enumerate(body_rows):
+                                col_index = 0
+                                cells = row.find_all(['td', 'th'])
+                                for cell in cells:
+                                    # 跳过被占用的单元格
+                                    while (row_index, col_index) in occupied_cells:
+                                        col_index += 1
+                                    # 获取rowspan和colspan
+                                    rowspan = int(cell.get('rowspan', 1))
+                                    colspan = int(cell.get('colspan', 1))
+                                    # 获取当前列对应的场馆
+                                    if col_index < num_cols:
+                                        venue = venue_names[col_index]
+                                        # 提取时间段和状态
+                                        cell_text = cell.get_text(strip=True)
+                                        # 使用正则表达式提取时间和状态
+                                        if cell_text:
+                                            time_matches = time_pattern.findall(cell_text)
+                                            if time_matches:
+                                                time_slot = '-'.join(time_matches)
+                                                # 从单元格文本中移除时间以获取状态
+                                                status = time_pattern.sub('', cell_text).strip()
+                                                # 添加到场馆的列表中
+                                                venue_times[venue].append({
+                                                    'time': time_slot,
+                                                    'status': status
+                                                })
+                                    # 标记因rowspan和colspan占用的单元格
+                                    expand_cell(row_index, col_index, rowspan, colspan)
+                                    col_index += colspan  # 移动到下一个列
 
-                    # Output the data in JSON format
-                    json_output = json.dumps(venue_times, ensure_ascii=False, indent=4)
-                    print(json_output)
-
-                    output_data[place_name] = {"今天": json_output}
+                        # 将数据输出为JSON格式
+                        # json_output = json.dumps(venue_times, ensure_ascii=False, indent=4)
+                        if output_data.get(place_name):
+                            output_data[place_name][f"{date_text}({week_text})"] = venue_times
+                        else:
+                            output_data[place_name] = {f"{date_text}({week_text})": venue_times}
+                        print(output_data)
+                        index += 1
                 elif "验证" in str(watcher.driver.page_source):
                     print(f"[2] processing by slider...")
                     watcher.random_delay()
@@ -391,7 +436,6 @@ if __name__ == '__main__':
                     save_cookies_and_headers(cookies, headers)
                 else:
                     print("[3] ？？？？？")
-
             except Exception as error:
                 print(f"{place_name} failed: {str(error).splitlines()[0]}")
         upload_file_to_github(output_data)
