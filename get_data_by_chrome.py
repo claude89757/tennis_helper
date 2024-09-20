@@ -150,6 +150,8 @@ class TwitterWatcher:
 
         # Set up driver based on driver_mode
         if self.driver_mode == 'local':
+            driver_executable_path = '/usr/local/bin/chromedriver'  # 之前下载的 chromedriver 位置
+            browser_executable_path = '/usr/bin/google-chrome'  # Chrome 浏览器的位置
             # Existing local driver code
             selenium_version = selenium.__version__
             if selenium_version.startswith('3'):
@@ -157,6 +159,12 @@ class TwitterWatcher:
                 # self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
             else:
                 service = Service(self.driver_path)
+                self.driver = uc.Chrome(
+                    options=chrome_options,
+                    driver_executable_path=driver_executable_path,
+                    browser_executable_path=browser_executable_path,
+                    version_main=129,  # 例如 115
+                )
                 self.driver = uc.Chrome(service=service, options=chrome_options)
                 # self.driver = webdriver.Chrome(service=service, options=chrome_options)
         elif self.driver_mode == 'remote':
