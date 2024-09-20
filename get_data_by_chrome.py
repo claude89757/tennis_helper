@@ -133,8 +133,10 @@ class TwitterWatcher:
         # 初始化driver
         if self.driver_mode == 'local':
             if self.chromium_path:
-                self.driver = uc.Chrome(options=chrome_options, browser_executable_path=self.chromium_path,
-                                        version_main=126)
+                print("uc.Chrome...")
+                service = Service(self.driver_path)
+                self.driver = uc.Chrome(service=service, options=chrome_options,
+                                        browser_executable_path=self.chromium_path)
             else:
                 service = Service(self.driver_path)
                 self.driver = uc.Chrome(service=service, options=chrome_options)
