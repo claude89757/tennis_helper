@@ -104,20 +104,20 @@ class TwitterWatcher:
             chrome_options.add_argument("--headless=chrome")
             chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument("--disable-infobars")
+        # chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        # chrome_options.add_argument("--disable-infobars")
         # chrome_options.add_argument("--disable-dev-shm-usage")
         # chrome_options.add_argument("--disable-gpu")
         # chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument("--profile-directory=Default")
-        chrome_options.add_argument("--user-data-dir=/tmp/chrome_user_data")
+        # chrome_options.add_argument("--profile-directory=Default")
+        # chrome_options.add_argument("--user-data-dir=/tmp/chrome_user_data")
         # chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         # chrome_options.add_experimental_option('useAutomationExtension', False)
 
         # 设置随机的User-Agent
         user_agents = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ...",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 ...",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/117.0.5938.62 Safari/537.36",
             # 添加更多的User-Agent
         ]
         random_user_agent = random.choice(user_agents)
@@ -147,15 +147,15 @@ class TwitterWatcher:
         else:
             raise ValueError(f"Invalid driver mode: {self.driver_mode}")
 
-        # 执行CDP命令，修改浏览器属性
-        print("execute_cdp_cmd...")
-        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-            "source": """
-            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5], });
-            Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh', 'en'], });
-            """
-        })
+        # # 执行CDP命令，修改浏览器属性
+        # print("execute_cdp_cmd...")
+        # self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+        #     "source": """
+        #     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        #     Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5], });
+        #     Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh', 'en'], });
+        #     """
+        # })
 
         # 使用selenium-stealth
         print("stealth...")
