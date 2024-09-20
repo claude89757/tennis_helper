@@ -150,8 +150,6 @@ class TwitterWatcher:
 
         # Set up driver based on driver_mode
         if self.driver_mode == 'local':
-            driver_executable_path = '/usr/local/bin/chromedriver'  # 之前下载的 chromedriver 位置
-            browser_executable_path = '/usr/bin/google-chrome'  # Chrome 浏览器的位置
             # Existing local driver code
             selenium_version = selenium.__version__
             if selenium_version.startswith('3'):
@@ -159,13 +157,7 @@ class TwitterWatcher:
                 # self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
             else:
                 service = Service(self.driver_path)
-                self.driver = uc.Chrome(
-                    options=chrome_options,
-                    driver_executable_path=driver_executable_path,
-                    browser_executable_path=browser_executable_path,
-                    version_main=129,  # 例如 115
-                )
-                # self.driver = uc.Chrome(service=service, options=chrome_options)
+                self.driver = uc.Chrome(service=service, options=chrome_options)
                 # self.driver = webdriver.Chrome(service=service, options=chrome_options)
         elif self.driver_mode == 'remote':
             # Use Remote WebDriver to connect to selenium/standalone-chrome
@@ -285,240 +277,247 @@ if __name__ == '__main__':
     """
     遍历查询多个网球场的信息，并缓存到github上
     """
-    parser = argparse.ArgumentParser(description='Script to fetch data.')
-    parser.add_argument('--driver-mode', choices=['local', 'remote'], default='local',
-                        help='Driver mode: local or remote (default: local)')
-    args = parser.parse_args()
-    driver_mode = args.driver_mode
+    while True:
+        try:
+            parser = argparse.ArgumentParser(description='Script to fetch data.')
+            parser.add_argument('--driver-mode', choices=['local', 'remote'], default='local',
+                                help='Driver mode: local or remote (default: local)')
+            args = parser.parse_args()
+            driver_mode = args.driver_mode
 
-    # Skip execution between midnight and 8 AM
-    now = datetime.datetime.now().time()
-    if datetime.time(0, 0) <= now < datetime.time(8, 0):
-        print_with_timestamp('Skipping task execution between 0am and 8am')
-        exit()
-    else:
-        print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
+            # Skip execution between midnight and 8 AM
+            now = datetime.datetime.now().time()
+            if datetime.time(0, 0) <= now < datetime.time(8, 0):
+                print_with_timestamp('Skipping task execution between 0am and 8am')
+                exit()
+            else:
+                print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
-    start_time = time.time()
-    print("setting driver...")
-    watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
-    watcher.setup_driver()
-    print("end driver...")
+            start_time = time.time()
+            print("setting driver...")
+            watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
+            watcher.setup_driver()
+            print("end driver...")
 
-    # 先正常登录网站
-    url = "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000"
+            # 先正常登录网站
+            url = "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000"
 
-    # 随机延迟模拟人类行为
-    watcher.random_delay()
-    watcher.random_delay()
-    watcher.wait_for_element(By.TAG_NAME, "body", timeout=10)
-    # 加载缓存的 cookies 和 headers
-    cookies, headers = load_cookies_and_headers()
-    if cookies and headers:
-        watcher.driver.get(url)
-        # 应用 cookies
-        for cookie in cookies:
-            watcher.driver.add_cookie(cookie)
-        watcher.driver.get(url)  # 使用 cookies 重新加载页面
-        watcher.driver.refresh()
-        watcher.random_delay()
-        print(f"使用缓存的 cookies 和 headers 访问页面。")
-    else:
-        watcher.driver.get(url)
-        print(f"没有找到缓存，直接访问页面。")
+            # 随机延迟模拟人类行为
+            watcher.random_delay()
+            watcher.random_delay()
+            watcher.wait_for_element(By.TAG_NAME, "body", timeout=10)
+            # 加载缓存的 cookies 和 headers
+            cookies, headers = load_cookies_and_headers()
+            if cookies and headers:
+                watcher.driver.get(url)
+                # 应用 cookies
+                for cookie in cookies:
+                    watcher.driver.add_cookie(cookie)
+                watcher.driver.get(url)  # 使用 cookies 重新加载页面
+                watcher.driver.refresh()
+                watcher.random_delay()
+                print(f"使用缓存的 cookies 和 headers 访问页面。")
+            else:
+                watcher.driver.get(url)
+                print(f"没有找到缓存，直接访问页面。")
 
-    # 随机延迟模拟人类行为
-    watcher.random_delay()
-    watcher.random_delay()
+            # 随机延迟模拟人类行为
+            watcher.random_delay()
+            watcher.random_delay()
 
-    # 等待页面加载完成
-    watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
-    if "网球" in str(watcher.driver.page_source):
-        print(f"[1] processing directly...")
-        current_url = watcher.driver.current_url
-        print(f"Current URL: {current_url}")
-    elif "验证" in str(watcher.driver.page_source):
-        print(f"[2] processing by slider...")
-        watcher.random_delay()
-        watcher.solve_slider_captcha()
-        WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-        # 获取当前的 URL 和新的 cookies、headers
-        current_url = watcher.driver.current_url
-        print(f"Current URL: {current_url}")
-        cookies = watcher.driver.get_cookies()
-        headers = {
-            'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
-        }
-        print(f"cookies: {cookies}")
-        print(f"headers: {headers}")
-        # 重新缓存 cookies 和 headers
-        save_cookies_and_headers(cookies, headers)
-        # 应用 cookies
-        for cookie in cookies:
-            watcher.driver.add_cookie(cookie)
-        watcher.driver.get(url)  # 使用 cookies 重新加载页面
-    else:
-        current_url = watcher.driver.current_url
-        print(f"Current URL: {current_url}")
-        # 保存当前屏幕截图
-        screenshot_path = 'screenshot.png'
-        watcher.driver.save_screenshot(screenshot_path)
-        raise Exception(f"未知错误?")
-    print(f"=====Success=====")
+            # 等待页面加载完成
+            watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
+            if "网球" in str(watcher.driver.page_source):
+                print(f"[1] processing directly...")
+                current_url = watcher.driver.current_url
+                print(f"Current URL: {current_url}")
+            elif "验证" in str(watcher.driver.page_source):
+                print(f"[2] processing by slider...")
+                watcher.random_delay()
+                watcher.solve_slider_captcha()
+                WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                # 获取当前的 URL 和新的 cookies、headers
+                current_url = watcher.driver.current_url
+                print(f"Current URL: {current_url}")
+                cookies = watcher.driver.get_cookies()
+                headers = {
+                    'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
+                }
+                print(f"cookies: {cookies}")
+                print(f"headers: {headers}")
+                # 重新缓存 cookies 和 headers
+                save_cookies_and_headers(cookies, headers)
+                # 应用 cookies
+                for cookie in cookies:
+                    watcher.driver.add_cookie(cookie)
+                watcher.driver.get(url)  # 使用 cookies 重新加载页面
+            else:
+                current_url = watcher.driver.current_url
+                print(f"Current URL: {current_url}")
+                # 保存当前屏幕截图
+                screenshot_path = 'screenshot.png'
+                watcher.driver.save_screenshot(screenshot_path)
+                raise Exception(f"未知错误?")
+            print(f"=====Success=====")
 
-    url_infos = {
-        "香蜜体育": "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341",
-        "莲花体育": "https://wxsports.ydmap.cn/booking/schedule/101335?salesItemId=100347",
-        "大沙河": "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000",
-        "黄木岗": "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344",
-        "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
-    }
-    try:
-        output_data = {}
-        for place_name, url in url_infos.items():
-            print(f"Checking {place_name} {url}")
+            url_infos = {
+                "香蜜体育": "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341",
+                "莲花体育": "https://wxsports.ydmap.cn/booking/schedule/101335?salesItemId=100347",
+                "大沙河": "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000",
+                "黄木岗": "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344",
+                "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
+            }
             try:
-                watcher.driver.get(url)  # 重新加载页面
+                output_data = {}
+                for place_name, url in url_infos.items():
+                    print(f"Checking {place_name} {url}")
+                    try:
+                        watcher.driver.get(url)  # 重新加载页面
 
-                # 随机延迟模拟人类行为
-                watcher.random_delay()
-                watcher.random_delay()
-                watcher.random_delay()
+                        # 随机延迟模拟人类行为
+                        watcher.random_delay()
+                        watcher.random_delay()
+                        watcher.random_delay()
 
-                # 等待页面加载完成
-                watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
-                print(f"Current URL: {watcher.driver.current_url}")
+                        # 等待页面加载完成
+                        watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
+                        print(f"Current URL: {watcher.driver.current_url}")
 
-                if "网球" in str(watcher.driver.page_source):
-                    print(f"[1] processing directly...")
-                    current_url = watcher.driver.current_url
-                    print(f"Current URL: {current_url}")
-                    # Get the page source
-                    page_source = watcher.driver.page_source
+                        if "网球" in str(watcher.driver.page_source):
+                            print(f"[1] processing directly...")
+                            current_url = watcher.driver.current_url
+                            print(f"Current URL: {current_url}")
+                            # Get the page source
+                            page_source = watcher.driver.page_source
 
-                    # 等待日期滑动条加载
-                    date_slider = WebDriverWait(watcher.driver, 10).\
-                        until(EC.presence_of_element_located((By.CLASS_NAME, 'slider-box-datetime')))
-                    # 获取所有日期元素
-                    date_elements = date_slider.find_elements(By.CLASS_NAME, 'new-datetime')
-                    # 遍历每个日期元素
-                    index = 0
-                    for date_element in date_elements:
-                        # 获取日期文本
-                        date_text = date_element.find_element(By.CLASS_NAME, 'datetime').text
-                        week_text = date_element.find_element(By.CLASS_NAME, 'week').text
-                        print(f"Processing date: {date_text}")
-                        print(f"Processing week: {week_text}")
+                            # 等待日期滑动条加载
+                            date_slider = WebDriverWait(watcher.driver, 10).\
+                                until(EC.presence_of_element_located((By.CLASS_NAME, 'slider-box-datetime')))
+                            # 获取所有日期元素
+                            date_elements = date_slider.find_elements(By.CLASS_NAME, 'new-datetime')
+                            # 遍历每个日期元素
+                            index = 0
+                            for date_element in date_elements:
+                                # 获取日期文本
+                                date_text = date_element.find_element(By.CLASS_NAME, 'datetime').text
+                                week_text = date_element.find_element(By.CLASS_NAME, 'week').text
+                                print(f"Processing date: {date_text}")
+                                print(f"Processing week: {week_text}")
 
-                        # 点击日期
-                        if index == 0:
-                            print("跳过点击今天的日期")
-                            pass
-                        else:
-                            date_element.click()
+                                # 点击日期
+                                if index == 0:
+                                    print("跳过点击今天的日期")
+                                    pass
+                                else:
+                                    date_element.click()
+                                    watcher.random_delay()
+                                    watcher.random_delay()
+
+                                # 使用BeautifulSoup解析页面
+                                soup = BeautifulSoup(page_source, 'html.parser')
+
+                                # 提取场馆名称
+                                header_table = soup.find('table', class_='schedule-table__header')
+                                venue_names = []
+                                if header_table:
+                                    header_row = header_table.find('thead').find('tr')
+                                    header_cells = header_row.find_all('th')
+                                    for cell in header_cells:
+                                        venue_name = cell.get_text(strip=True)
+                                        if venue_name:  # 排除空单元格
+                                            venue_names.append(venue_name)
+
+                                # 初始化数据结构
+                                venue_times = {venue: [] for venue in venue_names}
+
+                                # 处理rowspan和colspan的函数
+                                def expand_cell(row_index, col_index, rowspan, colspan):
+                                    for i in range(rowspan):
+                                        for j in range(colspan):
+                                            key = (row_index + i, col_index + j)
+                                            occupied_cells.add(key)
+
+
+                                # 正则表达式匹配时间间隔
+                                time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
+
+                                # 处理body表格
+                                body_table = soup.find('table', class_='schedule-table__body')
+                                if body_table:
+                                    body_rows = body_table.find_all('tr')
+                                    num_cols = len(venue_names)
+                                    # 记录因rowspan和colspan占用的单元格
+                                    occupied_cells = set()
+                                    for row_index, row in enumerate(body_rows):
+                                        col_index = 0
+                                        cells = row.find_all(['td', 'th'])
+                                        for cell in cells:
+                                            # 跳过被占用的单元格
+                                            while (row_index, col_index) in occupied_cells:
+                                                col_index += 1
+                                            # 获取rowspan和colspan
+                                            rowspan = int(cell.get('rowspan', 1))
+                                            colspan = int(cell.get('colspan', 1))
+                                            # 获取当前列对应的场馆
+                                            if col_index < num_cols:
+                                                venue = venue_names[col_index]
+                                                # 提取时间段和状态
+                                                cell_text = cell.get_text(strip=True)
+                                                # 使用正则表达式提取时间和状态
+                                                if cell_text:
+                                                    time_matches = time_pattern.findall(cell_text)
+                                                    if time_matches:
+                                                        time_slot = '-'.join(time_matches)
+                                                        # 从单元格文本中移除时间以获取状态
+                                                        status = time_pattern.sub('', cell_text).strip()
+                                                        # 添加到场馆的列表中
+                                                        venue_times[venue].append({
+                                                            'time': time_slot,
+                                                            'status': status
+                                                        })
+                                            # 标记因rowspan和colspan占用的单元格
+                                            expand_cell(row_index, col_index, rowspan, colspan)
+                                            col_index += colspan  # 移动到下一个列
+
+                                # 将数据输出为JSON格式
+                                # json_output = json.dumps(venue_times, ensure_ascii=False, indent=4)
+                                if output_data.get(place_name):
+                                    output_data[place_name][f"{date_text}({week_text})"] = venue_times
+                                else:
+                                    output_data[place_name] = {f"{date_text}({week_text})": venue_times}
+                                print(output_data)
+                                index += 1
+                        elif "验证" in str(watcher.driver.page_source):
+                            print(f"[2] processing by slider...")
                             watcher.random_delay()
-                            watcher.random_delay()
+                            watcher.solve_slider_captcha()
+                            WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-                        # 使用BeautifulSoup解析页面
-                        soup = BeautifulSoup(page_source, 'html.parser')
+                            # 获取当前的 URL 和新的 cookies、headers
+                            current_url = watcher.driver.current_url
+                            print(f"Current URL: {current_url}")
+                            cookies = watcher.driver.get_cookies()
+                            headers = {
+                                'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
+                            }
+                            print(f"cookies: {cookies}")
+                            print(f"headers: {headers}")
 
-                        # 提取场馆名称
-                        header_table = soup.find('table', class_='schedule-table__header')
-                        venue_names = []
-                        if header_table:
-                            header_row = header_table.find('thead').find('tr')
-                            header_cells = header_row.find_all('th')
-                            for cell in header_cells:
-                                venue_name = cell.get_text(strip=True)
-                                if venue_name:  # 排除空单元格
-                                    venue_names.append(venue_name)
-
-                        # 初始化数据结构
-                        venue_times = {venue: [] for venue in venue_names}
-
-                        # 处理rowspan和colspan的函数
-                        def expand_cell(row_index, col_index, rowspan, colspan):
-                            for i in range(rowspan):
-                                for j in range(colspan):
-                                    key = (row_index + i, col_index + j)
-                                    occupied_cells.add(key)
-
-
-                        # 正则表达式匹配时间间隔
-                        time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
-
-                        # 处理body表格
-                        body_table = soup.find('table', class_='schedule-table__body')
-                        if body_table:
-                            body_rows = body_table.find_all('tr')
-                            num_cols = len(venue_names)
-                            # 记录因rowspan和colspan占用的单元格
-                            occupied_cells = set()
-                            for row_index, row in enumerate(body_rows):
-                                col_index = 0
-                                cells = row.find_all(['td', 'th'])
-                                for cell in cells:
-                                    # 跳过被占用的单元格
-                                    while (row_index, col_index) in occupied_cells:
-                                        col_index += 1
-                                    # 获取rowspan和colspan
-                                    rowspan = int(cell.get('rowspan', 1))
-                                    colspan = int(cell.get('colspan', 1))
-                                    # 获取当前列对应的场馆
-                                    if col_index < num_cols:
-                                        venue = venue_names[col_index]
-                                        # 提取时间段和状态
-                                        cell_text = cell.get_text(strip=True)
-                                        # 使用正则表达式提取时间和状态
-                                        if cell_text:
-                                            time_matches = time_pattern.findall(cell_text)
-                                            if time_matches:
-                                                time_slot = '-'.join(time_matches)
-                                                # 从单元格文本中移除时间以获取状态
-                                                status = time_pattern.sub('', cell_text).strip()
-                                                # 添加到场馆的列表中
-                                                venue_times[venue].append({
-                                                    'time': time_slot,
-                                                    'status': status
-                                                })
-                                    # 标记因rowspan和colspan占用的单元格
-                                    expand_cell(row_index, col_index, rowspan, colspan)
-                                    col_index += colspan  # 移动到下一个列
-
-                        # 将数据输出为JSON格式
-                        # json_output = json.dumps(venue_times, ensure_ascii=False, indent=4)
-                        if output_data.get(place_name):
-                            output_data[place_name][f"{date_text}({week_text})"] = venue_times
+                            # 重新缓存 cookies 和 headers
+                            save_cookies_and_headers(cookies, headers)
                         else:
-                            output_data[place_name] = {f"{date_text}({week_text})": venue_times}
-                        print(output_data)
-                        index += 1
-                elif "验证" in str(watcher.driver.page_source):
-                    print(f"[2] processing by slider...")
-                    watcher.random_delay()
-                    watcher.solve_slider_captcha()
-                    WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                            print("[3] ？？？？？")
+                    except Exception as error:
+                        print(f"{place_name} failed: {str(error).splitlines()[0]}")
+                upload_file_to_github(output_data)
+            finally:
+                watcher.teardown_driver()
 
-                    # 获取当前的 URL 和新的 cookies、headers
-                    current_url = watcher.driver.current_url
-                    print(f"Current URL: {current_url}")
-                    cookies = watcher.driver.get_cookies()
-                    headers = {
-                        'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
-                    }
-                    print(f"cookies: {cookies}")
-                    print(f"headers: {headers}")
-
-                    # 重新缓存 cookies 和 headers
-                    save_cookies_and_headers(cookies, headers)
-                else:
-                    print("[3] ？？？？？")
-            except Exception as error:
-                print(f"{place_name} failed: {str(error).splitlines()[0]}")
-        upload_file_to_github(output_data)
-    finally:
-        watcher.teardown_driver()
-
-    # 记录耗时
-    cost_time = time.time() - start_time
-    print(f"Total cost time：{cost_time} s")
+            # 记录耗时
+            cost_time = time.time() - start_time
+            print(f"Total cost time：{cost_time} s")
+        except Exception as error:
+            print(error)
+            pass
+        print("sleeping...")
+        time.sleep(900)
