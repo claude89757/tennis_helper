@@ -136,7 +136,7 @@ class TwitterWatcher:
                 # service = Service("/usr/local/bin/chromedriver")
                 self.driver = uc.Chrome(options=chrome_options,
                                         browser_executable_path=self.chromium_path,
-                                        driver_executable_path='/path/to/chromedriver',
+                                        driver_executable_path='/usr/local/bin/chromedriver',
                                         version_main=126, log_level=0)
             else:
                 service = Service("/usr/local/bin/chromedriver")
