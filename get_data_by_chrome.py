@@ -289,7 +289,9 @@ if __name__ == '__main__':
     else:
         current_url = watcher.driver.current_url
         print(f"Current URL: {current_url}")
-        print(watcher.driver.page_source)
+        # 保存当前屏幕截图
+        screenshot_path = 'screenshot.png'
+        watcher.driver.save_screenshot(screenshot_path)
         raise Exception(f"未知错误?")
     print(f"=====Success=====")
 
