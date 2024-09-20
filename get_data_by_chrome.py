@@ -101,44 +101,44 @@ class TwitterWatcher:
     def setup_driver(self, proxy=None):
         # chrome_options = Options()
         if self.driver_mode == 'local':
-            chrome_options = Options()
+            chrome_options = uc.ChromeOptions()
         else:
             chrome_options = uc.ChromeOptions()
         chrome_options.add_argument("--lang=cn")
         if self.headless:
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--disable-gpu")
+            chrome_options.add_argument("--headless=new")
+            # chrome_options.add_argument("--disable-gpu")
             chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        # chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 
         # Define multiple User-Agent strings
         user_agents = [
             # Windows 10 Chrome
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/114.0.5735.199 Safari/537.36",
-            # Windows 10 Edge
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/103.0.0.0 Safari/537.36 Edg/103.0.1264.62",
-            # Windows 7 Chrome
-            "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/90.0.4430.212 Safari/537.36",
-            # Windows 10 Firefox
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0",
-            # macOS Chrome
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/114.0.0.0 Safari/537.36",
-            # macOS Safari
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_4_0) AppleWebKit/605.1.15 (KHTML, like Gecko) "
-            "Version/14.1.1 Safari/605.1.15",
-            # macOS Firefox
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7; rv:90.0) Gecko/20100101 Firefox/90.0",
-            # iPhone Safari
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
-            "Version/15.0 Mobile/15E148 Safari/604.1",
-            # iPad Safari
-            "Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
-            "Version/15.0 Mobile/15E148 Safari/604.1",
+            # "Chrome/114.0.5735.199 Safari/537.36",
+            # # Windows 10 Edge
+            # "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+            # "Chrome/103.0.0.0 Safari/537.36 Edg/103.0.1264.62",
+            # # Windows 7 Chrome
+            # "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+            # "Chrome/90.0.4430.212 Safari/537.36",
+            # # Windows 10 Firefox
+            # "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0",
+            # # macOS Chrome
+            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
+            # "Chrome/114.0.0.0 Safari/537.36",
+            # # macOS Safari
+            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_4_0) AppleWebKit/605.1.15 (KHTML, like Gecko) "
+            # "Version/14.1.1 Safari/605.1.15",
+            # # macOS Firefox
+            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7; rv:90.0) Gecko/20100101 Firefox/90.0",
+            # # iPhone Safari
+            # "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
+            # "Version/15.0 Mobile/15E148 Safari/604.1",
+            # # iPad Safari
+            # "Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
+            # "Version/15.0 Mobile/15E148 Safari/604.1",
         ]
 
         # Randomly select a User-Agent
@@ -153,10 +153,12 @@ class TwitterWatcher:
             # Existing local driver code
             selenium_version = selenium.__version__
             if selenium_version.startswith('3'):
-                self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
+                self.driver = uc.Chrome(executable_path=self.driver_path, options=chrome_options)
+                # self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
             else:
                 service = Service(self.driver_path)
-                self.driver = webdriver.Chrome(service=service, options=chrome_options)
+                self.driver = uc.Chrome(service=service, options=chrome_options)
+                # self.driver = webdriver.Chrome(service=service, options=chrome_options)
         elif self.driver_mode == 'remote':
             # Use Remote WebDriver to connect to selenium/standalone-chrome
             # selenium_grid_url = 'http://localhost:4444/wd/hub'
@@ -165,6 +167,32 @@ class TwitterWatcher:
             self.driver = uc.Chrome(options=chrome_options, command_executor=selenium_grid_url)
         else:
             raise ValueError(f"Invalid driver mode: {self.driver_mode}")
+
+        # 在页面加载之前执行 JavaScript，修改 navigator 对象的属性
+        self.driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+            "source": '''
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => undefined
+            });
+            Object.defineProperty(navigator, 'languages', {
+                get: () => ['zh-CN', 'zh', 'en']
+            });
+            Object.defineProperty(navigator, 'plugins', {
+                get: () => [1, 2, 3, 4, 5],
+            });
+            '''
+        })
+
+        # 使用 selenium-stealth
+        from selenium_stealth import stealth
+        stealth(self.driver,
+                languages=["zh-CN", "zh", "en"],
+                vendor="Google Inc.",
+                platform="Win32",
+                webgl_vendor="Intel Inc.",
+                renderer="Intel Iris OpenGL Engine",
+                fix_hairline=True,
+                )
 
     def teardown_driver(self):
         if self.driver:
@@ -290,7 +318,8 @@ if __name__ == '__main__':
         print(f"没有找到缓存，直接访问页面。")
 
     # 随机延迟模拟人类行为
-    time.sleep(10)
+    watcher.random_delay()
+    watcher.random_delay()
 
     # 等待页面加载完成
     watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
