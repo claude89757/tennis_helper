@@ -95,64 +95,65 @@ class TwitterWatcher:
         self.chromium_path = chromium_path  # Chromium 浏览器的路径
 
     def setup_driver(self, proxy=None):
-        if self.driver_mode == 'local':
-            chrome_options = uc.ChromeOptions()
+        """
+        初始化浏览器
+        """
+        chrome_options = uc.ChromeOptions()
+        if not self.headless:
+            chrome_options.add_argument("--start-maximized")
         else:
-            chrome_options = uc.ChromeOptions()
-        chrome_options.add_argument("--lang=cn")
-        if self.headless:
-            chrome_options.add_argument("--headless=new")
+            chrome_options.add_argument("--headless=chrome")
             chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument("--disable-infobars")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--profile-directory=Default")
+        chrome_options.add_argument("--user-data-dir=/tmp/chrome_user_data")
+        # chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        # chrome_options.add_experimental_option('useAutomationExtension', False)
 
-        # 设置 Chromium 可执行文件路径
-        if self.chromium_path:
-            chrome_options.binary_location = self.chromium_path
-
-        # 定义 User-Agent
+        # 设置随机的User-Agent
         user_agents = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ...",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 ...",
+            # 添加更多的User-Agent
         ]
-
-        # 随机选择一个 User-Agent
         random_user_agent = random.choice(user_agents)
         chrome_options.add_argument(f"user-agent={random_user_agent}")
+
+        # 设置语言
+        chrome_options.add_argument("--lang=zh-CN,zh,en")
 
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
 
-        # 设置驱动
+        # 初始化driver
         if self.driver_mode == 'local':
-            # 获取 Chromium 驱动的版本
-            selenium_version = selenium.__version__
-            if selenium_version.startswith('3'):
-                self.driver = uc.Chrome(executable_path=self.driver_path, options=chrome_options)
+            if self.chromium_path:
+                self.driver = uc.Chrome(options=chrome_options, browser_executable_path=self.chromium_path,
+                                        version_main=126)
             else:
                 service = Service(self.driver_path)
                 self.driver = uc.Chrome(service=service, options=chrome_options)
         elif self.driver_mode == 'remote':
-            # 使用远程 WebDriver
             selenium_grid_url = 'http://localhost:4444/wd/hub'
-            self.driver = uc.Chrome(options=chrome_options, command_executor=selenium_grid_url)
+            self.driver = webdriver.Remote(command_executor=selenium_grid_url, options=chrome_options)
         else:
             raise ValueError(f"Invalid driver mode: {self.driver_mode}")
 
-        # 在页面加载之前执行 JavaScript，修改 navigator 对象的属性
-        self.driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
-            "source": '''
-            Object.defineProperty(navigator, 'webdriver', {
-                get: () => undefined
-            });
-            Object.defineProperty(navigator, 'languages', {
-                get: () => ['zh-CN', 'zh', 'en']
-            });
-            Object.defineProperty(navigator, 'plugins', {
-                get: () => [1, 2, 3, 4, 5],
-            });
-            '''
+        # 执行CDP命令，修改浏览器属性
+        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+            "source": """
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5], });
+            Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh', 'en'], });
+            """
         })
 
-        # 使用 selenium-stealth
+        # 使用selenium-stealth
         from selenium_stealth import stealth
         stealth(self.driver,
                 languages=["zh-CN", "zh", "en"],
@@ -161,7 +162,11 @@ class TwitterWatcher:
                 webgl_vendor="Intel Inc.",
                 renderer="Intel Iris OpenGL Engine",
                 fix_hairline=True,
+                run_on_insecure_origins=False,
                 )
+
+        # 随机等待，模拟人类行为
+        self.random_delay(min_delay=2, max_delay=5)
 
     def teardown_driver(self):
         if self.driver:
