@@ -107,27 +107,109 @@ class TwitterWatcher:
         if not self.headless:
             chrome_options.add_argument("--start-maximized")
         else:
-            chrome_options.add_argument("--headless=chrome")
+            chrome_options.headless = True
             chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument("--disable-infobars")
-        chrome_options.add_argument("--disable-dev-shm-usage")
+
+        # 添加忽略 SSL 错误的参数
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--allow-insecure-localhost')
+        chrome_options.add_argument('--ignore-ssl-errors')
+
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument("--disable-automation")  # 隐藏自动化特征
-        chrome_options.add_argument("--disable-browser-side-navigation")
-        chrome_options.add_argument("--incognito")
-        chrome_options.add_argument('--disable-plugins-discovery')
-        chrome_options.add_argument("--profile-directory=Default")
-        chrome_options.add_argument("--user-data-dir=/tmp/chrome_user_data")
-        chrome_options.add_argument("--lang=zh-CN,zh,en")
+        chrome_options.add_argument('--disable-quic')
+        chrome_options.add_argument('--disable-features=IsolateOrigins,site-per-process')
+
+        # chrome_options.add_argument("--disable-infobars")
+        # chrome_options.add_argument("--disable-dev-shm-usage")
+        # chrome_options.add_argument("--disable-gpu")
+        # chrome_options.add_argument("--disable-extensions")
+        # chrome_options.add_argument("--disable-automation")  # 隐藏自动化特征
+        # chrome_options.add_argument("--disable-browser-side-navigation")
+        # chrome_options.add_argument("--incognito")
+        # chrome_options.add_argument('--disable-plugins-discovery')
+        # chrome_options.add_argument("--profile-directory=Default")
+        # chrome_options.add_argument("--user-data-dir=/tmp/chrome_user_data")
+        # chrome_options.add_argument("--lang=zh-CN,zh,en")
 
         # 设置随机的User-Agent
         user_agents = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/117.0.5938.62 Safari/537.36",
-            # 添加更多的User-Agent
+            # 电脑端 User-Agent
+            # Windows 10 - Chrome
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+            " Chrome/117.0.5938.62 Safari/537.36",
+
+            # # Windows 10 - Firefox
+            # "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:117.0) Gecko/20100101 Firefox/117.0",
+            #
+            # # Windows 10 - Edge
+            # "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+            # " Chrome/117.0.5938.62 Safari/537.36 Edg/117.0.2045.31",
+            #
+            # # macOS - Safari
+            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+            # " Version/16.5 Safari/605.1.15",
+            #
+            # # macOS - Chrome
+            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/537.36 (KHTML, like Gecko)"
+            # " Chrome/117.0.5938.62 Safari/537.36",
+            #
+            # # macOS - Firefox
+            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5; rv:117.0) Gecko/20100101 Firefox/117.0",
+            #
+            # # 手机端 User-Agent
+            # # iPhone - Safari
+            # "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15"
+            # " (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            #
+            # # iPad - Safari
+            # "Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15"
+            # " (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            #
+            # # iPhone - Chrome
+            # "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15"
+            # " (KHTML, like Gecko) CriOS/117.0.5938.62 Mobile/15E148 Safari/604.1",
+            #
+            # # Android - Chrome
+            # "Mozilla/5.0 (Linux; Android 13; Pixel 7 Pro) AppleWebKit/537.36 (KHTML, like Gecko)"
+            # " Chrome/117.0.5938.62 Mobile Safari/537.36",
+            #
+            # # Android - Firefox
+            # "Mozilla/5.0 (Android 13; Mobile; rv:117.0) Gecko/117.0 Firefox/117.0",
+            #
+            # # Android - Samsung Internet
+            # "Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko)"
+            # " SamsungBrowser/21.0 Chrome/117.0.5938.62 Mobile Safari/537.36",
+            #
+            # # 移动端微信内置浏览器
+            # "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15"
+            # " (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.38(0x18002630) NetType/WIFI"
+            # " Language/zh_CN",
+            #
+            # # 移动端 QQ 浏览器
+            # "Mozilla/5.0 (Linux; U; Android 13; zh-cn; Pixel 7 Build/TP1A.220624.014)"
+            # " AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Mobile Safari/537.36"
+            # " MQQBrowser/11.9 Mobile",
+            #
+            # # 更多移动设备
+            # # Huawei
+            # "Mozilla/5.0 (Linux; Android 13; HUAWEI P50) AppleWebKit/537.36 (KHTML, like Gecko)"
+            # " Chrome/117.0.5938.62 Mobile Safari/537.36",
+            #
+            # # Xiaomi
+            # "Mozilla/5.0 (Linux; Android 13; Mi 13 Pro) AppleWebKit/537.36 (KHTML, like Gecko)"
+            # " Chrome/117.0.5938.62 Mobile Safari/537.36",
+            #
+            # # Oppo
+            # "Mozilla/5.0 (Linux; Android 13; OPPO Find X5 Pro) AppleWebKit/537.36 (KHTML, like Gecko)"
+            # " Chrome/117.0.5938.62 Mobile Safari/537.36",
+            #
+            # # Vivo
+            # "Mozilla/5.0 (Linux; Android 13; vivo X80 Pro) AppleWebKit/537.36 (KHTML, like Gecko)"
+            # " Chrome/117.0.5938.62 Mobile Safari/537.36",
         ]
         random_user_agent = random.choice(user_agents)
         chrome_options.add_argument(f"user-agent={random_user_agent}")
@@ -148,18 +230,18 @@ class TwitterWatcher:
         else:
             raise ValueError(f"Invalid driver mode: {self.driver_mode}")
 
-        # 执行CDP命令，修改浏览器属性
-        print("execute_cdp_cmd...")
-        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-            "source": """
-            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5], });
-            Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh', 'en'], });
-            """
-        })
+        # Execute CDP commands to modify browser properties
+        # print("execute_cdp_cmd...")
+        # self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+        #     "source": """
+        #     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        #     Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5], });
+        #     Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh', 'en'], });
+        #     """
+        # })
 
-        # 使用selenium-stealth
-        print("stealth...")
+        # Apply selenium-stealth to mask automation flags
+        print("Applying selenium-stealth...")
         from selenium_stealth import stealth
         stealth(
             self.driver,
@@ -173,7 +255,7 @@ class TwitterWatcher:
             disable_blur=True
         )
 
-        # 随机等待，模拟人类行为
+        # Random delay to simulate human behavior
         self.random_delay(min_delay=2, max_delay=5)
 
         # 测试js功能
@@ -284,6 +366,7 @@ if __name__ == '__main__':
     # 先正常登录网站
     url = "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000"
     try:
+        watcher.driver.get(url)
         # 随机延迟模拟人类行为
         watcher.random_delay(min_delay=1, max_delay=5)
 
@@ -317,21 +400,32 @@ if __name__ == '__main__':
             watcher.random_delay()
             watcher.solve_slider_captcha()
             WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-            # 获取当前的 URL 和新的 cookies、headers
-            current_url = watcher.driver.current_url
-            print(f"Current URL: {current_url}")
-            cookies = watcher.driver.get_cookies()
-            headers = {
-                'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
-            }
-            print(f"cookies: {cookies}")
-            print(f"headers: {headers}")
-            # 重新缓存 cookies 和 headers
-            save_cookies_and_headers(cookies, headers)
-            # 应用 cookies
-            for cookie in cookies:
-                watcher.driver.add_cookie(cookie)
-            watcher.driver.get(url)  # 使用 cookies 重新加载页面
+            watcher.random_delay(min_delay=3, max_delay=10)
+            if "网球" in str(watcher.driver.page_source):
+                cookies = watcher.driver.get_cookies()
+                headers = {
+                    'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
+                }
+                print(f"cookies: {cookies}")
+                print(f"headers: {headers}")
+                # 重新缓存 cookies 和 headers
+                save_cookies_and_headers(cookies, headers)
+                # 应用 cookies
+                for cookie in cookies:
+                    watcher.driver.add_cookie(cookie)
+                watcher.driver.get(url)  # 使用 cookies 重新加载页面
+            else:
+                print(f"Failed to solve slider captcha")
+                # 保存当前屏幕截图
+                screenshot_path = 'screenshot.png'
+                watcher.driver.save_screenshot(screenshot_path)
+                # 获取页面源码
+                page_source = watcher.driver.page_source
+                # 保存到文件以便检查
+                with open("page_source.html", "w", encoding='utf-8') as f:
+                    f.write(page_source)
+                time.sleep(10)
+                raise Exception(f"验证失败")
         else:
             current_url = watcher.driver.current_url
             print(f"Current URL: {current_url}")
@@ -496,4 +590,4 @@ if __name__ == '__main__':
 
     # 记录耗时
     cost_time = time.time() - start_time
-    print(f"Total cost time：{cost_time} s")
+    print_with_timestamp(f"Total cost time：{cost_time} s")
