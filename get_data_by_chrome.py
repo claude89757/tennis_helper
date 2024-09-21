@@ -28,7 +28,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
 
+
 FILENAME = "isz_data_infos.json"
+
 
 def generate_proxies():
     """
@@ -51,6 +53,7 @@ def generate_proxies():
     print(f"Total {len(proxies)} proxies loaded")
     random.shuffle(proxies)
     return proxies
+
 
 # 上传文件（相当于推送）
 def upload_file_to_github(input_data):
@@ -278,7 +281,8 @@ if __name__ == '__main__':
             now = datetime.datetime.now().time()
             if datetime.time(0, 0) <= now < datetime.time(8, 0):
                 print_with_timestamp('Skipping task execution between 0am and 8am')
-                exit()
+                time.sleep(600)
+                continue
             else:
                 print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
 
