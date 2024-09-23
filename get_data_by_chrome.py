@@ -17,17 +17,13 @@ import base64
 import datetime
 import argparse
 
-import selenium
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
-from bs4.element import NavigableString, Tag
-
 import undetected_chromedriver as uc
 
 
@@ -62,7 +58,7 @@ def generate_proxies():
 # 上传文件（相当于推送）
 def upload_file_to_github(input_data):
     token = os.environ['GIT_TOKEN']
-    repo = 'claude89757/tennis_helper'
+    repo = 'claude89757/tennis_data'
     url = f'https://api.github.com/repos/{repo}/contents/{FILENAME}'
 
     headers = {
@@ -488,7 +484,7 @@ if __name__ == '__main__':
                         else:
                             date_element.click()
 
-                        watcher.random_delay(min_delay=1, max_delay=5)
+                        watcher.random_delay(min_delay=3, max_delay=5)
 
                         # 正则表达式匹配时间间隔和价格
                         time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
@@ -514,10 +510,10 @@ if __name__ == '__main__':
                                 body_table = tables[1]
                             else:
                                 print_with_timestamp(f"未找到足够的table元素")
-                                raise Exception("未找到足够的table元素")
+                                continue
                         else:
                             print_with_timestamp(f"未找到'schedule-table text-center'的DIV")
-                            raise Exception("未找到'schedule-table text-center'的DIV")
+                            continue
 
                         # 提取场馆名称
                         venue_names = []
@@ -593,7 +589,7 @@ if __name__ == '__main__':
                                                 'time': time_slot,
                                                 'status': real_status,
                                                 'raw_status': status,
-                                                'selectable': selectable
+                                                'selectable': selectable,
                                             })
                                     # Mark cells occupied due to rowspan and colspan
                                     expand_cell(row_index, col_index, rowspan, colspan)
@@ -604,9 +600,9 @@ if __name__ == '__main__':
                             raise Exception("未找到body_table")
                         # 将数据添加到输出
                         if output_data.get(place_name):
-                            output_data[place_name][f"{date_text}({week_text})"] = venue_times
+                            output_data[place_name][f"{week_text}({date_text})"] = venue_times
                         else:
-                            output_data[place_name] = {f"{date_text}({week_text})": venue_times}
+                            output_data[place_name] = {f"{week_text}({date_text})": venue_times, 'url': url}
                         # print(output_data)
                         index += 1
                         print_with_timestamp(f"{place_name} Success================================")
