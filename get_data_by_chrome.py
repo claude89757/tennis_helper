@@ -600,9 +600,12 @@ if __name__ == '__main__':
                             raise Exception("未找到body_table")
                         # 将数据添加到输出
                         if output_data.get(place_name):
-                            output_data[place_name][f"{week_text}({date_text})"] = venue_times
+                            output_data[place_name]["court_infos"][f"{week_text}({date_text})"] = venue_times
                         else:
-                            output_data[place_name] = {f"{week_text}({date_text})": venue_times, 'url': url}
+                            output_data[place_name] = {
+                                "court_infos": {f"{week_text}({date_text})": venue_times},
+                                'url': url
+                            }
                         # print(output_data)
                         index += 1
                         print_with_timestamp(f"{place_name} Success================================")

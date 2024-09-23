@@ -10,3 +10,5 @@ private.env
 1.csv
 *.db
 *.json
+*.png
+page_source.html
