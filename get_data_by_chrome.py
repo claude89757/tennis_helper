@@ -26,6 +26,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
+from bs4.element import NavigableString, Tag
+
 import undetected_chromedriver as uc
 
 
@@ -399,7 +401,7 @@ if __name__ == '__main__':
             print(f"[2] Processing by solving slider captcha...")
             watcher.random_delay()
             watcher.solve_slider_captcha()
-            WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            WebDriverWait(watcher.driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
             watcher.random_delay(min_delay=3, max_delay=10)
             if "网球" in str(watcher.driver.page_source):
                 cookies = watcher.driver.get_cookies()
@@ -487,22 +489,46 @@ if __name__ == '__main__':
                             pass
                         else:
                             date_element.click()
-                            watcher.random_delay()
-                            watcher.random_delay()
+
+                        watcher.random_delay(min_delay=1, max_delay=5)
+
+                        # 正则表达式匹配时间间隔和价格
+                        time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
+                        price_pattern = re.compile(r'\d+(?:\.\d+)?元')
+
+                        # 获取页面源代码
+                        page_source = watcher.driver.page_source
 
                         # 使用 BeautifulSoup 解析页面
                         soup = BeautifulSoup(page_source, 'html.parser')
 
+                        # 找到包含表格的主DIV
+                        schedule_table_div = soup.find('div', class_='schedule-table text-center')
+
+                        if schedule_table_div:
+                            # 找到所有的table元素
+                            tables = schedule_table_div.find_all('table')
+
+                            if len(tables) >= 2:
+                                # 第一个table是表头
+                                header_table = tables[0]
+                                # 第二个table是表体
+                                body_table = tables[1]
+                            else:
+                                print_with_timestamp(f"未找到足够的table元素")
+                                raise Exception("未找到足够的table元素")
+                        else:
+                            print_with_timestamp(f"未找到'schedule-table text-center'的DIV")
+                            raise Exception("未找到'schedule-table text-center'的DIV")
+
                         # 提取场馆名称
-                        header_table = soup.find('table', class_='schedule-table__header')
                         venue_names = []
-                        if header_table:
-                            header_row = header_table.find('thead').find('tr')
-                            header_cells = header_row.find_all('th')
-                            for cell in header_cells:
-                                venue_name = cell.get_text(strip=True)
-                                if venue_name:  # 排除空单元格
-                                    venue_names.append(venue_name)
+                        header_row = header_table.find('thead').find('tr')
+                        header_cells = header_row.find_all('th')
+                        for cell in header_cells:
+                            venue_name = cell.get_text(strip=True)
+                            if venue_name:  # 排除空单元格
+                                venue_names.append(venue_name)
 
                         # 初始化数据结构
                         venue_times = {venue: [] for venue in venue_names}
@@ -514,47 +540,66 @@ if __name__ == '__main__':
                                     key = (row_index + i, col_index + j)
                                     occupied_cells.add(key)
 
-                        # 正则表达式匹配时间间隔
-                        time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
-
                         # 处理 body 表格
-                        body_table = soup.find('table', class_='schedule-table__body')
                         if body_table:
-                            body_rows = body_table.find_all('tr')
+                            tbody = body_table.find('tbody')
+                            if tbody:
+                                body_rows = tbody.find_all('tr')
+                            else:
+                                body_rows = body_table.find_all('tr')
                             num_cols = len(venue_names)
                             # 记录因 rowspan 和 colspan 占用的单元格
                             occupied_cells = set()
                             for row_index, row in enumerate(body_rows):
                                 col_index = 0
                                 cells = row.find_all(['td', 'th'])
-                                for cell in cells:
-                                    # 跳过被占用的单元格
+                                cell_index = 0  # 用于遍历cells的索引
+                                # Process each cell
+                                while col_index < num_cols and cell_index < len(cells):
+                                    cell = cells[cell_index]
+                                    # Skip occupied cells due to rowspan/colspan
                                     while (row_index, col_index) in occupied_cells:
                                         col_index += 1
-                                    # 获取 rowspan 和 colspan
+                                    # Get rowspan and colspan values
                                     rowspan = int(cell.get('rowspan', 1))
                                     colspan = int(cell.get('colspan', 1))
-                                    # 获取当前列对应的场馆
+                                    # Get the venue name for the current column
                                     if col_index < num_cols:
                                         venue = venue_names[col_index]
-                                        # 提取时间段和状态
-                                        cell_text = cell.get_text(strip=True)
-                                        # 使用正则表达式提取时间和状态
-                                        if cell_text:
-                                            time_matches = time_pattern.findall(cell_text)
-                                            if time_matches:
-                                                time_slot = '-'.join(time_matches)
-                                                # 从单元格文本中移除时间以获取状态
-                                                status = time_pattern.sub('', cell_text).strip()
-                                                # 添加到场馆的列表中
-                                                venue_times[venue].append({
-                                                    'time': time_slot,
-                                                    'status': status
-                                                })
-                                    # 标记因 rowspan 和 colspan 占用的单元格
+                                        # Extract the <div> inside the <td>
+                                        div_in_cell = cell.find('div')
+                                        if div_in_cell:
+                                            # Extract time slot using regex
+                                            full_text = div_in_cell.get_text(separator=',', strip=False)
+                                            time_matches = time_pattern.findall(full_text)
+                                            time_slot = '-'.join(time_matches) if time_matches else ''
+                                            # Remove time to get raw_status
+                                            temp_text = time_pattern.sub('', full_text)
+                                            status = temp_text.strip()
+                                            # Determine selectability based on the number of <div> elements inside <span>
+                                            span_in_cell = div_in_cell.find('span', recursive=False)
+                                            if span_in_cell:
+                                                divs_in_span = span_in_cell.find_all('div', recursive=False)
+                                                # If there are exactly 2 <div> elements, the cell is selectable
+                                                if len(divs_in_span) == 2:
+                                                    selectable = True
+                                                else:
+                                                    selectable = False
+                                            else:
+                                                selectable = False  # If there's no <span>, consider it non-selectable
+                                            # Add data to venue_times
+                                            venue_times[venue].append({
+                                                'time': time_slot,
+                                                'raw_status': status,
+                                                'selectable': selectable
+                                            })
+                                    # Mark cells occupied due to rowspan and colspan
                                     expand_cell(row_index, col_index, rowspan, colspan)
-                                    col_index += colspan  # 移动到下一个列
-
+                                    col_index += colspan  # Move to the next column
+                                    cell_index += 1  # Move to the next cell
+                        else:
+                            print_with_timestamp(f"未找到body_table")
+                            raise Exception("未找到body_table")
                         # 将数据添加到输出
                         if output_data.get(place_name):
                             output_data[place_name][f"{date_text}({week_text})"] = venue_times
