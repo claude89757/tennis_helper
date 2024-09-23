@@ -611,7 +611,7 @@ if __name__ == '__main__':
                         index += 1
                         print_with_timestamp(f"{place_name} Success================================")
                 elif "验证" in str(watcher.driver.page_source):
-                    print(f"[2] Processing by solving slider captcha...")
+                    print(f"[2] Processing by solving slider captcha... ")
                     watcher.random_delay()
                     watcher.solve_slider_captcha()
                     WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
