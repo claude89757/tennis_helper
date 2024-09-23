@@ -448,6 +448,7 @@ if __name__ == '__main__':
             "大沙河": "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000",
             "黄木岗": "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344",
             "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
+            "简上": "https://wxsports.ydmap.cn/booking/schedule/103909?salesItemId=102913",
         }
         output_data = {}
         for place_name, url in url_infos.items():
@@ -460,12 +461,10 @@ if __name__ == '__main__':
 
                 # 等待页面加载完成
                 watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
-                print(f"Current URL: {watcher.driver.current_url}")
 
                 if "网球" in str(watcher.driver.page_source):
                     print(f"[1] Processing directly...")
                     current_url = watcher.driver.current_url
-                    print(f"Current URL: {current_url}")
                     # 获取页面源代码
                     page_source = watcher.driver.page_source
 
@@ -480,12 +479,11 @@ if __name__ == '__main__':
                         # 获取日期文本
                         date_text = date_element.find_element(By.CLASS_NAME, 'datetime').text
                         week_text = date_element.find_element(By.CLASS_NAME, 'week').text
-                        print(f"Processing date: {date_text}")
-                        print(f"Processing week: {week_text}")
+                        print(f"Processing date: {date_text} {week_text}")
 
                         # 点击日期
                         if index == 0:
-                            print("跳过点击今天的日期")
+                            # 跳过点击今天的日期
                             pass
                         else:
                             date_element.click()
@@ -583,13 +581,17 @@ if __name__ == '__main__':
                                                 # If there are exactly 2 <div> elements, the cell is selectable
                                                 if len(divs_in_span) == 2:
                                                     selectable = True
+                                                    real_status = "可预订"
                                                 else:
                                                     selectable = False
+                                                    real_status = "已预订"
                                             else:
                                                 selectable = False  # If there's no <span>, consider it non-selectable
+                                                real_status = "已预订"
                                             # Add data to venue_times
                                             venue_times[venue].append({
                                                 'time': time_slot,
+                                                'status': real_status,
                                                 'raw_status': status,
                                                 'selectable': selectable
                                             })
@@ -605,8 +607,9 @@ if __name__ == '__main__':
                             output_data[place_name][f"{date_text}({week_text})"] = venue_times
                         else:
                             output_data[place_name] = {f"{date_text}({week_text})": venue_times}
-                        print(output_data)
+                        # print(output_data)
                         index += 1
+                        print_with_timestamp(f"{place_name} Success================================")
                 elif "验证" in str(watcher.driver.page_source):
                     print(f"[2] Processing by solving slider captcha...")
                     watcher.random_delay()
@@ -628,7 +631,7 @@ if __name__ == '__main__':
                 else:
                     print("[3] 未知状态，跳过处理。")
             except Exception as error:
-                print(f"{place_name} failed: {str(error).splitlines()[0]}")
+                print_with_timestamp(f"{place_name} failed: {str(error).splitlines()[0]}")
         upload_file_to_github(output_data)
     finally:
         watcher.teardown_driver()
