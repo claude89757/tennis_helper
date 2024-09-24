@@ -9,7 +9,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 while True:
     env = os.environ.copy()
-    env['GIT_TOKEN'] = ''
 
     try:
         logging.info("Starting get_data_by_chrome.py...")
