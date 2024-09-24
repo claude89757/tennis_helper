@@ -458,6 +458,7 @@ if __name__ == '__main__':
         }
         output_data = {}
         for place_name, url in url_infos.items():
+            place_data = {"url": url, "court_infos": {}}
             print(f"Checking {place_name} {url}")
             try:
                 watcher.driver.get(url)  # 重新加载页面
@@ -609,16 +610,11 @@ if __name__ == '__main__':
                             print_with_timestamp(f"未找到body_table")
                             raise Exception("未找到body_table")
                         # 将数据添加到输出
-                        if output_data.get(place_name):
-                            output_data[place_name]["court_infos"][f"{week_text}({date_text})"] = venue_times
-                        else:
-                            output_data[place_name] = {
-                                "court_infos": {f"{week_text}({date_text})": venue_times},
-                                'url': url
-                            }
+                        place_data['court_infos'][f"{week_text}({date_text})"] = venue_times
                         # print(output_data)
                         index += 1
                         print_with_timestamp(f"{place_name} Success================================")
+                    output_data[place_name] = place_data
                 elif "验证" in str(watcher.driver.page_source):
                     print(f"[2] Processing by solving slider captcha... ")
                     watcher.random_delay()
@@ -641,6 +637,7 @@ if __name__ == '__main__':
                     print("[3] 未知状态，跳过处理。")
             except Exception as error:
                 print_with_timestamp(f"{place_name} failed: {str(error).splitlines()[0]}")
+        # print(output_data)
         upload_file_to_github(output_data)
     finally:
         watcher.teardown_driver()
