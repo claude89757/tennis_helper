@@ -87,7 +87,7 @@ def update_proxy_file(filename, available_proxies):
 
     if len(lines) > 400:
         with open(filename, "w") as file:
-            file.writelines(lines[200:])  # 保留从第200行到最后的行
+            file.writelines(lines[-100:])  # 保留从第200行到最后的行
 
 
 def task_check_proxies():
@@ -107,6 +107,8 @@ def task_check_proxies():
             update_proxy_file(FILENAME, available_proxies)
             # 上传到GIT
             upload_file_to_github(FILENAME)
+            if len(available_proxies) >= 10:
+                break
         else:
             pass
     print("check end.")
