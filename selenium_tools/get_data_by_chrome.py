@@ -632,7 +632,7 @@ if __name__ == '__main__':
                     print("[3] 未知状态，跳过处理。")
             except Exception as error:
                 print_with_timestamp(f"{place_name} failed: {str(error).splitlines()[0]}")
-        print(output_data)
+        # print(output_data)
         upload_file_to_github(output_data)
     finally:
         watcher.teardown_driver()
