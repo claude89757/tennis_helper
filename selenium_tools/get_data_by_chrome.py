@@ -471,7 +471,7 @@ if __name__ == '__main__':
 
                 if "网球" in str(watcher.driver.page_source):
                     print(f"[1] Processing directly...")
-                    current_url = watcher.driver.current_url
+
                     # 获取页面源代码
                     page_source = watcher.driver.page_source
 
@@ -483,19 +483,14 @@ if __name__ == '__main__':
                     # 遍历每个日期元素
                     index = 0
                     for date_element in date_elements:
+                        # 点击日期
+                        date_element.click()
+                        watcher.random_delay(min_delay=2, max_delay=6)
+
                         # 获取日期文本
                         date_text = date_element.find_element(By.CLASS_NAME, 'datetime').text
                         week_text = date_element.find_element(By.CLASS_NAME, 'week').text
                         print(f"Processing date: {date_text} {week_text}")
-
-                        # 点击日期
-                        if index == 0:
-                            # 跳过点击今天的日期
-                            pass
-                        else:
-                            date_element.click()
-
-                        watcher.random_delay(min_delay=3, max_delay=5)
 
                         # 正则表达式匹配时间间隔和价格
                         time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
@@ -637,7 +632,7 @@ if __name__ == '__main__':
                     print("[3] 未知状态，跳过处理。")
             except Exception as error:
                 print_with_timestamp(f"{place_name} failed: {str(error).splitlines()[0]}")
-        # print(output_data)
+        print(output_data)
         upload_file_to_github(output_data)
     finally:
         watcher.teardown_driver()
