@@ -357,7 +357,7 @@ if __name__ == '__main__':
 
     start_time = time.time()
     print("Setting up driver...")
-    watcher = TwitterWatcher(headless=False, driver_mode=driver_mode)
+    watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
     watcher.setup_driver()
     print("Driver setup complete.")
 

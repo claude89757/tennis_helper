@@ -19,8 +19,8 @@ while True:
         logging.error(f"Command output: {e.output}")
         # 可以选择重新尝试或退出
         break
-    except Exception as e:
-        logging.exception("An unexpected error occurred:")
+    except Exception as error:
+        logging.exception(f"An unexpected error occurred: {error}")
     else:
         logging.info("get_data_by_chrome.py executed successfully.")
     finally:
