@@ -16,8 +16,6 @@ while True:
     except subprocess.CalledProcessError as e:
         logging.error(f"Subprocess returned non-zero exit status {e.returncode}")
         logging.error(f"Command output: {e.output}")
-        # 可以选择重新尝试或退出
-        break
     except Exception as error:
         logging.exception(f"An unexpected error occurred: {error}")
     else:
