@@ -120,7 +120,10 @@ if __name__ == '__main__':
                         except ValueError as error:
                             court_num_raw = str(court_index)
                         # Extract digits from court number
-                        court_num = re.sub(r'\D', '', court_num_raw)
+                        court_num = re.sub(r'\D', '', str(court_num_raw))
+                        # If court_num is empty, use court_index directly
+                        if not court_num:
+                            court_num = str(court_index)
                         
                         print(f"Processing court {court_num} with slots {slot_list}")
                         hour_slot_list = []
@@ -148,10 +151,12 @@ if __name__ == '__main__':
                             else:
                                 # 非当日
                                 pass
+                            # Update court_infos with court_name and court_num
+                            court_entry = [court_name, court_num]
                             if court_infos.get(cell_key):
-                                court_infos[cell_key].append([court_name, court_num])
+                                court_infos[cell_key].append(court_entry)
                             else:
-                                court_infos[cell_key] = [[court_name, court_num]]
+                                court_infos[cell_key] = [court_entry]
                     else:
                         pass
         else:
@@ -177,10 +182,6 @@ if __name__ == '__main__':
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON data: {e}")
         isz_data_infos = {}
-
-    # Map Chinese weekdays to index (Monday=0)
-    weekday_cn_to_num = {'星期一': 0, '星期二': 1, '星期三': 2, '星期四': 3,
-                         '星期五': 4, '星期六': 5, '星期日': 6}
 
     # Process the data
     for venue_name, venue_data in isz_data_infos.items():
@@ -214,7 +215,10 @@ if __name__ == '__main__':
             # Process courts
             for court_name, time_slots in courts.items():
                 # Extract digits from court name to get court number
-                court_num = re.sub(r'\D', '', court_name)
+                court_num = re.sub(r'\D', '', str(court_name))
+                # If court_num is empty, use court_name directly
+                if not court_num:
+                    court_num = court_name
                 for slot_info in time_slots:
                     if slot_info.get('status') == '可预订':
                         time_range = slot_info.get('time')
@@ -284,6 +288,9 @@ if __name__ == '__main__':
                 court_num = data[1]
                 # Ensure court_num contains only digits
                 court_num_digits = re.sub(r'\D', '', court_num)
+                # If court_num_digits is empty, use court_num as is
+                if not court_num_digits:
+                    court_num_digits = court_num
                 if court_num_infos.get(court_name):
                     court_num_infos[court_name].append(court_num_digits)
                 else:
