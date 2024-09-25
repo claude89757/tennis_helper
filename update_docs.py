@@ -8,12 +8,12 @@
 """
 
 import os
-import ast  # For safely evaluating Python expressions
 import re
 import json
 import datetime
 import calendar
-import requests  # For fetching data from GitHub
+import requests
+import yaml  # Import YAML for parsing
 
 from tencent_docs import get_docs_operator
 from tencent_docs import COLUMN
@@ -154,13 +154,13 @@ if __name__ == '__main__':
             pass
 
     # Fetch and process data from GitHub
-    import requests
     # Fetch the data from GitHub
     response = requests.get('https://raw.githubusercontent.com/claude89757/tennis_data/refs/heads/main/isz_data_infos.json')
     github_data_str = response.text
+    print(github_data_str)
 
-    # Parse the data using ast.literal_eval
-    github_data_dict = ast.literal_eval(github_data_str)
+    # Load the data using yaml.safe_load
+    github_data_dict = yaml.safe_load(github_data_str)
 
     # Process the GitHub data
     for center_name, center_data in github_data_dict.items():
@@ -187,7 +187,7 @@ if __name__ == '__main__':
                     time_range_str = time_slot_info.get('time')
                     if not time_range_str:
                         continue
-                    # time_range_str is something like '07:00-09:00'
+                    # time_range_str is something like '07:00-09:00' or '07:00-07:30'
                     start_time_str, end_time_str = time_range_str.strip().split('-')
                     time_range_list = [start_time_str.strip(), end_time_str.strip()]
                     # Split the time range into hourly slots
