@@ -18,51 +18,46 @@ from tencent_docs import get_docs_operator
 from tencent_docs import COLUMN
 from config import COURT_NAME_INFOS
 
-# Function to generate TIME_SLOTS including half-hour intervals
-def generate_time_slots(start_time_str, end_time_str, interval_minutes=30):
-    time_slots = []
-    start_time = datetime.datetime.strptime(start_time_str, '%H:%M')
-    end_time = datetime.datetime.strptime(end_time_str, '%H:%M')
-    current_time = start_time
-    while current_time < end_time:
-        next_time = current_time + datetime.timedelta(minutes=interval_minutes)
-        if next_time > end_time:
-            next_time = end_time
-        time_slot = f"{current_time.strftime('%H:%M')}~{next_time.strftime('%H:%M')}"
-        time_slots.append(time_slot)
-        current_time = next_time
-    return time_slots
+# Define TIME_SLOTS with full-hour intervals
+TIME_SLOTS = [
+    '21:00~22:00',
+    '20:00~21:00',
+    '19:00~20:00',
+    '18:00~19:00',
+    '17:00~18:00',
+    '16:00~17:00',
+    '15:00~16:00',
+    '14:00~15:00',
+    '13:00~14:00',
+    '12:00~13:00',
+    '11:00~12:00',
+    '10:00~11:00',
+    '09:00~10:00',
+    '08:00~09:00',
+    '07:00~08:00'
+]
 
-# Generate TIME_SLOTS from 07:00 to 22:00 with 30-minute intervals
-TIME_SLOTS = generate_time_slots('07:00', '22:00', interval_minutes=30)
-# Reverse the list if you want the time slots in descending order
-TIME_SLOTS = TIME_SLOTS[::-1]
-
-def split_time_range(time_range, interval_minutes=30):
+def split_time_range(time_range):
     """
-    Split time range into specified minute intervals, up to 22:00.
+    Split time range into full-hour intervals, ignoring partial hours.
     """
     result = []
-    if time_range[0] == '00:00' or time_range[1] == '00:00':
+    if time_range[0] == '00:00':
         # Ignore this special case
         return result
 
     start_time = datetime.datetime.strptime(time_range[0], '%H:%M')
     end_time = datetime.datetime.strptime(time_range[1], '%H:%M')
-
-    # Cap end_time at 22:00
-    end_time_limit = datetime.datetime.strptime('22:00', '%H:%M')
-    if end_time > end_time_limit:
-        end_time = end_time_limit
+    # Adjust start time to the next full hour if not on the hour
+    if start_time.minute != 0:
+        start_time = start_time.replace(minute=0) + datetime.timedelta(hours=1)
 
     while start_time < end_time:
-        if start_time >= end_time_limit:
+        next_hour = start_time + datetime.timedelta(hours=1)
+        if next_hour > end_time:
             break
-        next_time = start_time + datetime.timedelta(minutes=interval_minutes)
-        if next_time > end_time:
-            next_time = end_time  # Adjust to the end time
-        result.append([start_time.strftime('%H:%M'), next_time.strftime('%H:%M')])
-        start_time = next_time
+        result.append([start_time.strftime('%H:%M'), next_hour.strftime('%H:%M')])
+        start_time = next_hour
 
     return result
 
@@ -91,6 +86,7 @@ if __name__ == '__main__':
     court_infos = {}
     # 初始化过期单元格列表
     expired_cell_key_list = []
+
     # 遍历每个文件并读取其内容
     for file_name in file_names:
         if "available_court" in file_name:
@@ -124,15 +120,15 @@ if __name__ == '__main__':
                         # If court_num is empty, use court_index directly
                         if not court_num:
                             court_num = str(court_index)
-                        
+
                         print(f"Processing court {court_num} with slots {slot_list}")
                         hour_slot_list = []
                         for slot in slot_list:
-                            hour_slot_list.extend(split_time_range(slot, interval_minutes=30))
+                            hour_slot_list.extend(split_time_range(slot))
                         print(f"Split into time slots: {hour_slot_list}")
                         for hour_slot in hour_slot_list:
+                            time_slot_str = f"{hour_slot[0]}~{hour_slot[1]}"
                             try:
-                                time_slot_str = f"{hour_slot[0]}~{hour_slot[1]}"
                                 row_index = TIME_SLOTS.index(time_slot_str) + 2
                             except ValueError as error:
                                 print(f"Error finding TIME_SLOT {time_slot_str}: {error}")
@@ -145,18 +141,10 @@ if __name__ == '__main__':
                                 if current_time >= hour_slot[1]:
                                     # 已过期
                                     expired_cell_key_list.append(cell_key)
-                                else:
-                                    # 未过期
-                                    pass
-                            else:
-                                # 非当日
-                                pass
-                            # Update court_infos with court_name and court_num
-                            court_entry = [court_name, court_num]
                             if court_infos.get(cell_key):
-                                court_infos[cell_key].append(court_entry)
+                                court_infos[cell_key].append([court_name, court_num])
                             else:
-                                court_infos[cell_key] = [court_entry]
+                                court_infos[cell_key] = [[court_name, court_num]]
                     else:
                         pass
         else:
@@ -242,9 +230,8 @@ if __name__ == '__main__':
                             print(f"Ignoring time range '{time_range}' as it starts at or after 22:00.")
                             continue
 
-                        # Split the time range into intervals matching your TIME_SLOTS
-                        interval_minutes = 30  # Adjust as needed
-                        actual_slots = split_time_range([start_time, end_time], interval_minutes)
+                        # Split the time range into full-hour intervals
+                        actual_slots = split_time_range([start_time, end_time])
 
                         for hour_slot in actual_slots:
                             time_slot_str = f"{hour_slot[0]}~{hour_slot[1]}"
@@ -276,6 +263,7 @@ if __name__ == '__main__':
 
     if court_infos:
         input_data_infos = {}
+        # Initialize cells with empty strings
         for row_index in range(len(TIME_SLOTS)):
             for col_index in range(check_days):
                 cell_key = f"{COLUMN[col_index+1]}{row_index+2}"
@@ -309,3 +297,4 @@ if __name__ == '__main__':
         print("Docs updated successfully.")
     else:
         print(f"无数据更新！！！")
+        
