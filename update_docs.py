@@ -13,7 +13,6 @@ import json
 import datetime
 import calendar
 import requests
-import yaml  # Import YAML for parsing
 
 from tencent_docs import get_docs_operator
 from tencent_docs import COLUMN
@@ -152,16 +151,29 @@ if __name__ == '__main__':
         else:
             # Do not process other files
             pass
-    print(f"From file: {court_infos}")
-    
+
     # Fetch and process data from GitHub
     # Fetch the data from GitHub
     response = requests.get('https://raw.githubusercontent.com/claude89757/tennis_data/refs/heads/main/isz_data_infos.json')
     github_data_str = response.text
-    
-    # Load the data using yaml.safe_load
-    github_data_dict = yaml.safe_load(github_data_str)
 
+    # Preprocess the data
+    # Replace True/False with true/false
+    github_data_str = github_data_str.replace('False', 'false').replace('True', 'true').replace('None', 'null')
+
+    # Use regex to replace single quotes with double quotes,
+    # but skip any single quotes that are within words
+    github_data_str = re.sub(r"(?<![a-zA-Z0-9])'([^']*)'(?![a-zA-Z0-9])", r'"\1"', github_data_str)
+
+    # Now attempt to parse the data
+    try:
+        github_data_dict = json.loads(github_data_str)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON data: {e}")
+        exit(1)
+
+    # Print to confirm that data is loaded
+    print("Loaded GitHub data successfully.")
     # Process the GitHub data
     for center_name, center_data in github_data_dict.items():
         court_infos_data = center_data.get('court_infos', {})
@@ -179,8 +191,8 @@ if __name__ == '__main__':
                 col_index = COLUMN[date_str_list.index(check_date_str)+1]
             except ValueError as error:
                 continue  # Date not in the next 7 days
-            for court_name, time_slots in courts_data.items():
-                court_num = court_name.replace('号网球场', '').strip()
+            for court_name_full, time_slots in courts_data.items():
+                court_num = court_name_full.replace('号网球场', '').strip()
                 for time_slot_info in time_slots:
                     if not time_slot_info.get('selectable', False):
                         continue  # Skip if not selectable
@@ -210,8 +222,6 @@ if __name__ == '__main__':
                             court_infos[cell_key].append([center_name, court_num])
                         else:
                             court_infos[cell_key] = [[center_name, court_num]]
-    
-    print(f"From github: {court_infos}")
 
     print(f"expired_cell_key_list: {expired_cell_key_list}")
     if court_infos:
