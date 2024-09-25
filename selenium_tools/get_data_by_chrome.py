@@ -615,23 +615,46 @@ if __name__ == '__main__':
                         print_with_timestamp(f"{place_name} Success================================")
                     output_data[place_name] = place_data
                 elif "验证" in str(watcher.driver.page_source):
-                    print(f"[2] Processing by solving slider captcha... ")
-                    watcher.random_delay()
-                    watcher.solve_slider_captcha()
-                    WebDriverWait(watcher.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                    print(f"[2] Processing by solving slider captcha...")
+                    access_ok = False
+                    for index in range(3):
+                        print(f"Try {index} time>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                        watcher.random_delay()
+                        watcher.solve_slider_captcha()
+                        WebDriverWait(watcher.driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                        watcher.random_delay(min_delay=3, max_delay=10)
+                        if "网球" in str(watcher.driver.page_source):
+                            cookies = watcher.driver.get_cookies()
+                            headers = {
+                                'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
+                            }
+                            print(f"cookies: {cookies}")
+                            print(f"headers: {headers}")
+                            # 重新缓存 cookies 和 headers
+                            save_cookies_and_headers(cookies, headers)
+                            # 应用 cookies
+                            for cookie in cookies:
+                                watcher.driver.add_cookie(cookie)
+                            watcher.driver.get(url)  # 使用 cookies 重新加载页面
+                            access_ok = True
+                            break
+                        else:
+                            print(f"Failed, try again...")
 
-                    # 获取当前的 URL 和新的 cookies、headers
-                    current_url = watcher.driver.current_url
-                    print(f"Current URL: {current_url}")
-                    cookies = watcher.driver.get_cookies()
-                    headers = {
-                        'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
-                    }
-                    print(f"cookies: {cookies}")
-                    print(f"headers: {headers}")
-
-                    # 重新缓存 cookies 和 headers
-                    save_cookies_and_headers(cookies, headers)
+                    if access_ok:
+                        pass
+                    else:
+                        print(f"Failed to solve slider captcha")
+                        # 保存当前屏幕截图
+                        screenshot_path = 'screenshot.png'
+                        watcher.driver.save_screenshot(screenshot_path)
+                        # 获取页面源码
+                        page_source = watcher.driver.page_source
+                        # 保存到文件以便检查
+                        with open("page_source.html", "w", encoding='utf-8') as f:
+                            f.write(page_source)
+                        time.sleep(10)
+                        raise Exception("自动化验证失败")
                 else:
                     print("[3] 未知状态，跳过处理。")
             except Exception as error:
