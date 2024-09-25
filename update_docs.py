@@ -271,11 +271,7 @@ if __name__ == '__main__':
             for court_name, court_num_list in court_num_infos.items():
                 sorted_court_num_list = sorted(set(court_num_list))
                 court_num_str = ','.join(sorted_court_num_list)
-                if court_name in ["香蜜体育", '大沙河', '简上', '黄木岗', '深云文体', '深圳湾']:
-                    # 完成了场地名称映射的
-                    cell_value_list.append(f"{court_name} ({court_num_str})")
-                else:
-                    cell_value_list.append(f"{court_name} ({court_num_str})")
+                cell_value_list.append(f"{court_name} {len(court_num_list)}")
             cell_value = "\n".join(cell_value_list)
             if cell_key in expired_cell_key_list:
                 input_data_infos[cell_key] = f"已过期\n{cell_value}"
