@@ -157,7 +157,7 @@ if __name__ == '__main__':
             # Do not process other files
             pass
 
-    # Fetch and process data from GitHub
+        # Fetch and process data from GitHub
     print("Fetching data from GitHub...")
     # Fetch the data from GitHub
     response = requests.get('https://raw.githubusercontent.com/claude89757/tennis_data/refs/heads/main/isz_data_infos.json')
@@ -210,11 +210,24 @@ if __name__ == '__main__':
             print(f"Column index for date {check_date_str}: {col_index}")
             for court_name_full, time_slots in courts_data.items():
                 print(f"Processing court: {court_name_full}")
-                court_num = court_name_full.replace('号网球场', '').strip()
+                court_num = court_name_full.replace('号网球场', '').replace('号场', '').strip()
                 for time_slot_info in time_slots:
-                    if not time_slot_info.get('selectable', False):
+                    # Add debug statement to check the value of 'selectable'
+                    selectable = time_slot_info.get('selectable')
+                    print(f"Time slot info 'selectable' field: {selectable} (type: {type(selectable)})")
+                    # Ensure 'selectable' is interpreted as a boolean
+                    selectable_bool = False
+                    if isinstance(selectable, bool):
+                        selectable_bool = selectable
+                    elif isinstance(selectable, str):
+                        selectable_bool = selectable.lower() == 'true'
+                    else:
+                        selectable_bool = False
+
+                    if not selectable_bool:
                         print(f"Time slot {time_slot_info.get('time')} is not selectable.")
                         continue  # Skip if not selectable
+
                     time_range_str = time_slot_info.get('time')
                     if not time_range_str:
                         print(f"No time range in time slot info: {time_slot_info}")
@@ -286,4 +299,3 @@ if __name__ == '__main__':
         print("Update cell response:", response)
     else:
         print(f"无数据更新！！！")
-        
