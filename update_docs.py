@@ -224,6 +224,8 @@ if __name__ == '__main__':
 
             # Process courts
             for court_name, time_slots in courts.items():
+                if "墙" in court_name or "训练" in court_name:
+                    continue
                 # Extract digits from court name to get court number
                 court_num = re.sub(r'\D', '', str(court_name))
                 if not court_num:
