@@ -37,27 +37,24 @@ TIME_SLOTS = [
     '07:00~08:00'
 ]
 
-def split_time_range(time_range):
+def split_time_range_to_half_hours(time_range):
     """
-    Split time range into full-hour intervals, ignoring partial hours.
+    Split time range into half-hour intervals.
     """
     result = []
-    if time_range[0] == '00:00':
+    if time_range[0] == '00:00' or time_range[1] == '00:00':
         # Ignore this special case
         return result
 
     start_time = datetime.datetime.strptime(time_range[0], '%H:%M')
     end_time = datetime.datetime.strptime(time_range[1], '%H:%M')
-    # Adjust start time to the next full hour if not on the hour
-    if start_time.minute != 0:
-        start_time = start_time.replace(minute=0) + datetime.timedelta(hours=1)
 
     while start_time < end_time:
-        next_hour = start_time + datetime.timedelta(hours=1)
-        if next_hour > end_time:
-            break
-        result.append([start_time.strftime('%H:%M'), next_hour.strftime('%H:%M')])
-        start_time = next_hour
+        next_time = start_time + datetime.timedelta(minutes=30)
+        if next_time > end_time:
+            next_time = end_time  # Adjust to the end time
+        result.append([start_time.strftime('%H:%M'), next_time.strftime('%H:%M')])
+        start_time = next_time
 
     return result
 
@@ -79,24 +76,69 @@ if __name__ == '__main__':
     docs = get_docs_operator()
     docs.update_cell("300000000$NLrsOYBdnaed", "BB08J2", first_line_infos)
 
-    # 指定文件夹路径
-    folder_path = "./"
-    # 列出文件夹中的所有文件
-    file_names = os.listdir(folder_path)
     court_infos = {}
-    # 初始化过期单元格列表
+    # Initialize expired cell key list
     expired_cell_key_list = []
 
-    # 遍历每个文件并读取其内容
+    # Function to process available slots
+    def process_available_slots(court_name, court_num, available_slots, col_index, is_today):
+        # Create a dictionary to store availability of half-hours for each hour
+        availability = {}
+        for slot in available_slots:
+            half_hour_slots = split_time_range_to_half_hours(slot)
+            for half_hour_slot in half_hour_slots:
+                # Get the hour key (e.g., '11:00~12:00')
+                slot_start = datetime.datetime.strptime(half_hour_slot[0], '%H:%M')
+                slot_end = datetime.datetime.strptime(half_hour_slot[1], '%H:%M')
+                hour_start = slot_start.replace(minute=0)
+                hour_end = hour_start + datetime.timedelta(hours=1)
+                hour_key = f"{hour_start.strftime('%H:%M')}~{hour_end.strftime('%H:%M')}"
+                # Ensure hour_key is within TIME_SLOTS
+                if hour_key not in TIME_SLOTS:
+                    continue
+                # Initialize the availability list for this hour if not present
+                if hour_key not in availability:
+                    availability[hour_key] = set()
+                # Mark the half-hour as available (either 'first_half' or 'second_half')
+                if slot_start.minute == 0:
+                    availability[hour_key].add('first_half')
+                else:
+                    availability[hour_key].add('second_half')
+        # Now, for each hour, check if both halves are available
+        for hour_key, halves in availability.items():
+            if halves == {'first_half', 'second_half'}:
+                # Both halves are available, process this hour
+                try:
+                    row_index = TIME_SLOTS.index(hour_key) + 2
+                except ValueError as error:
+                    print(f"Error finding TIME_SLOT {hour_key}: {error}")
+                    continue
+                cell_key = f"{col_index}{row_index}"
+                # Check for expiration if today
+                if is_today:
+                    current_time = datetime.datetime.now().strftime('%H:%M')
+                    hour_end = hour_key.split('~')[1]
+                    if current_time >= hour_end:
+                        expired_cell_key_list.append(cell_key)
+                # Update court_infos
+                court_entry = [court_name, court_num]
+                if court_infos.get(cell_key):
+                    court_infos[cell_key].append(court_entry)
+                else:
+                    court_infos[cell_key] = [court_entry]
+                print(f"Added {court_entry} to cell {cell_key} for time slot '{hour_key}'.")
+
+    # Process local files
+    folder_path = "./"
+    file_names = os.listdir(folder_path)
     for file_name in file_names:
         if "available_court" in file_name:
             court_name = file_name.split('_')[0]
-            # 拼接文件路径
+            # Read file content
             file_path = os.path.join(folder_path, file_name)
-            # 打开文件并读取内容
             with open(file_path, "r") as f:
                 content = f.read()
-            # 处理文件内容
+            # Process file content
             print(f"File {file_name}\n{content}")
             json_str = content.replace("'", '"')
             print(json_str)
@@ -107,48 +149,21 @@ if __name__ == '__main__':
                 except ValueError as error:
                     print(f"Error finding column index for date {check_date_str}: {error}")
                     continue
-                print(f"Processing date: {check_date_str} with column {col_index}")
+                is_today = (check_date_str == datetime.datetime.now().strftime('%Y-%m-%d'))
                 for court_index, slot_list in data.items():
                     if slot_list:
-                        # 获取场地号
+                        # Get court number
                         try:
                             court_num_raw = COURT_NAME_INFOS.get(int(court_index), court_index)
                         except ValueError as error:
                             court_num_raw = str(court_index)
-                        # Extract digits from court number
                         court_num = re.sub(r'\D', '', str(court_num_raw))
-                        # If court_num is empty, use court_index directly
                         if not court_num:
                             court_num = str(court_index)
-
                         print(f"Processing court {court_num} with slots {slot_list}")
-                        hour_slot_list = []
-                        for slot in slot_list:
-                            hour_slot_list.extend(split_time_range(slot))
-                        print(f"Split into time slots: {hour_slot_list}")
-                        for hour_slot in hour_slot_list:
-                            time_slot_str = f"{hour_slot[0]}~{hour_slot[1]}"
-                            try:
-                                row_index = TIME_SLOTS.index(time_slot_str) + 2
-                            except ValueError as error:
-                                print(f"Error finding TIME_SLOT {time_slot_str}: {error}")
-                                continue
-                            print(f"Row index for time slot '{time_slot_str}': {row_index}")
-                            cell_key = f"{col_index}{row_index}"
-                            # 当日的时间，判断是否已经过期
-                            if col_index == 'B':
-                                current_time = datetime.datetime.now().strftime('%H:%M')
-                                if current_time >= hour_slot[1]:
-                                    # 已过期
-                                    expired_cell_key_list.append(cell_key)
-                            if court_infos.get(cell_key):
-                                court_infos[cell_key].append([court_name, court_num])
-                            else:
-                                court_infos[cell_key] = [[court_name, court_num]]
-                    else:
-                        pass
+                        process_available_slots(court_name, court_num, slot_list, col_index, is_today)
         else:
-            # 其他文件不处理
+            # Ignore other files
             pass
 
     # Fetch data from GitHub
@@ -171,14 +186,19 @@ if __name__ == '__main__':
         print(f"Error parsing JSON data: {e}")
         isz_data_infos = {}
 
-    # Process the data
+    # Process GitHub data
     for venue_name, venue_data in isz_data_infos.items():
         print(f"Processing venue: {venue_name}")
         court_info = venue_data.get('court_infos', {})
 
         for date_str, courts in court_info.items():
             # Extract the date in 'MM-DD' format from the string
-            date_part = date_str[date_str.find('(')+1:date_str.find(')')]
+            date_part_match = re.search(r'\((\d{2}-\d{2})\)', date_str)
+            if date_part_match:
+                date_part = date_part_match.group(1)
+            else:
+                print(f"Invalid date format in '{date_str}'.")
+                continue
             # Construct the date with the current year
             date_formatted = f"{datetime.datetime.now().year}-{date_part}"
             try:
@@ -200,13 +220,16 @@ if __name__ == '__main__':
                 print(f"Error finding column index for date {formatted_date}: {error}")
                 continue
 
+            is_today = (formatted_date == datetime.datetime.now().strftime('%Y-%m-%d'))
+
             # Process courts
             for court_name, time_slots in courts.items():
                 # Extract digits from court name to get court number
                 court_num = re.sub(r'\D', '', str(court_name))
-                # If court_num is empty, use court_name directly
                 if not court_num:
-                    court_num = court_name
+                    court_num = court_name  # Use full name if no digits
+                # Collect available slots
+                available_slots = []
                 for slot_info in time_slots:
                     if slot_info.get('status') == '可预订':
                         time_range = slot_info.get('time')
@@ -230,34 +253,10 @@ if __name__ == '__main__':
                             print(f"Ignoring time range '{time_range}' as it starts at or after 22:00.")
                             continue
 
-                        # Split the time range into full-hour intervals
-                        actual_slots = split_time_range([start_time, end_time])
-
-                        for hour_slot in actual_slots:
-                            time_slot_str = f"{hour_slot[0]}~{hour_slot[1]}"
-                            try:
-                                row_index = TIME_SLOTS.index(time_slot_str) + 2
-                            except ValueError:
-                                print(f"Time slot '{time_slot_str}' not found in TIME_SLOTS.")
-                                continue
-
-                            cell_key = f"{col_index}{row_index}"
-
-                            # Check for expiration if the date is today
-                            if formatted_date == datetime.datetime.now().strftime('%Y-%m-%d'):
-                                current_time = datetime.datetime.now().strftime('%H:%M')
-                                if current_time >= hour_slot[1]:
-                                    expired_cell_key_list.append(cell_key)
-
-                            # Update court_infos
-                            court_entry = [venue_name, court_num]
-                            if court_infos.get(cell_key):
-                                court_infos[cell_key].append(court_entry)
-                            else:
-                                court_infos[cell_key] = [court_entry]
-                            print(f"Added {court_entry} to cell {cell_key} for time slot '{time_slot_str}'.")
-                    else:
-                        pass  # status is not '可预订'
+                        available_slots.append([start_time, end_time])
+                if available_slots:
+                    print(f"Processing court {court_num} with slots {available_slots}")
+                    process_available_slots(venue_name, court_num, available_slots, col_index, is_today)
 
     print(f"expired_cell_key_list: {expired_cell_key_list}")
 
@@ -297,4 +296,3 @@ if __name__ == '__main__':
         print("Docs updated successfully.")
     else:
         print(f"无数据更新！！！")
-        
