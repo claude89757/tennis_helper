@@ -152,13 +152,13 @@ if __name__ == '__main__':
         else:
             # Do not process other files
             pass
-
+    print(f"From file: {court_infos}")
+    
     # Fetch and process data from GitHub
     # Fetch the data from GitHub
     response = requests.get('https://raw.githubusercontent.com/claude89757/tennis_data/refs/heads/main/isz_data_infos.json')
     github_data_str = response.text
-    print(github_data_str)
-
+    
     # Load the data using yaml.safe_load
     github_data_dict = yaml.safe_load(github_data_str)
 
@@ -210,6 +210,8 @@ if __name__ == '__main__':
                             court_infos[cell_key].append([center_name, court_num])
                         else:
                             court_infos[cell_key] = [[center_name, court_num]]
+    
+    print(f"From github: {court_infos}")
 
     print(f"expired_cell_key_list: {expired_cell_key_list}")
     if court_infos:
