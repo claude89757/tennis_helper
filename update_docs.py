@@ -8,6 +8,7 @@
 """
 
 import os
+import re  # Import re for regular expressions
 import json
 import datetime
 import calendar
@@ -25,29 +26,38 @@ def generate_time_slots(start_time_str, end_time_str, interval_minutes=30):
     current_time = start_time
     while current_time < end_time:
         next_time = current_time + datetime.timedelta(minutes=interval_minutes)
+        if next_time > end_time:
+            next_time = end_time
         time_slot = f"{current_time.strftime('%H:%M')}~{next_time.strftime('%H:%M')}"
         time_slots.append(time_slot)
         current_time = next_time
     return time_slots
 
-# Generate TIME_SLOTS from 07:00 to 22:30 with 30-minute intervals
-TIME_SLOTS = generate_time_slots('07:00', '22:30', interval_minutes=30)
+# Generate TIME_SLOTS from 07:00 to 22:00 with 30-minute intervals
+TIME_SLOTS = generate_time_slots('07:00', '22:00', interval_minutes=30)
 # Reverse the list if you want the time slots in descending order
 TIME_SLOTS = TIME_SLOTS[::-1]
 
 def split_time_range(time_range, interval_minutes=30):
     """
-    分割时间段为指定分钟的时间段
+    Split time range into specified minute intervals, up to 22:00.
     """
     result = []
     if time_range[0] == '00:00' or time_range[1] == '00:00':
-        # 忽略这种特殊场景
+        # Ignore this special case
         return result
 
     start_time = datetime.datetime.strptime(time_range[0], '%H:%M')
     end_time = datetime.datetime.strptime(time_range[1], '%H:%M')
 
+    # Cap end_time at 22:00
+    end_time_limit = datetime.datetime.strptime('22:00', '%H:%M')
+    if end_time > end_time_limit:
+        end_time = end_time_limit
+
     while start_time < end_time:
+        if start_time >= end_time_limit:
+            break
         next_time = start_time + datetime.timedelta(minutes=interval_minutes)
         if next_time > end_time:
             next_time = end_time  # Adjust to the end time
@@ -57,7 +67,7 @@ def split_time_range(time_range, interval_minutes=30):
     return result
 
 if __name__ == '__main__':
-    # 初始化第一行数据
+    # Initialize first line data
     first_line_infos = {"A1": f"刷新\n{datetime.datetime.now().strftime('%H:%M')}"}
     date_str_list = []
     check_days = 7
@@ -106,15 +116,17 @@ if __name__ == '__main__':
                     if slot_list:
                         # 获取场地号
                         try:
-                            court_num = COURT_NAME_INFOS.get(int(court_index), court_index).split("号")[0]
+                            court_num_raw = COURT_NAME_INFOS.get(int(court_index), court_index)
                         except ValueError as error:
-                            court_num = str(court_index).split("号")[0]
-                            
+                            court_num_raw = str(court_index)
+                        # Extract digits from court number
+                        court_num = re.sub(r'\D', '', court_num_raw)
+                        
                         print(f"Processing court {court_num} with slots {slot_list}")
                         hour_slot_list = []
                         for slot in slot_list:
                             hour_slot_list.extend(split_time_range(slot, interval_minutes=30))
-                        print(f"Split into hourly slots: {hour_slot_list}")
+                        print(f"Split into time slots: {hour_slot_list}")
                         for hour_slot in hour_slot_list:
                             try:
                                 time_slot_str = f"{hour_slot[0]}~{hour_slot[1]}"
@@ -201,6 +213,8 @@ if __name__ == '__main__':
 
             # Process courts
             for court_name, time_slots in courts.items():
+                # Extract digits from court name to get court number
+                court_num = re.sub(r'\D', '', court_name)
                 for slot_info in time_slots:
                     if slot_info.get('status') == '可预订':
                         time_range = slot_info.get('time')
@@ -217,6 +231,11 @@ if __name__ == '__main__':
                             datetime.datetime.strptime(end_time, '%H:%M')
                         except ValueError as e:
                             print(f"Invalid time format in '{time_range}': {e}")
+                            continue
+
+                        # Skip time ranges starting from 22:00 or later
+                        if start_time >= '22:00' or end_time > '22:00':
+                            print(f"Ignoring time range '{time_range}' as it starts at or after 22:00.")
                             continue
 
                         # Split the time range into intervals matching your TIME_SLOTS
@@ -240,7 +259,7 @@ if __name__ == '__main__':
                                     expired_cell_key_list.append(cell_key)
 
                             # Update court_infos
-                            court_entry = [venue_name, court_name]
+                            court_entry = [venue_name, court_num]
                             if court_infos.get(cell_key):
                                 court_infos[cell_key].append(court_entry)
                             else:
@@ -263,15 +282,17 @@ if __name__ == '__main__':
             for data in data_list:
                 court_name = data[0]
                 court_num = data[1]
+                # Ensure court_num contains only digits
+                court_num_digits = re.sub(r'\D', '', court_num)
                 if court_num_infos.get(court_name):
-                    court_num_infos[court_name].append(court_num)
+                    court_num_infos[court_name].append(court_num_digits)
                 else:
-                    court_num_infos[court_name] = [court_num]
+                    court_num_infos[court_name] = [court_num_digits]
             cell_value_list = []
             for court_name, court_num_list in court_num_infos.items():
                 sorted_court_num_list = sorted(set(court_num_list))
                 court_num_str = ','.join(sorted_court_num_list)
-                cell_value_list.append(f"{court_name} {len(court_num_list)}")
+                cell_value_list.append(f"{court_name} ({court_num_str})")
             cell_value = "\n".join(cell_value_list)
             if cell_key in expired_cell_key_list:
                 input_data_infos[cell_key] = f"已过期\n{cell_value}"
