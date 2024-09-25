@@ -455,6 +455,10 @@ if __name__ == '__main__':
             "黄木岗": "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344",
             "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
             "简上": "https://wxsports.ydmap.cn/booking/schedule/103909?salesItemId=102913",
+            "网羽中心": "https://wxsports.ydmap.cn/booking/schedule/102549?salesItemId=100704",
+            "网羽中心": "https://wxsports.ydmap.cn/booking/schedule/102549?salesItemId=100704",
+            "皇岗公园": "https://wxsports.ydmap.cn/booking/schedule/100241?salesItemId=100003",
+            "深云文体": "https://wxsports.ydmap.cn/booking/schedule/105057?salesItemId=105127",
         }
         output_data = {}
         for place_name, url in url_infos.items():
