@@ -13,7 +13,7 @@ import random
 import base64
 
 
-FILENAME = "isz_https_proxies.txt"
+FILENAME = "https_proxies.txt"
 
 
 def generate_proxies():
