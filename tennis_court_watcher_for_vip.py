@@ -355,7 +355,7 @@ if __name__ == '__main__':
                     # 未开放预定，不推送消息
                     continue
                 else:
-                    if str(latest_rule['user_level']) == '2':
+                    if str(latest_rule['user_level']) == '2' or str(latest_rule['user_level']) == 'VIP':
                         # VIP规则，直接推送
                         up_for_send_sms_list.append({"phone": phone,
                                                      "date": date,
