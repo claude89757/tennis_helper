@@ -190,7 +190,7 @@ if __name__ == '__main__':
     for venue_name, venue_data in isz_data_infos.items():
         print(f"Processing venue: {venue_name}")
         court_info = venue_data.get('court_infos', {})
-
+        print(f"court_infos: {court_infos}")
         for date_str, courts in court_info.items():
             # Extract the date in 'MM-DD' format from the string
             date_part_match = re.search(r'\((\d{2}-\d{2})\)', date_str)
@@ -259,6 +259,8 @@ if __name__ == '__main__':
                 if available_slots:
                     print(f"Processing court {court_num} with slots {available_slots}")
                     process_available_slots(venue_name, court_num, available_slots, col_index, is_today)
+                else:
+                    print(f"Processing court {court_num} with no available_slots")
 
     print(f"expired_cell_key_list: {expired_cell_key_list}")
 
