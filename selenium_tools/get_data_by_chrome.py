@@ -455,9 +455,9 @@ if __name__ == '__main__':
             "黄木岗": "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344",
             "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
             "简上": "https://wxsports.ydmap.cn/booking/schedule/103909?salesItemId=102913",
-            "网羽中心": "https://wxsports.ydmap.cn/booking/schedule/102549?salesItemId=100704",
-            "皇岗公园": "https://wxsports.ydmap.cn/booking/schedule/100241?salesItemId=100003",
-            "深云文体": "https://wxsports.ydmap.cn/booking/schedule/105057?salesItemId=105127",
+            # "网羽中心": "https://wxsports.ydmap.cn/booking/schedule/102549?salesItemId=100704",
+            # "皇岗公园": "https://wxsports.ydmap.cn/booking/schedule/100241?salesItemId=100003",
+            # "深云文体": "https://wxsports.ydmap.cn/booking/schedule/105057?salesItemId=105127",
         }
         output_data = {}
         for place_name, url in url_infos.items():
@@ -566,6 +566,13 @@ if __name__ == '__main__':
                                     # Get rowspan and colspan values
                                     rowspan = int(cell.get('rowspan', 1))
                                     colspan = int(cell.get('colspan', 1))
+                                    cell_class_name = cell.get("class")
+                                    cell_class_name_list = str(cell_class_name).split()
+                                    if len(cell_class_name_list) == 1:
+                                        real_status = "可预订"
+                                    else:
+                                        real_status = "已预订"
+
                                     # Get the venue name for the current column
                                     if col_index < num_cols:
                                         venue = venue_names[col_index]
@@ -580,25 +587,25 @@ if __name__ == '__main__':
                                             temp_text = time_pattern.sub('', full_text)
                                             status = temp_text.strip()
                                             # Determine selectability based on the number of <div> elements inside <span>
-                                            span_in_cell = div_in_cell.find('span', recursive=False)
-                                            if span_in_cell:
-                                                divs_in_span = span_in_cell.find_all('div', recursive=False)
-                                                # If there are exactly 2 <div> elements, the cell is selectable
-                                                if len(divs_in_span) == 2:
-                                                    selectable = True
-                                                    real_status = "可预订"
-                                                else:
-                                                    selectable = False
-                                                    real_status = "已预订"
-                                            else:
-                                                selectable = False  # If there's no <span>, consider it non-selectable
-                                                real_status = "已预订"
+                                            # span_in_cell = div_in_cell.find('span', recursive=False)
+                                            # if span_in_cell:
+                                            #     divs_in_span = span_in_cell.find_all('div', recursive=False)
+                                            #     # If there are exactly 2 <div> elements, the cell is selectable
+                                            #     if len(divs_in_span) == 2:
+                                            #         selectable = True
+                                            #         real_status = "可预订"
+                                            #     else:
+                                            #         selectable = False
+                                            #         real_status = "已预订"
+                                            # else:
+                                            #     selectable = False  # If there's no <span>, consider it non-selectable
+                                            #     real_status = "已预订"
                                             # Add data to venue_times
                                             venue_times[venue].append({
                                                 'time': time_slot,
                                                 'status': real_status,
                                                 'raw_status': status,
-                                                'selectable': selectable,
+                                                # 'cell_class_name': cell_class_name,
                                             })
                                     # Mark cells occupied due to rowspan and colspan
                                     expand_cell(row_index, col_index, rowspan, colspan)
@@ -609,7 +616,6 @@ if __name__ == '__main__':
                             raise Exception("未找到body_table")
                         # 将数据添加到输出
                         place_data['court_infos'][f"{week_text}({date_text})"] = venue_times
-                        # print(output_data)
                         index += 1
                         print_with_timestamp(f"{place_name} Success================================")
                     output_data[place_name] = place_data
