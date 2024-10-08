@@ -19,4 +19,4 @@ while True:
 
     logging.info("get_data_by_chrome.py executed successfully.")
     logging.info("Waiting for 300 seconds before next run...")
-    time.sleep(300)
+    time.sleep(500)
