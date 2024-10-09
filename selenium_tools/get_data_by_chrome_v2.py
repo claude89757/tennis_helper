@@ -105,6 +105,7 @@ class TwitterWatcher:
         else:
             chrome_options.headless = True
             chrome_options.add_argument("--window-size=1920,1080")
+            chrome_options.add_argument("--remote-debugging-port=9222")
         chrome_options.add_argument("--no-sandbox")
 
         # Disable automation flags to avoid detection
