@@ -239,19 +239,19 @@ class TwitterWatcher:
         # })
 
         # Apply selenium-stealth to mask automation flags
-        print("Applying selenium-stealth...")
-        from selenium_stealth import stealth
-        stealth(
-            self.driver,
-            languages=["zh-CN", "zh", "en"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine",
-            fix_hairline=True,
-            run_on_insecure_origins=True,
-            disable_blur=True
-        )
+        # print("Applying selenium-stealth...")
+        # from selenium_stealth import stealth
+        # stealth(
+        #     self.driver,
+        #     languages=["zh-CN", "zh", "en"],
+        #     vendor="Google Inc.",
+        #     platform="Win32",
+        #     webgl_vendor="Intel Inc.",
+        #     renderer="Intel Iris OpenGL Engine",
+        #     fix_hairline=True,
+        #     run_on_insecure_origins=True,
+        #     disable_blur=True
+        # )
 
         # Random delay to simulate human behavior
         self.random_delay(min_delay=2, max_delay=5)
