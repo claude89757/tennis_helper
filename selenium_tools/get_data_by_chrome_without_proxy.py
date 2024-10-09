@@ -75,7 +75,7 @@ def upload_file_to_github(input_data):
     }
     response = requests.put(url, headers=headers, json=data)
     if response.status_code == 200:
-        print(F"File uploaded successfully, total {len(input_data)} data")
+        print(f"File uploaded successfully, total {len(input_data)} data")
     else:
         print("Failed to upload file:", response.status_code, response.text)
 
@@ -105,15 +105,14 @@ class TwitterWatcher:
         else:
             chrome_options.headless = True
             chrome_options.add_argument("--window-size=1920,1080")
-            chrome_options.add_argument("--remote-debugging-port=9222")
         chrome_options.add_argument("--no-sandbox")
 
-        # Disable automation flags to avoid detection
+        # 禁用自动化标志以避免被检测
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
         chrome_options.add_experimental_option('useAutomationExtension', False)
         chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
 
-        # General options to mimic regular browser behavior
+        # 模拟常规浏览器行为的通用选项
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument('--disable-quic')
         chrome_options.add_argument('--disable-features=IsolateOrigins,site-per-process')
@@ -121,7 +120,7 @@ class TwitterWatcher:
         chrome_options.add_argument('--allow-insecure-localhost')
         chrome_options.add_argument('--ignore-ssl-errors')
 
-        # Random User-Agent
+        # 随机 User-Agent
         user_agents = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/117.0.5938.62 Safari/537.36",
@@ -129,7 +128,7 @@ class TwitterWatcher:
         random_user_agent = random.choice(user_agents)
         chrome_options.add_argument(f"user-agent={random_user_agent}")
 
-        # Proxy settings
+        # 代理设置
         if proxy:
             if proxy_auth:
                 pluginfile = self._create_proxy_auth_extension(
@@ -144,7 +143,11 @@ class TwitterWatcher:
         else:
             pass
 
-        # Initialize driver
+        # 创建并添加隐身扩展
+        stealth_extension = self._create_stealth_extension()
+        chrome_options.add_extension(stealth_extension)
+
+        # 初始化驱动
         if self.driver_mode == 'local':
             service = Service("/usr/local/bin/chromedriver")
             self.driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -156,37 +159,72 @@ class TwitterWatcher:
 
         self.random_delay(min_delay=2, max_delay=5)
 
-        # Execute stealth JavaScript to mask automation properties
-        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-            "source": """
-            Object.defineProperty(navigator, 'webdriver', {
-                get: () => undefined
-            });
-            window.chrome = {
-                runtime: {}
-            };
-            Object.defineProperty(navigator, 'platform', {
-                get: () => 'Win32'
-            });
-            Object.defineProperty(navigator, 'plugins', {
-                get: () => [1, 2, 3, 4, 5]
-            });
-            Object.defineProperty(navigator, 'languages', {
-                get: () => ['en-US', 'en']
-            });
-            """
-        })
-
-        # Remove cdc_ variables
-        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-            "source": """
-            for (let property in window) {
-                if (property.match(/^cdc_/)) {
-                    delete window[property];
+    def _create_stealth_extension(self):
+        """创建一个 Chrome 扩展，用于在每个页面中注入 JavaScript。"""
+        manifest = {
+            "manifest_version": 2,
+            "name": "Stealth Plugin",
+            "version": "1.0",
+            "description": "Inject JavaScript to mask automation properties",
+            "permissions": ["<all_urls>"],
+            "content_scripts": [
+                {
+                    "matches": ["<all_urls>"],
+                    "js": ["stealth.js"],
+                    "run_at": "document_start"
                 }
-            }
-            """
-        })
+            ]
+        }
+
+        stealth_js = """
+// 隐藏 webdriver 属性
+Object.defineProperty(navigator, 'webdriver', {
+    get: () => undefined
+});
+// 模拟 chrome 对象
+window.chrome = {
+    runtime: {}
+};
+// 修改 platform 属性
+Object.defineProperty(navigator, 'platform', {
+    get: () => 'Win32'
+});
+// 模拟 plugins
+Object.defineProperty(navigator, 'plugins', {
+    get: () => [1, 2, 3, 4, 5]
+});
+// 模拟 languages
+Object.defineProperty(navigator, 'languages', {
+    get: () => ['en-US', 'en']
+});
+// 删除 cdc_ 属性
+for (let property in window) {
+    if (property.startsWith('cdc_')) {
+        delete window[property];
+    }
+}
+"""
+
+        # 创建扩展文件的临时目录
+        temp_dir = tempfile.mkdtemp()
+        manifest_path = os.path.join(temp_dir, 'manifest.json')
+        stealth_js_path = os.path.join(temp_dir, 'stealth.js')
+
+        # 写入 manifest.json 文件
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest, f)
+
+        # 写入 stealth.js 文件
+        with open(stealth_js_path, 'w') as f:
+            f.write(stealth_js)
+
+        # 将扩展打包成 ZIP 文件
+        pluginfile = tempfile.NamedTemporaryFile(suffix='.zip', delete=False)
+        with zipfile.ZipFile(pluginfile, 'w') as zp:
+            zp.write(manifest_path, 'manifest.json')
+            zp.write(stealth_js_path, 'stealth.js')
+
+        return pluginfile.name
 
     def teardown_driver(self):
         if self.driver:
@@ -207,11 +245,11 @@ class TwitterWatcher:
         slider = self.wait_for_element(By.CLASS_NAME, "btn_slide")
         action_chains = ActionChains(self.driver)
 
-        # Click and hold the slider
+        # 点击并按住滑块
         action_chains.click_and_hold(slider).perform()
         time.sleep(random.uniform(0.5, 1.0))
 
-        # Simulate human-like slider movement
+        # 模拟人类滑动
         total_offset = 300
         current_offset = 0
         while current_offset < total_offset:
@@ -220,7 +258,7 @@ class TwitterWatcher:
             current_offset += move_by
             time.sleep(random.uniform(0.01, 0.03))
 
-        # Release the slider
+        # 释放滑块
         action_chains.release().perform()
         time.sleep(random.uniform(0.5, 1.0))
 
@@ -239,7 +277,7 @@ class TwitterWatcher:
 
     def _create_proxy_auth_extension(self, proxy_host, proxy_port, proxy_username, proxy_password,
                                      scheme='http'):
-        """Creates a proxy authentication extension"""
+        """创建一个代理认证扩展"""
         manifest_json = """
 {
     "version": "1.0.0",
@@ -340,7 +378,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     driver_mode = args.driver_mode
 
-    # Skip execution between midnight and 8 AM
+    # 在凌晨 0 点到 8 点之间跳过执行
     now = datetime.datetime.now().time()
     if datetime.time(0, 0) <= now < datetime.time(8, 0):
         print_with_timestamp('Skipping task execution between 0am and 8am')
@@ -351,21 +389,11 @@ if __name__ == '__main__':
     start_time = time.time()
     print("Setting up driver...")
 
-    # Proxy settings
-    proxy_auth = {
-        'username': '5c9f99950c50d70a',
-        'password': 'RNW78Fm5'
-    }
-    proxy = {
-        'host': 'res.proxy-seller.com',
-        'port': 10000
-    }
-
     watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
-    watcher.setup_driver(proxy=proxy, proxy_auth=proxy_auth)
+    watcher.setup_driver()
     print("Driver setup complete.")
 
-    # Start browsing
+    # 开始浏览
     url = "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000"
     try:
         watcher.driver.get(url)
@@ -564,40 +592,8 @@ if __name__ == '__main__':
                     output_data[place_name] = place_data
                 elif "验证" in str(watcher.driver.page_source):
                     print(f"[2] Processing by solving slider captcha...")
-                    access_ok = False
-                    for index in range(3):
-                        print(f"Try {index} time>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                        watcher.random_delay()
-                        watcher.solve_slider_captcha()
-                        WebDriverWait(watcher.driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-                        watcher.random_delay(min_delay=3, max_delay=10)
-                        if "网球" in str(watcher.driver.page_source):
-                            cookies = watcher.driver.get_cookies()
-                            headers = {
-                                'User-Agent': watcher.driver.execute_script("return navigator.userAgent;")
-                            }
-                            print(f"cookies: {cookies}")
-                            print(f"headers: {headers}")
-                            save_cookies_and_headers(cookies, headers)
-                            for cookie in cookies:
-                                watcher.driver.add_cookie(cookie)
-                            watcher.driver.get(url)
-                            access_ok = True
-                            break
-                        else:
-                            print(f"Failed, try again...")
-
-                    if access_ok:
-                        pass
-                    else:
-                        print(f"Failed to solve slider captcha")
-                        screenshot_path = 'screenshot.png'
-                        watcher.driver.save_screenshot(screenshot_path)
-                        page_source = watcher.driver.page_source
-                        with open("page_source.html", "w", encoding='utf-8') as f:
-                            f.write(page_source)
-                        time.sleep(10)
-                        raise Exception("自动化验证失败")
+                    print_with_timestamp(f"{place_name} 需要验证，跳过处理。")
+                    continue
                 else:
                     print("[3] 未知状态，跳过处理。")
             except Exception as error:
