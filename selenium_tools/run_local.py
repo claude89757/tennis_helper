@@ -12,7 +12,7 @@ while True:
 
     try:
         logging.info("Starting get_data_by_chrome.py...")
-        result = subprocess.run([sys.executable, '-u', 'get_data_by_chrome.py'], env=env, check=True)
+        result = subprocess.run([sys.executable, '-u', 'get_data_by_chrome_with_proxy.py'], env=env, check=True)
     except Exception as error:
         logging.exception(f"An unexpected error occurred: {error}")
         continue
