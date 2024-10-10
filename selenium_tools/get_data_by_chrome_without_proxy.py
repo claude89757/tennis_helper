@@ -27,6 +27,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
+import undetected_chromedriver as uc
+from selenium.webdriver.common.by import By
 
 FILENAME = "isz_data_infos.json"
 COOKIES_FILE = 'cookies.json'
@@ -95,32 +97,27 @@ class TwitterWatcher:
         self.headless = headless
         self.driver_mode = driver_mode  # 'local' or 'remote'
 
+   
     def setup_driver(self, proxy=None, proxy_auth=None):
         """
-        初始化浏览器
+        初始化浏览器，使用undetected-chromedriver来规避检测
         """
-        chrome_options = webdriver.ChromeOptions()
+        # 初始化Chrome选项
+        chrome_options = uc.ChromeOptions()
         if not self.headless:
             chrome_options.add_argument("--start-maximized")
         else:
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--no-sandbox")
-
-        # 禁用自动化标志以避免被检测
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_experimental_option('useAutomationExtension', False)
-        chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
-
-        # 模拟常规浏览器行为的通用选项
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument('--disable-quic')
-        chrome_options.add_argument('--disable-features=IsolateOrigins,site-per-process')
-        chrome_options.add_argument('--ignore-certificate-errors')
-        chrome_options.add_argument('--allow-insecure-localhost')
-        chrome_options.add_argument('--ignore-ssl-errors')
-
-        # 随机 User-Agent
+        
+        # 代理设置
+        if proxy:
+            chrome_options.add_argument(f'--proxy-server={proxy}')
+            if proxy_auth:
+                chrome_options.add_argument(f'--proxy-auth={proxy_auth["username"]}:{proxy_auth["password"]}')
+        
+        # 设置随机User-Agent
         user_agents = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/117.0.5938.62 Safari/537.36",
@@ -128,36 +125,18 @@ class TwitterWatcher:
         random_user_agent = random.choice(user_agents)
         chrome_options.add_argument(f"user-agent={random_user_agent}")
 
-        # 代理设置
-        if proxy:
-            if proxy_auth:
-                pluginfile = self._create_proxy_auth_extension(
-                    proxy_host=proxy['host'],
-                    proxy_port=proxy['port'],
-                    proxy_username=proxy_auth['username'],
-                    proxy_password=proxy_auth['password']
-                )
-                chrome_options.add_extension(pluginfile)
-            else:
-                chrome_options.add_argument(f'--proxy-server={proxy}')
-        else:
-            pass
-
-        # 创建并添加隐身扩展
-        stealth_extension = self._create_stealth_extension()
-        chrome_options.add_extension(stealth_extension)
-
-        # 初始化驱动
+        # 初始化undetected-chromedriver
         if self.driver_mode == 'local':
-            service = Service("/usr/local/bin/chromedriver")
-            self.driver = webdriver.Chrome(service=service, options=chrome_options)
+            self.driver = uc.Chrome(options=chrome_options)
         elif self.driver_mode == 'remote':
             selenium_grid_url = 'http://localhost:4444/wd/hub'
             self.driver = webdriver.Remote(command_executor=selenium_grid_url, options=chrome_options)
         else:
             raise ValueError(f"Invalid driver mode: {self.driver_mode}")
-
+        
+        # 启动浏览器并设置随机延迟
         self.random_delay(min_delay=2, max_delay=5)
+
 
     def _create_stealth_extension(self):
         """创建一个 Chrome 扩展，用于在每个页面中注入 JavaScript。"""
