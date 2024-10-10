@@ -108,37 +108,32 @@ class TwitterWatcher:
         firefox_options.add_argument("--no-sandbox")
 
         # 设置首选项以避免被检测
-        firefox_profile = webdriver.FirefoxProfile()
-        firefox_profile.set_preference("dom.webdriver.enabled", False)
+        firefox_options.set_preference("dom.webdriver.enabled", False)
         # 随机 User-Agent
         user_agent = self._get_random_user_agent()
-        firefox_profile.set_preference("general.useragent.override", user_agent)
+        firefox_options.set_preference("general.useragent.override", user_agent)
 
         # 代理设置
         if proxy:
-            firefox_profile.set_preference("network.proxy.type", 1)
-            firefox_profile.set_preference("network.proxy.http", proxy['host'])
-            firefox_profile.set_preference("network.proxy.http_port", int(proxy['port']))
-            firefox_profile.set_preference("network.proxy.ssl", proxy['host'])
-            firefox_profile.set_preference("network.proxy.ssl_port", int(proxy['port']))
+            firefox_options.set_preference("network.proxy.type", 1)
+            firefox_options.set_preference("network.proxy.http", proxy['host'])
+            firefox_options.set_preference("network.proxy.http_port", int(proxy['port']))
+            firefox_options.set_preference("network.proxy.ssl", proxy['host'])
+            firefox_options.set_preference("network.proxy.ssl_port", int(proxy['port']))
 
             if proxy_auth:
                 # 需要处理代理认证的弹出窗口
                 pass
         else:
-            firefox_profile.set_preference("network.proxy.type", 0)  # 直接连接
+            firefox_options.set_preference("network.proxy.type", 0)  # 直接连接
 
         # 初始化驱动
         if self.driver_mode == 'local':
             service = Service("/usr/local/bin/geckodriver")
-            self.driver = webdriver.Firefox(service=service,
-                                            options=firefox_options,
-                                            firefox_profile=firefox_profile)
+            self.driver = webdriver.Firefox(service=service, options=firefox_options)
         elif self.driver_mode == 'remote':
             selenium_grid_url = 'http://localhost:4444/wd/hub'
-            self.driver = webdriver.Remote(command_executor=selenium_grid_url,
-                                           options=firefox_options,
-                                           browser_profile=firefox_profile)
+            self.driver = webdriver.Remote(command_executor=selenium_grid_url, options=firefox_options)
         else:
             raise ValueError(f"Invalid driver mode: {self.driver_mode}")
 
