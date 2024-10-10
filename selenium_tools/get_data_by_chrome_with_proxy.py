@@ -350,7 +350,7 @@ if __name__ == '__main__':
     start_time = time.time()
     print("Setting up driver...")
 
-    # Proxy settings
+    # 代理设置
     proxy_auth = {
         'username': '5c9f99950c50d70a',
         'password': 'RNW78Fm5'
@@ -362,15 +362,15 @@ if __name__ == '__main__':
     
     # 测试并选择可用的端口
     for port in range(10000, 10100):
-        test_proxy = f"{proxy['host']}:{port}"
+        test_proxy = f"http://{proxy_auth['username']}:{proxy_auth['password']}@{proxy['host']}:{port}"
         try:
             response = requests.get('https://www.google.com', proxies={'https': test_proxy}, timeout=5)
             if response.status_code == 200:
                 proxy['port'] = port
                 print(f"找到可用的代理端口: {port}")
                 break
-        except:
-            pass
+        except requests.exceptions.RequestException:
+            continue
     
     if proxy['port'] is None:
         print("未找到可用的代理端口")
