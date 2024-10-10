@@ -357,8 +357,24 @@ if __name__ == '__main__':
     }
     proxy = {
         'host': 'res.proxy-seller.com',
-        'port': random.randint(10000, 10099)
+        'port': None
     }
+    
+    # 测试并选择可用的端口
+    for port in range(10000, 10100):
+        test_proxy = f"{proxy['host']}:{port}"
+        try:
+            response = requests.get('https://www.google.com', proxies={'https': test_proxy}, timeout=5)
+            if response.status_code == 200:
+                proxy['port'] = port
+                print(f"找到可用的代理端口: {port}")
+                break
+        except:
+            pass
+    
+    if proxy['port'] is None:
+        print("未找到可用的代理端口")
+        raise Exception("无可用代理端口")
 
     watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
     watcher.setup_driver(proxy=proxy, proxy_auth=proxy_auth)
