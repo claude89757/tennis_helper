@@ -103,7 +103,7 @@ class TwitterWatcher:
         if not self.headless:
             chrome_options.add_argument("--start-maximized")
         else:
-            chrome_options.headless = True
+            chrome_options.add_argument('--headless')
             chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--no-sandbox")
 
@@ -442,7 +442,7 @@ if __name__ == '__main__':
         url_infos = {
             "香蜜体育": "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341",
             "莲花体育": "https://wxsports.ydmap.cn/booking/schedule/101335?salesItemId=100347",
-            "大沙河": "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000",
+            # "大沙河": "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000",
             "黄木岗": "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344",
             "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
             "简上": "https://wxsports.ydmap.cn/booking/schedule/103909?salesItemId=102913",
