@@ -129,7 +129,8 @@ class TwitterWatcher:
 
         # 初始化驱动
         if self.driver_mode == 'local':
-            service = Service("/usr/local/bin/geckodriver")
+            # Initialize the driver
+            service = Service("/usr/local/bin/geckodriver", log_path='geckodriver.log')
             self.driver = webdriver.Firefox(service=service, options=firefox_options)
         elif self.driver_mode == 'remote':
             selenium_grid_url = 'http://localhost:4444/wd/hub'
