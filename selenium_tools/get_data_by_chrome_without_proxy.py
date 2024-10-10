@@ -413,7 +413,7 @@ if __name__ == '__main__':
             watcher.driver.get(url)
             print(f"没有找到缓存，直接访问页面。")
 
-        watcher.random_delay(min_delay=1, max_delay=10)
+        watcher.random_delay(min_delay=3, max_delay=10)
 
         watcher.wait_for_element(By.TAG_NAME, "body", timeout=15)
         if "网球" in str(watcher.driver.page_source):
