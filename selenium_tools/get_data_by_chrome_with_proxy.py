@@ -357,7 +357,7 @@ if __name__ == '__main__':
     }
     proxy = {
         'host': 'res.proxy-seller.com',
-        'port': 10001
+        'port': random.randint(10000, 10099)
     }
 
     watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
