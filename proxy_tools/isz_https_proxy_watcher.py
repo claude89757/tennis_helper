@@ -81,7 +81,7 @@ def check_proxy(proxy_url, proxy_url_infos):
             print(f"[OK] {proxy_url} from {proxy_url_infos.get(proxy_url)}")
             return proxy_url
     except Exception as error:
-        print(str(error).split()[0])
+        print(str(error))
     return None
 
 
