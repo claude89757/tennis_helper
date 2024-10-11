@@ -67,7 +67,7 @@ def check_proxy(proxy_url, proxy_url_infos):
             target_url
         ]
 
-        result = subprocess.run(curl_command, capture_output=True, text=True)
+        result = subprocess.run(curl_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         response_text = result.stdout[:-3]  # 去掉最后的 HTTP 状态码
         http_code = result.stdout[-3:]  # 获取 HTTP 状态码
 
