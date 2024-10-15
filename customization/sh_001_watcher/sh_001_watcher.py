@@ -270,7 +270,7 @@ if __name__ == '__main__':
         print(args.phone)
 
     # 获取公网HTTPS代理列表
-    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
+    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/https_proxies.txt"
     response = requests.get(url)
     text = response.text.strip()
     lines = text.split("\n")

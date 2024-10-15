@@ -750,7 +750,7 @@ def get_proxy_list() -> list:
     获取代理列表
     """
     # 获取公网HTTPS代理列表
-    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/free_https_proxies.txt"
+    url = "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/https_proxies.txt"
     response = requests.get(url, verify=False)
     text = response.text.strip()
     lines = text.split("\n")
