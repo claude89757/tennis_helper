@@ -92,7 +92,7 @@ def send_sms_for_news(phone_num_list: list, param_list: list, template_id: str =
         # 模板参数: 模板参数的个数需要与 TemplateId 对应模板的变量个数保持一致，，若无模板参数，则设置为空
         req.TemplateParamSet = param_list
         # 下发手机号码，采用 E.164 标准，+[国家或地区码][手机号]
-        # 示例如：+8613711112222， 其中前面有一个+号 ，86为国家码，13711112222为手机号，最多不���超过200个手机号
+        # 示例如：+8613711112222， 其中前面有一个+号 ，86为国家码，13711112222为手机号，最多不超过200个手机号
         req.PhoneNumberSet = phone_num_list
         # 用户的 session 内容（无需要可忽略）: 可以携带用户侧 ID 等上下文信息，server 会原样返回
         req.SessionContext = ""
@@ -179,7 +179,8 @@ def get_free_tennis_court_data(venue_id: str, book_time: str, proxy_list: list =
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Dest": "empty",
         "Referer": "https://servicewechat.com/wxbd4ec54a9e9ce6dd/115/page-frame.html",
-        "Accept-Language": "zh-CN,zh;q=0.9"
+        "Accept-Language": "zh-CN,zh;q=0.9",
+        "cookie": "ssxmod_itna3=C50qzxBDRDuDcGCGCDyDA2D+hfmtDQFsD9COrOlxB++8IxDs0D6mxqeKDCgDjxWKQD=1q07De40kYxjKDADY5RQYD0+6hexD4GvDQaFD7p=wqaLjxA6+R7AGRYeK7A8UqODnqD8D/40iDC4IgiiPoGh5DbqGuRqDSQix7jYqdGh4KKrb36eTOYqI7IjbtuWWbw2IWhraapxKxD;"
     }
     data = {
         "venueId": venue_id,
@@ -356,4 +357,5 @@ if __name__ == '__main__':
     #                "status": status, "place_name": "卢湾中心", "city": "上海",
     #                "up_for_send_num": len(up_for_send_data_list), "send_num": len(up_for_send_sms_list)}
     # print(F"[GRAFANA_DATA]@{json.dumps(output_data)}")
+
 
