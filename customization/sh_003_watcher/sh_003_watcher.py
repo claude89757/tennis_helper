@@ -173,7 +173,7 @@ def get_free_tennis_court_data(venue_id: str, book_time: str, proxy_list: list =
         "Content-Type": "application/json",
         "xweb_xhr": "1",
         "device_type": "MacBookPro18,1",
-        # "token": "kLzLiLeGCWua6C0XKWvPaN3POeYoQSJWef6CoYk1Bux2QOEUiJd16p3Ihv2R9SEQ+qaudBZUe7LoNiuEcUmuMpTRY7Oi1upzTi9JOpaSNya5nEVFa3tBo7IvJuV5W9rn0U6O9Pcp0duhEvW0IcYU/gTYFD3qNt5l0P09NNZ0NW8",
+        "token": "kLzLiLeGCWua6C0XKWvPaN3POeYoQSJWef6CoYk1Bux2QOEUiJd16p3Ihv2R9SEQ+qaudBZUe7LoNiuEcUmuMpTRY7Oi1upzTi9JOpaSNya5nEVFa3tBo7IvJuV5W9rn0U6O9Pcp0duhEvW0IcYU/gTYFD3qNt5l0P09NNZ0NW8",
         "Accept": "*/*",
         "Sec-Fetch-Site": "cross-site",
         "Sec-Fetch-Mode": "cors",
