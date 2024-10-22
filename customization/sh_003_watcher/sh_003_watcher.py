@@ -173,7 +173,7 @@ def get_free_tennis_court_data(venue_id: str, book_time: str, proxy_list: list =
         "Content-Type": "application/json",
         "xweb_xhr": "1",
         "device_type": "MacBookPro18,1",
-        "token": "kLzLiLeGCWua6C0XKWvPaN3POeYoQSJWef6CoYk1Bux2QOEUiJd16p3Ihv2R9SEQ+qaudBZUe7LoNiuEcUmuMpTRY7Oi1upzTi9JOpaSNya5nEVFa3tBo7IvJuV5W9rn0U6O9Pcp0duhEvW0IcYU/gTYFD3qNt5l0P09NNZ0NW8",
+        # "token": "kLzLiLeGCWua6C0XKWvPaN3POeYoQSJWef6CoYk1Bux2QOEUiJd16p3Ihv2R9SEQ+qaudBZUe7LoNiuEcUmuMpTRY7Oi1upzTi9JOpaSNya5nEVFa3tBo7IvJuV5W9rn0U6O9Pcp0duhEvW0IcYU/gTYFD3qNt5l0P09NNZ0NW8",
         "Accept": "*/*",
         "Sec-Fetch-Site": "cross-site",
         "Sec-Fetch-Mode": "cors",
@@ -273,6 +273,7 @@ if __name__ == '__main__':
     proxy_list = [line.strip() for line in lines]
     random.shuffle(proxy_list)  # 每次都打乱下
     print(f"Loaded {len(proxy_list)} proxies from {url}")
+    proxy_list = []  # 测试阶段，先不使用代理
 
     # 查询空闲的球场信息
     up_for_send_data_list = []
