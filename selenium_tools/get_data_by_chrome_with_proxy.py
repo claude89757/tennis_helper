@@ -352,32 +352,39 @@ if __name__ == '__main__':
 
     # 代理设置
     proxy_auth = {
-        'username': '5c9f99950c50d70a',
-        'password': 'RNW78Fm5'
+        # 'username': '5c9f99950c50d70a',
+        # 'password': 'RNW78Fm5'
     }
     proxy = {
-        'host': 'res.proxy-seller.com',
-        'port': None
+        'host': '218.87.205.105',
+        'port': 15030
     }
     
     # 测试并选择可用的端口
-    for port in range(10000, 10100):
-        test_proxy = f"http://{proxy_auth['username']}:{proxy_auth['password']}@{proxy['host']}:{port}"
-        try:
-            response = requests.get('https://www.google.com', proxies={'https': test_proxy}, timeout=5)
-            if response.status_code == 200:
-                proxy['port'] = port
-                print(f"找到可用的代理端口: {port}")
-                break
-        except requests.exceptions.RequestException:
-            continue
+    if proxy['port'] is None:
+        for port in range(10000, 10100):
+            test_proxy = f"http://{proxy_auth['username']}:{proxy_auth['password']}@{proxy['host']}:{port}"
+            try:
+                response = requests.get('https://www.google.com', proxies={'https': test_proxy}, timeout=5)
+                if response.status_code == 200:
+                    proxy['port'] = port
+                    print(f"找到可用的代理端口: {port}")
+                    break
+            except requests.exceptions.RequestException:
+                continue
+    else:
+        # 如果端口已指定，则跳过测试
+        pass
     
     if proxy['port'] is None:
         print("未找到可用的代理端口")
         raise Exception("无可用代理端口")
 
-    watcher = TwitterWatcher(headless=True, driver_mode=driver_mode)
-    watcher.setup_driver(proxy=proxy, proxy_auth=proxy_auth)
+    watcher = TwitterWatcher(headless=False, driver_mode=driver_mode)
+    if proxy_auth:
+        watcher.setup_driver(proxy=proxy, proxy_auth=proxy_auth)
+    else:
+        watcher.setup_driver(proxy=proxy)
     print("Driver setup complete.")
 
     # Start browsing
