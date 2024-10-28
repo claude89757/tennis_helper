@@ -1029,8 +1029,9 @@ if __name__ == '__main__':
             court_name = up_for_send_data['court_name']
             free_slot_list = up_for_send_data['free_slot_list']
             for free_slot in free_slot_list:
-                cache_key = f"{court_name}_{date}_{free_slot[0]}"
-                if cache_key in cache:
+                cache_key_001 = f"{court_name}_{date}_{free_slot[0]}"
+                cache_key_002 = f"{court_name}_{date}_{free_slot[1]}"
+                if cache_key_001 in cache or cache_key_002 in cache:
                     # 已通知过
                     print(f"已通知: {up_for_send_data}")
                     pass
@@ -1044,7 +1045,8 @@ if __name__ == '__main__':
                                                  "end_time": free_slot[1],
                                                  })
                     # 更新本地文件缓存
-                    cache[cache_key] = 1
+                    cache[cache_key_001] = 1
+                    cache[cache_key_002] = 1
         # 关闭本地文件缓存
         cache.close()
 
