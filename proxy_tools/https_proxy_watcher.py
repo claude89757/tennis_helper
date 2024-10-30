@@ -85,9 +85,9 @@ def update_proxy_file(filename, available_proxies):
     with open(filename, "r") as file:
         lines = file.readlines()
 
-    if len(lines) > 400:
+    if len(lines) > 50:
         with open(filename, "w") as file:
-            file.writelines(lines[-100:])  # 保留从第200行到最后的行
+            file.writelines(lines[-50:])  # 保留从第200行到最后的行
 
 
 def task_check_proxies():
