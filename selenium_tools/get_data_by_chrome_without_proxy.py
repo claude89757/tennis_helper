@@ -16,9 +16,6 @@ import json
 import base64
 import datetime
 import argparse
-import tempfile
-import zipfile
-import string
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -58,7 +55,7 @@ def generate_proxies():
 
 
 def upload_file_to_github(input_data):
-    token = os.environ['GIT_TOKEN']
+    token = os.environ.get('GIT_TOKEN', "")
     repo = 'claude89757/tennis_data'
     url = f'https://api.github.com/repos/{repo}/contents/{FILENAME}'
 
@@ -89,7 +86,7 @@ def get_file_sha(url, headers):
     return None
 
 
-class TwitterWatcher:
+class IszWatcher:
     def __init__(self, timeout=10, headless: bool = True, driver_mode='local'):
         self.timeout = timeout
         self.interaction_timeout = 10
@@ -136,74 +133,6 @@ class TwitterWatcher:
         
         # 启动浏览器并设置随机延迟
         self.random_delay(min_delay=2, max_delay=5)
-
-
-    def _create_stealth_extension(self):
-        """创建一个 Chrome 扩展，用于在每个页面中注入 JavaScript。"""
-        manifest = {
-            "manifest_version": 2,
-            "name": "Stealth Plugin",
-            "version": "1.0",
-            "description": "Inject JavaScript to mask automation properties",
-            "permissions": ["<all_urls>"],
-            "content_scripts": [
-                {
-                    "matches": ["<all_urls>"],
-                    "js": ["stealth.js"],
-                    "run_at": "document_start"
-                }
-            ]
-        }
-
-        stealth_js = """
-// 隐藏 webdriver 属性
-Object.defineProperty(navigator, 'webdriver', {
-    get: () => undefined
-});
-// 模拟 chrome 对象
-window.chrome = {
-    runtime: {}
-};
-// 修改 platform 属性
-Object.defineProperty(navigator, 'platform', {
-    get: () => 'Win32'
-});
-// 模拟 plugins
-Object.defineProperty(navigator, 'plugins', {
-    get: () => [1, 2, 3, 4, 5]
-});
-// 模拟 languages
-Object.defineProperty(navigator, 'languages', {
-    get: () => ['en-US', 'en']
-});
-// 删除 cdc_ 属性
-for (let property in window) {
-    if (property.startsWith('cdc_')) {
-        delete window[property];
-    }
-}
-"""
-
-        # 创建扩展文件的临时目录
-        temp_dir = tempfile.mkdtemp()
-        manifest_path = os.path.join(temp_dir, 'manifest.json')
-        stealth_js_path = os.path.join(temp_dir, 'stealth.js')
-
-        # 写入 manifest.json 文件
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f)
-
-        # 写入 stealth.js 文件
-        with open(stealth_js_path, 'w') as f:
-            f.write(stealth_js)
-
-        # 将扩展打包成 ZIP 文件
-        pluginfile = tempfile.NamedTemporaryFile(suffix='.zip', delete=False)
-        with zipfile.ZipFile(pluginfile, 'w') as zp:
-            zp.write(manifest_path, 'manifest.json')
-            zp.write(stealth_js_path, 'stealth.js')
-
-        return pluginfile.name
 
     def teardown_driver(self):
         if self.driver:
@@ -254,73 +183,6 @@ for (let property in window) {
         }
         return headers
 
-    def _create_proxy_auth_extension(self, proxy_host, proxy_port, proxy_username, proxy_password,
-                                     scheme='http'):
-        """创建一个代理认证扩展"""
-        manifest_json = """
-{
-    "version": "1.0.0",
-    "manifest_version": 2,
-    "name": "Chrome Proxy",
-    "permissions": [
-        "proxy",
-        "tabs",
-        "unlimitedStorage",
-        "storage",
-        "<all_urls>",
-        "webRequest",
-        "webRequestBlocking"
-    ],
-    "background": {
-        "scripts": ["background.js"]
-    }
-}
-        """
-
-        background_js = string.Template("""
-var config = {
-    mode: "fixed_servers",
-    rules: {
-        singleProxy: {
-            scheme: "${scheme}",
-            host: "${host}",
-            port: parseInt(${port})
-        },
-        bypassList: ["localhost"]
-    }
-};
-
-chrome.proxy.settings.set({ value: config, scope: "regular" }, function() {});
-
-function callbackFn(details) {
-    return {
-        authCredentials: {
-            username: "${username}",
-            password: "${password}"
-        }
-    };
-}
-
-chrome.webRequest.onAuthRequired.addListener(
-    callbackFn,
-    { urls: ["<all_urls>"] },
-    ["blocking"]
-);
-        """).substitute(
-            host=proxy_host,
-            port=proxy_port,
-            username=proxy_username,
-            password=proxy_password,
-            scheme=scheme
-        )
-
-        pluginfile = tempfile.NamedTemporaryFile(suffix='.zip', delete=False)
-        with zipfile.ZipFile(pluginfile, 'w') as zp:
-            zp.writestr("manifest.json", manifest_json)
-            zp.writestr("background.js", background_js)
-        return pluginfile.name
-
-
 def load_cookies_and_headers():
     if os.path.exists(COOKIES_FILE) and os.path.exists(HEADERS_FILE):
         with open(COOKIES_FILE, 'r') as f:
@@ -368,7 +230,7 @@ if __name__ == '__main__':
     start_time = time.time()
     print("Setting up driver...")
 
-    watcher = TwitterWatcher(headless=False, driver_mode=driver_mode)
+    watcher = IszWatcher(headless=False, driver_mode=driver_mode)
     watcher.setup_driver()
     print("Driver setup complete.")
 
@@ -451,8 +313,8 @@ if __name__ == '__main__':
             "香蜜体育": "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341",
             "莲花体育": "https://wxsports.ydmap.cn/booking/schedule/101335?salesItemId=100347",
             "黄木岗": "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344",
-            "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
-            "简上": "https://wxsports.ydmap.cn/booking/schedule/103909?salesItemId=102913",
+            # "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
+            # "简上": "https://wxsports.ydmap.cn/booking/schedule/103909?salesItemId=102913",
         }
         output_data = {}
         for place_name, url in url_infos.items():
@@ -519,45 +381,105 @@ if __name__ == '__main__':
                                     key = (row_index + i, col_index + j)
                                     occupied_cells.add(key)
 
+                        def get_standard_status_class(body_rows):
+                            """
+                            分析找出最常用的表示"已预订"状态的class
+                            """
+                            span_class_status_infos = {}    
+
+                            for row in body_rows:
+                                first_cell = row.find(['td', 'th'])
+                                if not first_cell:
+                                    continue
+                                
+                                # 获取时间信息
+                                div = first_cell.find('div')
+                                if not div:
+                                    continue
+                                
+                                time_text = div.get_text(strip=True).split()[0]
+                                if not time_text or ':' not in time_text:
+                                    continue
+
+                                # 分析该行所有单元格中的span
+                                cells = row.find_all(['td', 'th'])
+                                for cell in cells:
+                                    spans = cell.find_all('span')
+                                    for span in spans:
+                                        # print(f"span: {span}")
+                                        class_name = span.get('class', [''])[0]
+                                        if not class_name:
+                                            continue
+                                        span_text = span.get_text(strip=True)
+                                        
+                                        class_name_and_text = f"{class_name}|{span_text}"
+
+                                        span_class_status_infos[class_name_and_text] = span_class_status_infos.get(class_name_and_text, 0) + 1
+                            
+                            # print(f"span_class_status_infos: {sorted(span_class_status_infos.items(), key=lambda x: x[1], reverse=True)}")                                         
+                            class_name_and_text  = max(span_class_status_infos.items(), key=lambda x: x[1])[0]
+                            # print(f"class_name_and_text: {class_name_and_text}")
+                            class_name = class_name_and_text.split('|')[0]
+                            return class_name
+                 
                         if body_table:
                             tbody = body_table.find('tbody')
                             if tbody:
                                 body_rows = tbody.find_all('tr')
                             else:
                                 body_rows = body_table.find_all('tr')
+                            
+                            # 获取标准状态class
+                            standard_status_class = get_standard_status_class(body_rows)
+                            print(f"standard_status_class: {standard_status_class}")
+                            
                             num_cols = len(venue_names)
                             occupied_cells = set()
+                            
                             for row_index, row in enumerate(body_rows):
                                 col_index = 0
                                 cells = row.find_all(['td', 'th'])
                                 cell_index = 0
+                                
                                 while col_index < num_cols and cell_index < len(cells):
                                     cell = cells[cell_index]
                                     while (row_index, col_index) in occupied_cells:
                                         col_index += 1
+                                        
                                     rowspan = int(cell.get('rowspan', 1))
                                     colspan = int(cell.get('colspan', 1))
-                                    cell_class_name = cell.get("class")
-                                    cell_class_name_list = str(cell_class_name).split()
-                                    if len(cell_class_name_list) == 1:
-                                        real_status = "可预订"
-                                    else:
-                                        real_status = "已预订"
-
+                                    
                                     if col_index < num_cols:
                                         venue = venue_names[col_index]
                                         div_in_cell = cell.find('div')
                                         if div_in_cell:
+                                            # 获取时间信息
                                             full_text = div_in_cell.get_text(separator=',', strip=False)
                                             time_matches = time_pattern.findall(full_text)
                                             time_slot = '-'.join(time_matches) if time_matches else ''
+                                            
+                                            # 获取真实状态
+                                            show_status = "?"
+                                            spans = div_in_cell.find_all('span')
+                                            for span in spans:
+                                                if span.get('class') and standard_status_class in span.get('class'):
+                                                    span_text = span.get_text(strip=True)
+                                                    show_status = span_text
+                                            if "元" in show_status:
+                                                real_status = "可预订"
+                                            else:
+                                                real_status = "已预定"
+                                            # 获取原始状态文本
                                             temp_text = time_pattern.sub('', full_text)
-                                            status = temp_text.strip()
+                                            raw_status = temp_text.strip()
+                                            
                                             venue_times[venue].append({
                                                 'time': time_slot,
                                                 'status': real_status,
-                                                'raw_status': status,
+                                                'show_status': show_status,                                                  
+                                                'raw_statut': raw_status,
                                             })
+                                            
                                     expand_cell(row_index, col_index, rowspan, colspan)
                                     col_index += colspan
                                     cell_index += 1
@@ -577,6 +499,9 @@ if __name__ == '__main__':
             except Exception as error:
                 print_with_timestamp(f"{place_name} failed: {str(error).splitlines()[0]}")
         upload_file_to_github(output_data)
+        # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        # print(output_data)
+        # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     finally:
         watcher.teardown_driver()
 
