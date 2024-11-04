@@ -373,7 +373,7 @@ if __name__ == '__main__':
     print("Driver setup complete.")
 
     # 开始浏览
-    url = "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000"
+    url = "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341"
     try:
         watcher.driver.get(url)
         watcher.random_delay(min_delay=1, max_delay=5)
@@ -450,7 +450,6 @@ if __name__ == '__main__':
         url_infos = {
             "香蜜体育": "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341",
             "莲花体育": "https://wxsports.ydmap.cn/booking/schedule/101335?salesItemId=100347",
-            "大沙河": "https://wxsports.ydmap.cn/booking/schedule/100220?salesItemId=100000",
             "黄木岗": "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344",
             "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
             "简上": "https://wxsports.ydmap.cn/booking/schedule/103909?salesItemId=102913",
