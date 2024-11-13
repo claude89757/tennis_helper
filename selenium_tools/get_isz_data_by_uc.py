@@ -257,6 +257,64 @@ class IszWatcher:
         }
         return headers
 
+    def safe_page_load(self, url, max_retries=3):
+        """
+        安全的页面加载方法，包含重试机制和超时处理
+        """
+        print(f"开始访问页面: {url}")
+        
+        for attempt in range(max_retries):
+            try:
+                # 设置更短的页面加载超时时间
+                self.driver.set_page_load_timeout(20)
+                
+                # 先尝试只加载页面框架
+                self.driver.execute_script("window.stop();")
+                self.driver.get(url)
+                
+                # 等待body元素出现
+                try:
+                    WebDriverWait(self.driver, 10).until(
+                        EC.presence_of_element_located((By.TAG_NAME, "body"))
+                    )
+                except Exception as e:
+                    print(f"等待body元素超时: {str(e)}")
+                    continue
+                
+                # 检查页面是否加载完成
+                page_state = self.driver.execute_script('return document.readyState;')
+                if page_state != 'complete':
+                    print(f"页面未完全加载，当前状态: {page_state}")
+                    # 继续等待完全加载
+                    try:
+                        WebDriverWait(self.driver, 10).until(
+                            lambda driver: driver.execute_script('return document.readyState;') == 'complete'
+                        )
+                    except:
+                        print("等待页面完全加载超时，继续执行...")
+                
+                # 检查页面内容
+                if "网球" in self.driver.page_source or "验证" in self.driver.page_source:
+                    print("页面加载成功")
+                    return True
+                
+                print(f"尝试 {attempt + 1}/{max_retries} 失败，页面内容不符合预期")
+                
+            except Exception as e:
+                print(f"尝试 {attempt + 1}/{max_retries} 失败: {str(e)}")
+                if "timeout" in str(e).lower():
+                    # 超时时中断加载
+                    try:
+                        self.driver.execute_script("window.stop();")
+                    except:
+                        pass
+                
+            # 重试前短暂等待
+            if attempt < max_retries - 1:
+                time.sleep(random.uniform(2, 4))
+                
+        return False
+
 
 def load_cookies_and_headers():
     if os.path.exists(COOKIES_FILE) and os.path.exists(HEADERS_FILE):
@@ -323,7 +381,7 @@ def test_proxy(proxy):
 def get_working_proxy():
     """
     获取一个可用的代理
-    如果本地缓存中的代理不足3个或都不可用，则删除缓存文件并重新获取
+    如果��地缓存中的代理不足3个或都不可用，则删除缓存文件并重新获取
     """
     proxies = generate_proxies()
     if not proxies:
@@ -407,26 +465,28 @@ if __name__ == '__main__':
                 # 开始浏览
                 print("开始访问页面")
                 url = "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341"
-                watcher.driver.get(url)
-                watcher.random_delay(min_delay=1, max_delay=5)
-
+                if not watcher.safe_page_load(url):
+                    print("页面加载失败，尝试使用新的代理重试")
+                    continue
+                
+                watcher.random_delay(min_delay=3, max_delay=15)
                 watcher.wait_for_element(By.TAG_NAME, "body", timeout=10)
+                
                 cookies, headers = load_cookies_and_headers()
                 if cookies and headers:
+                    print(f"使用缓存的 cookies 和 headers 访问页面。")
                     watcher.driver.get(url)
                     for cookie in cookies:
                         watcher.driver.add_cookie(cookie)
                     watcher.driver.get(url)
                     watcher.driver.refresh()
                     watcher.random_delay()
-                    print(f"使用缓存的 cookies 和 headers 访问页面。")
+                    watcher.random_delay(min_delay=5, max_delay=10)
+                    watcher.wait_for_element(By.TAG_NAME, "body", timeout=15)
                 else:
                     # watcher.driver.get(url)
                     print(f"没有找到缓存，直接访问页面。")
 
-                watcher.random_delay(min_delay=5, max_delay=10)
-
-                watcher.wait_for_element(By.TAG_NAME, "body", timeout=15)
                 if "网球" in str(watcher.driver.page_source):
                     print(f"[1] Processing directly...")
                     current_url = watcher.driver.current_url
@@ -662,7 +722,7 @@ if __name__ == '__main__':
             if sleep_time > 0:
                 print_with_timestamp(f"等待 {sleep_time:.2f} 秒后开始下一次任务...")
                 time.sleep(sleep_time)
-
         except Exception as e:
             print_with_timestamp(f"发生意外错误: {str(e)}，直接开始下一轮")
             continue
+
