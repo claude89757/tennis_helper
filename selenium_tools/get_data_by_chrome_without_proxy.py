@@ -87,52 +87,35 @@ def get_file_sha(url, headers):
 
 
 class IszWatcher:
-    def __init__(self, timeout=10, headless: bool = True, driver_mode='local'):
+    def __init__(self, timeout=10, headless: bool = True):
         self.timeout = timeout
         self.interaction_timeout = 10
         self.driver = None
         self.headless = headless
-        self.driver_mode = driver_mode  # 'local' or 'remote'
-
    
-    def setup_driver(self, proxy=None, proxy_auth=None):
+    def setup_driver(self, proxy=None):
         """
         初始化浏览器，使用undetected-chromedriver来规避检测
         """
         # 初始化Chrome选项
         chrome_options = uc.ChromeOptions()
+        
+        # 基础设置
         if not self.headless:
             chrome_options.add_argument("--start-maximized")
         else:
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--window-size=1920,1080")
-        chrome_options.add_argument("--no-sandbox")
         
         # 代理设置
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
-            if proxy_auth:
-                chrome_options.add_argument(f'--proxy-auth={proxy_auth["username"]}:{proxy_auth["password"]}')
-        
-        # 设置随机User-Agent
-        user_agents = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/117.0.5938.62 Safari/537.36",
-        ]
-        random_user_agent = random.choice(user_agents)
-        chrome_options.add_argument(f"user-agent={random_user_agent}")
 
-        # 初始化undetected-chromedriver
-        if self.driver_mode == 'local':
-            self.driver = uc.Chrome(options=chrome_options)
-        elif self.driver_mode == 'remote':
-            selenium_grid_url = 'http://localhost:4444/wd/hub'
-            self.driver = webdriver.Remote(command_executor=selenium_grid_url, options=chrome_options)
-        else:
-            raise ValueError(f"Invalid driver mode: {self.driver_mode}")
+        service = Service("/usr/local/bin/chromedriver")
+        self.driver = uc.Chrome(service=service, options=chrome_options)
         
-        # 启动浏览器并设置随机延迟
-        self.random_delay(min_delay=2, max_delay=5)
+        # 添加随机延迟
+        self.random_delay(min_delay=1, max_delay=3)
 
     def teardown_driver(self):
         if self.driver:
@@ -212,13 +195,6 @@ if __name__ == '__main__':
     """
     遍历查询多个网球场的信息，并缓存到 GitHub 上
     """
-
-    parser = argparse.ArgumentParser(description='Script to fetch data.')
-    parser.add_argument('--driver-mode', choices=['local', 'remote'], default='local',
-                        help='Driver mode: local or remote (default: local)')
-    args = parser.parse_args()
-    driver_mode = args.driver_mode
-
     # 在凌晨 0 点到 8 点之间跳过执行
     now = datetime.datetime.now().time()
     if datetime.time(0, 0) <= now < datetime.time(8, 0):
@@ -230,7 +206,7 @@ if __name__ == '__main__':
     start_time = time.time()
     print("Setting up driver...")
 
-    watcher = IszWatcher(headless=False, driver_mode=driver_mode)
+    watcher = IszWatcher(headless=False)
     watcher.setup_driver()
     print("Driver setup complete.")
 
