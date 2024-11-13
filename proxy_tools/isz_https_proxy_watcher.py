@@ -53,7 +53,8 @@ def check_proxy(proxy_url, proxy_url_infos):
     检查代理是否可用
     """
     try:
-        print(f"Checking {proxy_url}")
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"{now} Checking {proxy_url}")
         target_url = 'https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig'
 
         # 使用 curl 命令发送请求
@@ -73,12 +74,13 @@ def check_proxy(proxy_url, proxy_url_infos):
 
         print(response_text[:100])
 
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if http_code == '200' and "html" in response_text:
-            print(f"[OK]  {proxy_url}, from {proxy_url_infos.get(proxy_url)}")
+            print(f"{now} [OK]  {proxy_url}, from {proxy_url_infos.get(proxy_url)}")
             return proxy_url
 
         if http_code == '200' and '"code":-1' in response_text and "签名错误" in response_text:
-            print(f"[OK] {proxy_url} from {proxy_url_infos.get(proxy_url)}")
+            print(f"{now} [OK] {proxy_url} from {proxy_url_infos.get(proxy_url)}")
             return proxy_url
     except Exception as error:
         print(str(error))
