@@ -98,6 +98,7 @@ class IszWatcher:
     def setup_driver(self, proxy=None):
         """
         初始化浏览器，使用undetected-chromedriver来规避检测
+        仅支持Chrome 129版本
         """
         # 初始化Chrome选项
         chrome_options = uc.ChromeOptions()
@@ -113,8 +114,15 @@ class IszWatcher:
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
 
-        service = Service("/usr/local/bin/chromedriver")
-        self.driver = uc.Chrome(service=service, options=chrome_options)
+        try:
+            self.driver = uc.Chrome(
+                options=chrome_options,
+                version_main=129,  # 强制使用129版本
+                driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
+            )
+        except Exception as e:
+            print(f"创建Chrome 129版本driver失败: {str(e)}")
+            raise Exception("仅支持Chrome 129版本，请确保安装了正确的Chrome版本")
         
         # 添加随机延迟
         self.random_delay(min_delay=1, max_delay=3)
