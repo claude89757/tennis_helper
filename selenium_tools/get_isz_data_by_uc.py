@@ -309,7 +309,7 @@ def get_working_proxy():
 if __name__ == '__main__':
     """
     遍历查询多个网球场的信息，并缓存到 GitHub 上
-    每5分钟执行一次，失败不会终止循环
+    每5分钟执行一次，失败直接开始下一轮
     """
     while True:
         try:
@@ -330,12 +330,10 @@ if __name__ == '__main__':
             try:
                 working_proxy = get_working_proxy()
                 if not working_proxy:
-                    print("未找到可用代理，等待下次尝试")
-                    time.sleep(300)  # 休息5分钟
+                    print("未找到可用代理，直接开始下一轮")
                     continue
             except Exception as e:
-                print(f"获取代理时出错: {str(e)}")
-                time.sleep(300)  # 休息5分钟
+                print(f"获取代理时出错: {str(e)}，直接开始下一轮")
                 continue
             
             print(f"使用代理: {working_proxy}")
@@ -614,7 +612,8 @@ if __name__ == '__main__':
                 # print(output_data)
                 # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             except Exception as e:
-                print_with_timestamp(f"任务执行出错: {str(e)}")
+                print_with_timestamp(f"任务执行出错: {str(e)}，直接开始下一轮")
+                continue
             finally:
                 # 确保资源被正确释放
                 if watcher:
@@ -635,7 +634,5 @@ if __name__ == '__main__':
                 time.sleep(sleep_time)
                 
         except Exception as e:
-            print_with_timestamp(f"发生意外错误: {str(e)}")
-            print_with_timestamp("等待5分钟后重试...")
-            time.sleep(300)
+            print_with_timestamp(f"发生意外错误: {str(e)}，直接开始下一轮")
             continue
