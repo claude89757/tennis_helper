@@ -435,8 +435,19 @@ if __name__ == '__main__':
                     access_ok = False
                     for index in range(3):
                         print(f"Try {index} time>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                        watcher.random_delay()
-                        watcher.solve_slider_captcha()
+                        try:
+                            watcher.solve_slider_captcha()
+                        except Exception as e:
+                            print("=" * 50)
+                            print("滑块验证码解决失败")
+                            print(f"错误类型: {type(e).__name__}")
+                            print(f"详细错误: {str(e)}")
+                            print(f"错误追踪:")
+                            import traceback
+                            print(traceback.format_exc())
+                            print("=" * 50)
+                            time.sleep(10)
+                            continue
                         WebDriverWait(watcher.driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
                         watcher.random_delay(min_delay=3, max_delay=10)
                         if "网球" in str(watcher.driver.page_source):
