@@ -198,7 +198,7 @@ class IszWatcher:
             return options
 
         # 添加反检测选项
-        chrome_options = add_antidetect_options(chrome_options)
+        # chrome_options = add_antidetect_options(chrome_options)
         
         # 基础设置 - 自动适配显示器
         if not self.headless:
