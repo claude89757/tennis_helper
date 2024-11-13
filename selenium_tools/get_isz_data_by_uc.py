@@ -135,24 +135,18 @@ class IszWatcher:
         # 初始化Chrome选项
         chrome_options = uc.ChromeOptions()
         
-        # 核心性能优化参数
-        chrome_options.add_argument('--no-sandbox')
-        # chrome_options.add_argument('--disable-dev-shm-usage')  # 解决Linux下内存问题
-        chrome_options.add_argument('--disable-gpu')
-        # chrome_options.add_argument('--disable-software-rasterizer')
-        # chrome_options.add_argument('--disable-extensions')
-        # chrome_options.add_argument('--disable-setuid-sandbox')
-        
-        # # 减少内存使用
-        # chrome_options.add_argument('--single-process')
-        # chrome_options.add_argument('--disable-application-cache')
-        # chrome_options.add_argument('--disable-popup-blocking')
-        
-        if self.headless:
-            chrome_options.add_argument('--headless=new')
+        # 基础设置 - 自动适配显示器
+        if not self.headless:
+            # 不设置固定大小，让浏览器自动适配显示器
             chrome_options.add_argument('--window-size=1920,1080')
+            chrome_options.add_argument("--start-maximized")
+            chrome_options.add_argument("--disable-gpu")
+            print("设置为可视化模式，将自动适配显示器大小")
         else:
-            chrome_options.add_argument('--start-maximized')
+            # 无头模式仍然需要固定大小
+            chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--window-size=1920,1080")
+            print("设置为无头模式，窗口大小: 1920x1080")
 
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
@@ -174,18 +168,9 @@ class IszWatcher:
         try:
             self.driver = uc.Chrome(
                 options=chrome_options,
-                version_main=chrome_version,
-                driver_executable_path=None,
-                suppress_welcome=True,
-                use_subprocess=False,
-                headless=self.headless,
-                async_script=False  # 使用同步模式
+                version_main=chrome_version,  # 使用检测到的版本号
+                driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
             )
-            
-            # 设置页面加载策略
-            self.driver.set_page_load_timeout(30)
-            self.driver.implicitly_wait(10)
-            
             print("Chrome驱动创建成功！")
         except Exception as e:
             print(f"创建Chrome驱动失败: {str(e)}")
@@ -424,10 +409,9 @@ if __name__ == '__main__':
                     watcher.driver.get(url)
                     watcher.driver.refresh()
                     watcher.random_delay()
-                    watcher.random_delay(min_delay=5, max_delay=10)
-                    watcher.wait_for_element(By.TAG_NAME, "body", timeout=15)
+                    time.sleep(10)
+                    watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
                 else:
-                    # watcher.driver.get(url)
                     print(f"没有找到缓存，直接访问页面。")
 
                 if "网球" in str(watcher.driver.page_source):
