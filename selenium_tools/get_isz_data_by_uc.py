@@ -539,10 +539,10 @@ if __name__ == '__main__':
                                             occupied_cells.add((i, j))
 
                                 for row_index, row in enumerate(body_rows):
-                                    print(f"Processing row {row_index}")
+                                    # print(f"Processing row {row_index}")
                                     col_index = 0
                                     cells = row.find_elements(By.CSS_SELECTOR, 'td, th')
-                                    print(f"Number of cells in row {row_index}: {len(cells)}")
+                                    # print(f"Number of cells in row {row_index}: {len(cells)}")
                                     cell_index = 0
 
                                     while col_index < num_cols and cell_index < len(cells):
@@ -552,14 +552,14 @@ if __name__ == '__main__':
 
                                         rowspan = int(cell.get_attribute('rowspan') or '1')
                                         colspan = int(cell.get_attribute('colspan') or '1')
-                                        print(f"Cell at row {row_index}, col {col_index}: rowspan={rowspan}, colspan={colspan}")
+                                        # print(f"Cell at row {row_index}, col {col_index}: rowspan={rowspan}, colspan={colspan}")
 
                                         if col_index < num_cols:
                                             venue = venue_names[col_index]
                                             try:
                                                 div_in_cell = cell.find_element(By.TAG_NAME, 'div')
                                             except NoSuchElementException:
-                                                print(f"No <div> found in cell at row {row_index}, col {col_index}")
+                                                # print(f"No <div> found in cell at row {row_index}, col {col_index}")
                                                 # 如果没有 <div>，可以选择跳过或处理其他逻辑
                                                 expand_cell(row_index, col_index, rowspan, colspan)
                                                 col_index += colspan
@@ -567,10 +567,10 @@ if __name__ == '__main__':
                                                 continue
 
                                             full_text = div_in_cell.text
-                                            print(f"Cell text at row {row_index}, col {col_index}: {full_text}")
+                                            # print(f"Cell text at row {row_index}, col {col_index}: {full_text}")
                                             time_matches = time_pattern.findall(full_text)
                                             time_slot = '-'.join(time_matches) if time_matches else ''
-                                            print(f"Time slot: {time_slot}")
+                                            # print(f"Time slot: {time_slot}")
 
                                             # 获取状态信息
                                             spans = div_in_cell.find_elements(By.TAG_NAME, 'span')
@@ -582,15 +582,15 @@ if __name__ == '__main__':
                                             else:
                                                 real_status = show_status
                                             
-                                            # 测试
-                                            show_status_list = []
-                                            for span in spans:
-                                                show_status = span.text.strip()
-                                                show_status_list.append(show_status)
-                                            print(f"Show status list: {show_status_list}")
-                                            show_status = show_status_list[0]
+                                            # # 测试
+                                            # show_status_list = []
+                                            # for span in spans:
+                                            #     show_status = span.text.strip()
+                                            #     show_status_list.append(show_status)
+                                            # print(f"Show status list: {show_status_list}")
+                                            # show_status = show_status_list[0]
 
-                                            print(f"Show status: {show_status}, Real status: {real_status}")
+                                            # print(f"Show status: {show_status}, Real status: {real_status}")
                                             
                                             venue_times[venue].append({
                                                 'time': time_slot,
