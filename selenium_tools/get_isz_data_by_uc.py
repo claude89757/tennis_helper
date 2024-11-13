@@ -98,7 +98,7 @@ class IszWatcher:
     def setup_driver(self, proxy=None):
         """
         初始化浏览器，使用undetected-chromedriver来规避检测
-        自动适配当前Chrome版本
+        自动适配当前Chrome版本和显示器大小
         """
         print("开始初始化Chrome驱动...")
         
@@ -106,11 +106,14 @@ class IszWatcher:
         chrome_options = uc.ChromeOptions()
         print("Chrome选项初始化完成")
         
-        # 基础设置
+        # 基础设置 - 自动适配显示器
         if not self.headless:
-            chrome_options.add_argument("--start-maximized")
-            print("设置为可视化模式")
+            # 不设置固定大小，让浏览器自动适配显示器
+            chrome_options.add_argument("--start-maximized")  # 最大化窗口
+            chrome_options.add_argument("--disable-gpu")  # 禁用GPU加速，避免某些显示问题
+            print("设置为可视化模式，将自动适配显示器大小")
         else:
+            # 无头模式仍然需要固定大小
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--window-size=1920,1080")
             print("设置为无头模式，窗口大小: 1920x1080")
@@ -165,7 +168,7 @@ class IszWatcher:
             print("2. 系统环境变量正确配置")
             print("3. 网络连接正常")
             print("=" * 50)
-            raise Exception("Chrome驱动创建失败，请检查Chrome安装和系统配置")
+            raise Exception("Chrome驱动创建��败，请检查Chrome安装和系统配置")
         
         # 添加随机延迟
         delay = random.uniform(1, 3)
@@ -420,7 +423,7 @@ if __name__ == '__main__':
 
                 url_infos = {
                     "香蜜体育": "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341",
-                    "莲花体育": "https://wxsports.ydmap.cn/booking/schedule/101335?salesItemId=100347",
+                    "花体育": "https://wxsports.ydmap.cn/booking/schedule/101335?salesItemId=100347",
                     "黄木岗": "https://wxsports.ydmap.cn/booking/schedule/101333?salesItemId=100344",
                     # "华侨城": "https://wxsports.ydmap.cn/booking/schedule/105143?salesItemId=105347",
                     # "简上": "https://wxsports.ydmap.cn/booking/schedule/103909?salesItemId=102913",
