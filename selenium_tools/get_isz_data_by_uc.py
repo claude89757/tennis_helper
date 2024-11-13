@@ -578,7 +578,6 @@ if __name__ == '__main__':
                                             real_status = ''
                                             for span in spans:
                                                 show_status = span.text.strip()
-                                                print(f"Show status: {show_status}")
                                                 if "已预订" in show_status:
                                                     real_status = "已预订"
                                                     break
@@ -586,9 +585,19 @@ if __name__ == '__main__':
                                                     real_status = "可预订"
                                                     break
                                                 else:
-                                                    real_status = "已预订"
-                                            print(f"Show status: {show_status}, Real status: {real_status}")
+                                                    real_status = show_status
+                                                    break
+                                            
+                                            # 测试
+                                            show_status_list = []
+                                            for span in spans:
+                                                show_status = span.text.strip()
+                                                show_status_list.append(show_status)
+                                            print(f"Show status list: {show_status_list}")
+                                            show_status = show_status_list[0]
 
+                                            print(f"Show status: {show_status}, Real status: {real_status}")
+                                            
                                             venue_times[venue].append({
                                                 'time': time_slot,
                                                 'status': real_status,
