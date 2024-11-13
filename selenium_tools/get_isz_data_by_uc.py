@@ -98,7 +98,7 @@ class IszWatcher:
     def setup_driver(self, proxy=None):
         """
         初始化浏览器，使用undetected-chromedriver来规避检测
-        仅支持Chrome 129版本
+        自动适配当前Chrome版本
         """
         print("开始初始化Chrome驱动...")
         
@@ -122,11 +122,35 @@ class IszWatcher:
         else:
             print("未使用代理")
 
-        print("尝试创建Chrome 129版本驱动...")
+        # 获取当前系统的Chrome版本
+        chrome_version = None
+        try:
+            if os.path.exists('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'):
+                # macOS
+                cmd = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '--version']
+                chrome_path = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+            else:
+                # Linux
+                cmd = ['google-chrome', '--version']
+                chrome_path = '/usr/bin/google-chrome'
+            
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            version_output = result.stdout.strip()
+            chrome_version = int(version_output.split()[2].split('.')[0])  # 提取主版本号
+            print(f"检测到Chrome版本: {version_output}")
+            
+            # 设置Chrome二进制文件位置
+            chrome_options.binary_location = chrome_path
+            
+        except Exception as e:
+            print(f"获取Chrome版本失败: {str(e)}")
+            print("将使用默认版本设置")
+
+        print(f"尝试创建Chrome {chrome_version if chrome_version else '默认'}版本驱动...")
         try:
             self.driver = uc.Chrome(
                 options=chrome_options,
-                version_main=129,  # 强制使用129版本
+                version_main=chrome_version,  # 使用检测到的版本号
                 driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
             )
             print("Chrome驱动创建成功！")
@@ -134,14 +158,14 @@ class IszWatcher:
             print(f"ChromeDriver版本: {self.driver.capabilities['chrome']['chromedriverVersion'].split(' ')[0]}")
         except Exception as e:
             print("=" * 50)
-            print(f"创建Chrome 129版本driver失败")
+            print(f"创建Chrome驱动失败")
             print(f"错误信息: {str(e)}")
             print(f"请确保:")
-            print("1. 已安装Chrome 129版本")
+            print("1. 已正确安装Chrome浏览器")
             print("2. 系统环境变量正确配置")
             print("3. 网络连接正常")
             print("=" * 50)
-            raise Exception("仅支持Chrome 129版本，请确保安装了正确的Chrome版本")
+            raise Exception("Chrome驱动创建失败，请检查Chrome安装和系统配置")
         
         # 添加随机延迟
         delay = random.uniform(1, 3)
@@ -327,7 +351,7 @@ if __name__ == '__main__':
             watcher.driver.get(url)
             print(f"没有找到缓存，直接访问页面。")
 
-        watcher.random_delay(min_delay=3, max_delay=10)
+        watcher.random_delay(min_delay=5, max_delay=10)
 
         watcher.wait_for_element(By.TAG_NAME, "body", timeout=15)
         if "网球" in str(watcher.driver.page_source):
