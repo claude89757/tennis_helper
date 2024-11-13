@@ -396,6 +396,7 @@ if __name__ == '__main__':
                 print("Driver setup complete.")
 
                 # 开始浏览
+                print("开始访问页面")
                 url = "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341"
                 watcher.driver.get(url)
                 watcher.random_delay(min_delay=1, max_delay=5)
@@ -411,7 +412,7 @@ if __name__ == '__main__':
                     watcher.random_delay()
                     print(f"使用缓存的 cookies 和 headers 访问页面。")
                 else:
-                    watcher.driver.get(url)
+                    # watcher.driver.get(url)
                     print(f"没有找到缓存，直接访问页面。")
 
                 watcher.random_delay(min_delay=5, max_delay=10)
@@ -467,7 +468,7 @@ if __name__ == '__main__':
                         f.write(page_source)
                     time.sleep(10)
                     raise Exception(f"未知错误?")
-                print(f"=====Access Success=====")
+                print(f"=====Test Access Success=====")
 
                 url_infos = {
                     "香蜜体育": "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341",
@@ -580,7 +581,7 @@ if __name__ == '__main__':
                                             if "元" in show_status:
                                                 real_status = "可预订"
                                             else:
-                                                real_status = show_status
+                                                real_status = "已预定"
                                             
                                             # # 测试
                                             # show_status_list = []
