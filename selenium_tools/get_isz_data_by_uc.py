@@ -45,7 +45,7 @@ def generate_proxies():
 
     for url in urls:
         print(f"getting proxy list for {url}")
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         text = response.text.strip()
         lines = text.split("\n")
         lines = [line.strip() for line in lines]
