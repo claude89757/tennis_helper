@@ -32,12 +32,25 @@ from selenium.webdriver.common.by import By
 FILENAME = "isz_data_infos.json"
 COOKIES_FILE = 'cookies.json'
 HEADERS_FILE = 'headers.json'
+PROXIES_CACHE_FILE = 'proxies_cache.txt'
 
 
 def generate_proxies():
     """
-    获取待检查的代理列表
+    获取代理列表，优先使用本地缓存，如果本地缓存无效则从GitHub获取
     """
+    # 首先尝试使用本地缓存
+    if os.path.exists(PROXIES_CACHE_FILE):
+        print("发现本地代理缓存文件")
+        with open(PROXIES_CACHE_FILE, 'r') as f:
+            cached_proxies = [line.strip() for line in f.readlines()]
+        if cached_proxies:
+            print(f"从本地缓存加载了 {len(cached_proxies)} 个代理")
+            random.shuffle(cached_proxies)
+            return cached_proxies
+
+    # 如果本地缓存不存在或为空，从GitHub获取
+    print("从GitHub获取代理列表")
     urls = [
         "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/isz_https_proxies.txt"
     ]
@@ -45,12 +58,26 @@ def generate_proxies():
 
     for url in urls:
         print(f"getting proxy list for {url}")
-        response = requests.get(url, timeout=30)
-        text = response.text.strip()
-        lines = text.split("\n")
-        lines = [line.strip() for line in lines]
-        proxies.extend(lines)
-        print(f"Loaded {len(lines)} proxies from {url}")
+        try:
+            response = requests.get(url, timeout=30)
+            text = response.text.strip()
+            lines = text.split("\n")
+            lines = [line.strip() for line in lines]
+            proxies.extend(lines)
+            print(f"Loaded {len(lines)} proxies from {url}")
+        except Exception as e:
+            print(f"从GitHub获取代理失败: {str(e)}")
+            return []
+
+    # 保存到本地缓存
+    if proxies:
+        try:
+            with open(PROXIES_CACHE_FILE, 'w') as f:
+                f.write('\n'.join(proxies))
+            print(f"已将 {len(proxies)} 个代理保存到本地缓存")
+        except Exception as e:
+            print(f"保存代理到本地缓存失败: {str(e)}")
+
     print(f"Total {len(proxies)} proxies loaded")
     random.shuffle(proxies)
     return proxies
@@ -173,7 +200,7 @@ class IszWatcher:
             print("2. 系统环境变量正确配置")
             print("3. 网络连接正常")
             print("=" * 50)
-            raise Exception("Chrome驱动创建��败，请检查Chrome安装和系统配置")
+            raise Exception("Chrome驱动创建败，请检查Chrome安装和系统配置")
         
         # 添加随机延迟
         delay = random.uniform(1, 3)
@@ -296,11 +323,17 @@ def test_proxy(proxy):
 def get_working_proxy():
     """
     获取一个可用的代理
+    如果本地缓存中的代理都不���用，则删除缓存文件并重新获取
     """
     proxies = generate_proxies()
+    if not proxies:
+        print("未获取到任何代理")
+        return None
+        
     print(f"开始测试 {len(proxies)} 个代理...")
     
     # 使用线程池并发测试代理
+    working_proxy_found = False
     with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
         future_to_proxy = {executor.submit(test_proxy, proxy): proxy for proxy in proxies}
         for future in concurrent.futures.as_completed(future_to_proxy):
@@ -308,9 +341,21 @@ def get_working_proxy():
             try:
                 result = future.result()
                 if result:
+                    working_proxy_found = True
                     return result
             except Exception as e:
                 print(f"测试代理时发生错误 {proxy}: {str(e)}")
+    
+    # 如果没有找到可用代理，且使用的是缓存文件，则删除缓存文件并重试
+    if not working_proxy_found and os.path.exists(PROXIES_CACHE_FILE):
+        print("本地缓存中没有可用代理，删除缓存文件")
+        try:
+            os.remove(PROXIES_CACHE_FILE)
+            print("缓存文件已删除，尝试重新获取代理")
+            # 递归调用自身，重新获取代理
+            return get_working_proxy()
+        except Exception as e:
+            print(f"删除缓存文件失败: {str(e)}")
     
     return None
 
