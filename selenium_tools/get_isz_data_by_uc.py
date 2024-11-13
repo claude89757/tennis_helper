@@ -128,84 +128,80 @@ class IszWatcher:
     def setup_driver(self, proxy=None):
         """
         初始化浏览器，使用undetected-chromedriver来规避检测
-        自动适配当前Chrome版本和显示器大小
         """
         print("开始初始化Chrome驱动...")
 
         # 初始化Chrome选项
         chrome_options = uc.ChromeOptions()
-        print("Chrome选项初始化完成")
-
-        # 基础设置 - 自动适配显示器
-        if not self.headless:
-            # 不设置固定大小，让浏览器自动适配显示器
+        
+        # 核心性能优化参数
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')  # 解决Linux下内存问题
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--disable-software-rasterizer')
+        chrome_options.add_argument('--disable-extensions')
+        chrome_options.add_argument('--disable-setuid-sandbox')
+        
+        # 减少内存使用
+        chrome_options.add_argument('--single-process')
+        chrome_options.add_argument('--disable-application-cache')
+        chrome_options.add_argument('--disable-popup-blocking')
+        
+        if self.headless:
+            chrome_options.add_argument('--headless=new')
             chrome_options.add_argument('--window-size=1920,1080')
-            chrome_options.add_argument("--start-maximized")
-            chrome_options.add_argument("--disable-gpu")
-            print("设置为可视化模式，将自动适配显示器大小")
         else:
-            # 无头模式仍然需要固定大小
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--window-size=1920,1080")
-            print("设置为无头模式，窗口大小: 1920x1080")
+            chrome_options.add_argument('--start-maximized')
 
-        # 代理设置
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
             print(f"设置代理服务器: {proxy}")
-        else:
-            print("未使用代理")
 
-        # 获取当前系统的Chrome版本
-        chrome_version = None
+        # 简化版本检测
         try:
-            if os.path.exists('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'):
-                # macOS
-                cmd = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '--version']
-                chrome_path = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-            else:
-                # Linux
-                cmd = ['google-chrome', '--version']
-                chrome_path = '/usr/bin/google-chrome'
-
+            cmd = ['google-chrome', '--version']
             result = subprocess.run(cmd, capture_output=True, text=True)
-            version_output = result.stdout.strip()
-            chrome_version = int(version_output.split()[2].split('.')[0])  # 提取主版本号
-            print(f"检测到Chrome版本: {version_output}")
-
-            # 设置Chrome二进制文件位置
-            chrome_options.binary_location = chrome_path
-
+            chrome_version = int(result.stdout.split()[2].split('.')[0])
+            print(f"检测到Chrome版本: {chrome_version}")
         except Exception as e:
             print(f"获取Chrome版本失败: {str(e)}")
-            print("将使用默认版本设置")
+            chrome_version = None
 
-        print(f"尝试创建Chrome {chrome_version if chrome_version else '默认'}版本驱动...")
         try:
             self.driver = uc.Chrome(
                 options=chrome_options,
-                version_main=chrome_version,  # 使用检测到的版本号
-                driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
+                version_main=chrome_version,
+                driver_executable_path=None,
+                suppress_welcome=True,
+                use_subprocess=False,
+                headless=self.headless,
+                async_script=False  # 使用同步模式
             )
+            
+            # 设置页面加载策略
+            self.driver.set_page_load_timeout(30)
+            self.driver.implicitly_wait(10)
+            
             print("Chrome驱动创建成功！")
-            print(f"Chrome版本: {self.driver.capabilities['browserVersion']}")
-            print(f"ChromeDriver版本: {self.driver.capabilities['chrome']['chromedriverVersion'].split(' ')[0]}")
         except Exception as e:
-            print("=" * 50)
-            print(f"创建Chrome驱动失败")
-            print(f"错误信息: {str(e)}")
-            print(f"请确保:")
-            print("1. 已正确安装Chrome浏览器")
-            print("2. 系统环境变量正确配置")
-            print("3. 网络连接正常")
-            print("=" * 50)
-            raise Exception("Chrome驱动创建失败，请检查Chrome安装和系统配置")
+            print(f"创建Chrome驱动失败: {str(e)}")
+            raise
 
-        # 添加随机延迟
-        delay = random.uniform(1, 3)
-        print(f"添加随机延迟: {delay:.2f}秒")
-        time.sleep(delay)
+        # 减少初始化延迟
+        time.sleep(1)
         print("Chrome驱动初始化完成！")
+
+        end_time = time.time()
+        print(f"驱动初始化总耗时: {end_time - start_time:.2f}秒")
+        
+        # 打印系统资源使用情况
+        try:
+            import psutil
+            process = psutil.Process()
+            print(f"内存使用: {process.memory_info().rss / 1024 / 1024:.2f} MB")
+            print(f"CPU使用率: {process.cpu_percent()}%")
+        except ImportError:
+            print("未安装psutil，跳过资源监控")
 
     def teardown_driver(self):
         if self.driver:
@@ -334,7 +330,7 @@ def get_working_proxy():
         print("未获取到任何代理")
         return None
 
-    print(f"开始测试 {len(proxies)} 个代理...")
+    print(f"开始试 {len(proxies)} 个代理...")
     working_proxies = []  # 用于存储可用代理
 
     # 使用线程池并发测试代理
