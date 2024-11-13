@@ -285,7 +285,7 @@ def test_proxy(proxy):
     使用curl命令测试代理是否可用
     """
     try:
-        print(f"正在测试代理: {proxy}")
+        # print(f"正在测试代理: {proxy}")
         target_url = 'https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig'
 
         # 使用curl命令发送请求
