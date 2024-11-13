@@ -78,6 +78,9 @@ def upload_file_to_github(input_data):
     if response.status_code == 200:
         print(f"File uploaded successfully, total {len(input_data)} data")
     else:
+        print("url: ", url)
+        print("headers: ", headers)
+        print("data: ", data)
         print("Failed to upload file:", response.status_code, response.text)
 
 
