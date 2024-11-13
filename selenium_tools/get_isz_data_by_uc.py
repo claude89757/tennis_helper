@@ -396,7 +396,7 @@ if __name__ == '__main__':
 
                 # 开始浏览
                 print("开始访问页面")
-                url = "https://wxsports.ydmap.cn/booking/schedule/101332?salesItemId=100341"
+                url = "https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig"
                 watcher.driver.get(url)
                 time.sleep(10)
                 watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
@@ -415,7 +415,7 @@ if __name__ == '__main__':
                 else:
                     print(f"没有找到缓存，直接访问页面。")
 
-                if "网球" in str(watcher.driver.page_source):
+                if "网球" in str(watcher.driver.page_source) or "在线订场" in str(watcher.driver.page_source):
                     print(f"[1] Processing directly...")
                     current_url = watcher.driver.current_url
                     print(f"Current URL: {current_url}")
@@ -493,7 +493,7 @@ if __name__ == '__main__':
                         watcher.driver.get(url)
                         watcher.random_delay(min_delay=1, max_delay=10)
 
-                        watcher.wait_for_element(By.TAG_NAME, "body", timeout=5)
+                        watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
 
                         if "网球" in str(watcher.driver.page_source):
                             print(f"[1] Processing directly...")
