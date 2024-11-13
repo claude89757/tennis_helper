@@ -149,7 +149,7 @@ class IszWatcher:
             vendor = random.choice(vendor_list)
             renderer = random.choice(renderer_list)
             
-            # JavaScript注入，修改浏览���指纹
+            # JavaScript注入，修改浏览器指纹
             options.add_argument(f'--js-flags=--platform={platform}')
             options.add_argument(f'--js-flags=--vendor={vendor}')
             options.add_argument(f'--js-flags=--renderer={renderer}')
@@ -272,31 +272,174 @@ class IszWatcher:
         timeout = timeout or self.timeout
         WebDriverWait(self.driver, timeout).until(EC.url_changes(current_url))
 
-    def solve_slider_captcha(self):
+    def solve_slider_captcha(self, max_retries=3):
         """
-        解决滑块验证码
+        处理阿里云滑块验证码
+        
+        Args:
+            max_retries (int): 最大重试次数
+            
+        Returns:
+            bool: 是否成功通过验证
         """
-        time.sleep(600000)  # test
+        print("开始处理阿里云滑块验证码...")
+        
+        def get_slider_info():
+            """获取滑块元素和相关信息"""
+            try:
+                # 等待滑块元素出现
+                slider = WebDriverWait(self.driver, 5).until(
+                    EC.presence_of_element_located((By.ID, "aliyunCaptcha-sliding-slider"))
+                )
+                
+                # 获取滑块容器
+                slider_container = self.driver.find_element(By.ID, "aliyunCaptcha-sliding-wrapper")
+                
+                # 获取滑块和容器的尺寸位置信息
+                slider_rect = slider.rect
+                container_rect = slider_container.rect
+                
+                return {
+                    'slider': slider,
+                    'container': slider_container,
+                    'slider_width': slider_rect['width'],
+                    'container_width': container_rect['width'],
+                    'start_x': slider_rect['x'],
+                    'max_offset': container_rect['width'] - slider_rect['width']
+                }
+            except Exception as e:
+                print(f"获取滑块元素失败: {str(e)}")
+                return None
+            
+        def generate_human_like_track(distance):
+            """生成人性化的滑动轨迹"""
+            tracks = []
+            current = 0
+            mid = distance * 4 / 5  # 减速阈值
+            t = 0.2  # 计算间隔
+            v = 0  # 初速度
+            
+            while current < distance:
+                if current < mid:
+                    a = random.uniform(2, 3)  # 加速度为正
+                else:
+                    a = random.uniform(-1, -0.5)  # 加速度为负
+                
+                # 计算当前轨迹
+                v0 = v
+                v = v0 + a * t
+                move = v0 * t + 1/2 * a * t * t
+                current += move
+                
+                # 加入轨迹
+                tracks.append(round(move))
+            
+            # 微调，确保最终距离精确
+            tracks.append(distance - sum(tracks))
+            
+            return tracks
+            
+        def perform_slide(info):
+            """执行滑动操作"""
+            try:
+                action_chains = ActionChains(self.driver)
+                slider = info['slider']
+                
+                # 随机的初始停顿
+                time.sleep(random.uniform(0.1, 0.3))
+                
+                # 按下滑块
+                action_chains.click_and_hold(slider).perform()
+                time.sleep(random.uniform(0.2, 0.3))
+                
+                # 生成轨迹
+                tracks = generate_human_like_track(info['max_offset'])
+                
+                # 执行滑动
+                for track in tracks:
+                    action_chains.move_by_offset(track, random.uniform(-0.5, 0.5)).perform()
+                    time.sleep(random.uniform(0.005, 0.01))
+                    
+                # 模拟人手抖动
+                for _ in range(random.randint(2, 4)):
+                    action_chains.move_by_offset(random.uniform(-2, 2), 0).perform()
+                    time.sleep(random.uniform(0.05, 0.1))
+                
+                # 释放滑块
+                time.sleep(random.uniform(0.1, 0.2))
+                action_chains.release().perform()
+                time.sleep(random.uniform(0.5, 1))
+                
+                return True
+                
+            except Exception as e:
+                print(f"滑动操作失败: {str(e)}")
+                return False
+            
+        def verify_success():
+            """验证是否通过"""
+            try:
+                # 等待验证结果
+                time.sleep(random.uniform(1, 2))
+                
+                # 检查错误提示
+                error_tip = self.driver.find_element(By.ID, "aliyunCaptcha-errorTip")
+                fail_tip = self.driver.find_element(By.ID, "aliyunCaptcha-sliding-failTip")
+                
+                if error_tip.is_displayed() or fail_tip.is_displayed():
+                    print("验证未通过")
+                    return False
+                    
+                # 检查页面内容变化
+                if "网球" in self.driver.page_source and "验证" not in self.driver.page_source:
+                    print("验证通过!")
+                    return True
+                    
+                return False
+                    
+            except Exception as e:
+                print(f"验证结果检查失败: {str(e)}")
+                return False
 
-        slider = self.wait_for_element(By.CLASS_NAME, "btn_slide")
-        action_chains = ActionChains(self.driver)
-
-        # 点击并按住滑块
-        action_chains.click_and_hold(slider).perform()
-        time.sleep(random.uniform(0.5, 1.0))
-
-        # 模拟人类滑动
-        total_offset = 300
-        current_offset = 0
-        while current_offset < total_offset:
-            move_by = random.randint(10, 30)
-            action_chains.move_by_offset(move_by, 0).perform()
-            current_offset += move_by
-            time.sleep(random.uniform(0.01, 0.03))
-
-        # 释放滑块
-        action_chains.release().perform()
-        time.sleep(random.uniform(0.5, 1.0))
+        # 主验证流程
+        for attempt in range(max_retries):
+            print(f"第 {attempt + 1} 次尝试验证...")
+            
+            # 获取滑块信息
+            slider_info = get_slider_info()
+            if not slider_info:
+                print("未找到滑块元素,重试...")
+                self.driver.refresh()
+                time.sleep(random.uniform(2, 3))
+                continue
+                
+            # 执行滑动
+            if not perform_slide(slider_info):
+                print("滑动操作失败,重试...")
+                self.driver.refresh()
+                time.sleep(random.uniform(2, 3))
+                continue
+                
+            # 验证结果
+            if verify_success():
+                # 保存成功后的cookies和headers
+                cookies = self.driver.get_cookies()
+                headers = {
+                    'User-Agent': self.driver.execute_script("return navigator.userAgent;")
+                }
+                save_cookies_and_headers(cookies, headers)
+                return True
+                
+            # 重试前等待
+            time.sleep(random.uniform(2, 3))
+        
+        print(f"验证码处理失败,已重试 {max_retries} 次")
+        # 保存失败现场信息
+        screenshot_path = 'captcha_failed_screenshot.png'
+        self.driver.save_screenshot(screenshot_path)
+        with open("captcha_failed_page.html", "w", encoding='utf-8') as f:
+            f.write(self.driver.page_source)
+        return False
 
     def transfer_cookies(self):
         cookies = self.driver.get_cookies()
@@ -406,7 +549,7 @@ def get_working_proxy():
         print("可用代理数量不足3个，删除缓存文件")
         try:
             os.remove(PROXIES_CACHE_FILE)
-            print("缓存文件已���除，尝试重新获取代理")
+            print("缓存文件已除，尝试重新获取代理")
             return get_working_proxy()  # 递归调用自身，重新获取代理
         except Exception as e:
             print(f"删除缓存文件失败: {str(e)}")
@@ -557,7 +700,7 @@ if __name__ == '__main__':
                         watcher.driver.get(url)
                         watcher.random_delay(min_delay=1, max_delay=10)
                         watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
-                        if "网球" in str(watcher.driver.page_source):
+                        if "网球" in str(watcher.driver.page_source) and "验证" not in str(watcher.driver.page_source):
                             print(f"[1] Processing directly...")
 
                             # 开始优化的部分，使用 Selenium 直接获取数据
@@ -681,8 +824,8 @@ if __name__ == '__main__':
                             output_data[place_name] = place_data
                         elif "验证" in str(watcher.driver.page_source):
                             print(f"[2] Processing by solving slider captcha...")
-                            print_with_timestamp(f"{place_name} 需要验证，跳过处理。")
-                            continue
+                            print_with_timestamp(f"{place_name} 需要验证。")
+                            watcher.solve_slider_captcha()
                         else:
                             print("[3] 未知状态, 刷新页面, 重新处理")
                             watcher.driver.refresh()
@@ -695,7 +838,7 @@ if __name__ == '__main__':
                 # print(output_data)
                 # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             except Exception as e:
-                print_with_timestamp(f"任务执行出错: {str(e)}，直接开始下一轮")
+                print_with_timestamp(f"任务执行出错: {str(e).splitlines()[0]}，直接开始下一轮")
                 continue
             finally:
                 # 确保资源被正确释放
