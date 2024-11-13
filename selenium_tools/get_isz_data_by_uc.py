@@ -823,17 +823,19 @@ if __name__ == '__main__':
                                 
                             output_data[place_name] = place_data
                         elif "验证" in str(watcher.driver.page_source):
-                            print(f"[2] Processing by solving slider captcha...")
-                            print_with_timestamp(f"{place_name} 需要验证。")
-                            watcher.solve_slider_captcha()
+                            print_with_timestamp("[2] 需要验证, 跳过处理")
+                            break
                         else:
-                            print("[3] 未知状态, 刷新页面, 重新处理")
-                            watcher.driver.refresh()
-                            time.sleep(10)
-                            continue
+                            print_with_timestamp("[3] 未知状态, 跳过处理")
+                            break
                     except Exception as error:
                         print_with_timestamp(f"{place_name} failed: {str(error).splitlines()[0]}")
-                upload_file_to_github(output_data)
+                
+                if output_data:
+                    upload_file_to_github(output_data)
+                else:
+                    raise Exception("没有数据，跳过上传")
+                
                 # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 # print(output_data)
                 # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
