@@ -8,6 +8,7 @@
 """
 
 import os
+import sys
 import re
 import time
 import random
@@ -136,16 +137,16 @@ class IszWatcher:
         
         # 核心性能优化参数
         chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')  # 解决Linux下内存问题
+        # chrome_options.add_argument('--disable-dev-shm-usage')  # 解决Linux下内存问题
         chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--disable-software-rasterizer')
-        chrome_options.add_argument('--disable-extensions')
-        chrome_options.add_argument('--disable-setuid-sandbox')
+        # chrome_options.add_argument('--disable-software-rasterizer')
+        # chrome_options.add_argument('--disable-extensions')
+        # chrome_options.add_argument('--disable-setuid-sandbox')
         
-        # 减少内存使用
-        chrome_options.add_argument('--single-process')
-        chrome_options.add_argument('--disable-application-cache')
-        chrome_options.add_argument('--disable-popup-blocking')
+        # # 减少内存使用
+        # chrome_options.add_argument('--single-process')
+        # chrome_options.add_argument('--disable-application-cache')
+        # chrome_options.add_argument('--disable-popup-blocking')
         
         if self.headless:
             chrome_options.add_argument('--headless=new')
@@ -159,7 +160,10 @@ class IszWatcher:
 
         # 简化版本检测
         try:
-            cmd = ['google-chrome', '--version']
+            if sys.platform == "darwin":  # macOS
+                cmd = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '--version']
+            else:  # Linux/Windows
+                cmd = ['google-chrome', '--version']
             result = subprocess.run(cmd, capture_output=True, text=True)
             chrome_version = int(result.stdout.split()[2].split('.')[0])
             print(f"检测到Chrome版本: {chrome_version}")
@@ -486,7 +490,7 @@ if __name__ == '__main__':
                     with open("page_source.html", "w", encoding='utf-8') as f:
                         f.write(page_source)
                     time.sleep(10)
-                    raise Exception(f"未知错误?")
+                    raise Exception(f"未正常访问到页面")
                 print(f"=====Test Access Success=====")
 
                 url_infos = {
