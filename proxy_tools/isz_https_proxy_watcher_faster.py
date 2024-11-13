@@ -250,4 +250,10 @@ def get_file_sha(url, headers):
 
 # 修改主入口
 if __name__ == '__main__':
-    asyncio.run(task_check_proxies_async())
+    import sys
+    if sys.version_info >= (3, 7):
+        asyncio.run(task_check_proxies_async())
+    else:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(task_check_proxies_async())
+        loop.close()
