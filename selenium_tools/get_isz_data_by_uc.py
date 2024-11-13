@@ -100,32 +100,54 @@ class IszWatcher:
         初始化浏览器，使用undetected-chromedriver来规避检测
         仅支持Chrome 129版本
         """
+        print("开始初始化Chrome驱动...")
+        
         # 初始化Chrome选项
         chrome_options = uc.ChromeOptions()
+        print("Chrome选项初始化完成")
         
         # 基础设置
         if not self.headless:
             chrome_options.add_argument("--start-maximized")
+            print("设置为可视化模式")
         else:
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--window-size=1920,1080")
+            print("设置为无头模式，窗口大小: 1920x1080")
         
         # 代理设置
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
+            print(f"设置代理服务器: {proxy}")
+        else:
+            print("未使用代理")
 
+        print("尝试创建Chrome 129版本驱动...")
         try:
             self.driver = uc.Chrome(
                 options=chrome_options,
                 version_main=129,  # 强制使用129版本
                 driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
             )
+            print("Chrome驱动创建成功！")
+            print(f"Chrome版本: {self.driver.capabilities['browserVersion']}")
+            print(f"ChromeDriver版本: {self.driver.capabilities['chrome']['chromedriverVersion'].split(' ')[0]}")
         except Exception as e:
-            print(f"创建Chrome 129版本driver失败: {str(e)}")
+            print("=" * 50)
+            print(f"创建Chrome 129版本driver失败")
+            print(f"错误信息: {str(e)}")
+            print(f"请确保:")
+            print("1. 已安装Chrome 129版本")
+            print("2. 系统环境变量正确配置")
+            print("3. 网络连接正常")
+            print("=" * 50)
             raise Exception("仅支持Chrome 129版本，请确保安装了正确的Chrome版本")
         
         # 添加随机延迟
-        self.random_delay(min_delay=1, max_delay=3)
+        delay = random.uniform(1, 3)
+        print(f"添加随机延迟: {delay:.2f}秒")
+        time.sleep(delay)
+        print("Chrome驱动初始化完成！")
 
     def teardown_driver(self):
         if self.driver:
@@ -271,9 +293,7 @@ if __name__ == '__main__':
         exit()
     else:
         print_with_timestamp('Executing task at {}'.format(datetime.datetime.now()))
-
     start_time = time.time()
-    print("Setting up driver...")
 
     # 获取可用代理
     working_proxy = get_working_proxy()
