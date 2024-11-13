@@ -35,19 +35,21 @@ PROXIES_CACHE_FILE = 'proxies_cache.txt'
 
 def generate_proxies():
     """
-    获取代理列表，优先使用本地缓存，如果本地缓存无效则从GitHub获取
+    获取代理列表，优先使用本地缓存，如果本地缓存无效或数量不足则从GitHub获取
     """
     # 首先尝试使用本地缓存
     if os.path.exists(PROXIES_CACHE_FILE):
         print("发现本地代理缓存文件")
         with open(PROXIES_CACHE_FILE, 'r') as f:
             cached_proxies = [line.strip() for line in f.readlines()]
-        if cached_proxies:
+        if cached_proxies and len(cached_proxies) >= 3:  # 确保至少有3个代理
             print(f"从本地缓存加载了 {len(cached_proxies)} 个代理")
             random.shuffle(cached_proxies)
             return cached_proxies
+        else:
+            print("本地缓存代理数量不足3个，尝试从远程更新")
 
-    # 如果本地缓存不存在或为空，从GitHub获取
+    # 如果本地缓存不存在、为空或数量不足，从GitHub获取
     print("从GitHub获取代理列表")
     urls = [
         "https://raw.githubusercontent.com/claude89757/free_https_proxies/main/isz_https_proxies.txt"
@@ -320,7 +322,7 @@ def test_proxy(proxy):
 def get_working_proxy():
     """
     获取一个可用的代理
-    如果本地缓存中的代理都不可用，则删除缓存文件并重新获取
+    如果本地缓存中的代理不足3个或都不可用，则删除缓存文件并重新获取
     """
     proxies = generate_proxies()
     if not proxies:
@@ -328,9 +330,9 @@ def get_working_proxy():
         return None
 
     print(f"开始测试 {len(proxies)} 个代理...")
+    working_proxies = []  # 用于存储可用代理
 
     # 使用线程池并发测试代理
-    working_proxy_found = False
     with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
         future_to_proxy = {executor.submit(test_proxy, proxy): proxy for proxy in proxies}
         for future in concurrent.futures.as_completed(future_to_proxy):
@@ -338,21 +340,27 @@ def get_working_proxy():
             try:
                 result = future.result()
                 if result:
-                    working_proxy_found = True
-                    return result
+                    working_proxies.append(result)
+                    if len(working_proxies) >= 3:  # 找到3个可用代理就可以停止
+                        break
             except Exception as e:
                 print(f"测试代理时发生错误 {proxy}: {str(e)}")
 
-    # 如果没有找到可用代理，且使用的是缓存文件，则删除缓存文件并重试
-    if not working_proxy_found and os.path.exists(PROXIES_CACHE_FILE):
-        print("本地缓存中没有可用代理，删除缓存文件")
+    # 如果可用代理少于3个，且使用的是缓存文件，则删除缓存文件并重试
+    if len(working_proxies) < 3 and os.path.exists(PROXIES_CACHE_FILE):
+        print("可用代理数量不足3个，删除缓存文件")
         try:
             os.remove(PROXIES_CACHE_FILE)
             print("缓存文件已删除，尝试重新获取代理")
-            # 递归调用自身，重新获取代理
-            return get_working_proxy()
+            return get_working_proxy()  # 递归调用自身，重新获取代理
         except Exception as e:
             print(f"删除缓存文件失败: {str(e)}")
+
+    # 从可用代理中随机选择一个返回
+    if working_proxies:
+        selected_proxy = random.choice(working_proxies)
+        print(f"找到 {len(working_proxies)} 个可用代理，随机选择: {selected_proxy}")
+        return selected_proxy
 
     return None
 
