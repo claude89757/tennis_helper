@@ -112,8 +112,9 @@ class IszWatcher:
         # 基础设置 - 自动适配显示器
         if not self.headless:
             # 不设置固定大小，让浏览器自动适配显示器
-            chrome_options.add_argument("--start-maximized")  # 最大化窗口
-            chrome_options.add_argument("--disable-gpu")  # 禁用GPU加速，避免某些显示问题
+            chrome_options.add_argument('--window-size=1920,1080')
+            chrome_options.add_argument("--start-maximized") 
+            chrome_options.add_argument("--disable-gpu") 
             print("设置为可视化模式，将自动适配显示器大小")
         else:
             # 无头模式仍然需要固定大小
