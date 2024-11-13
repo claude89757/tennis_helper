@@ -574,19 +574,13 @@ if __name__ == '__main__':
 
                                             # 获取状态信息
                                             spans = div_in_cell.find_elements(By.TAG_NAME, 'span')
-                                            show_status = ''
-                                            real_status = ''
-                                            for span in spans:
-                                                show_status = span.text.strip()
-                                                if "已预订" in show_status:
-                                                    real_status = "已预订"
-                                                    break
-                                                elif "元" in show_status:
-                                                    real_status = "可预订"
-                                                    break
-                                                else:
-                                                    real_status = show_status
-                                                    break
+                                            
+                                            # 获取第一个 span 的文本
+                                            show_status = spans[0].text.strip()
+                                            if "元" in show_status:
+                                                real_status = "可预订"
+                                            else:
+                                                real_status = show_status
                                             
                                             # 测试
                                             show_status_list = []
