@@ -57,7 +57,7 @@ def generate_proxies():
 
 
 def upload_file_to_github(input_data):
-    token = os.environ.get('GIT_TOKEN', "")
+    token = os.environ.get('GIT_TOKEN')
     repo = 'claude89757/tennis_data'
     url = f'https://api.github.com/repos/{repo}/contents/{FILENAME}'
 
@@ -80,7 +80,7 @@ def upload_file_to_github(input_data):
     else:
         print("url: ", url)
         print("headers: ", headers)
-        print("data: ", data)
+        # print("data: ", data)
         print("Failed to upload file:", response.status_code, response.text)
 
 
