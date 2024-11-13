@@ -367,9 +367,9 @@ if __name__ == '__main__':
             now = datetime.datetime.now()
             print_with_timestamp(f'开始新的任务循环 - {now}')
 
-            # 在凌晨 0 点到 8 点之间跳过执行
-            if datetime.time(0, 0) <= now.time() < datetime.time(8, 0):
-                print_with_timestamp('当前是休息时间（0:00-8:00），跳过本次执行')
+            # 在凌晨 1 点到早上 7 点之间跳过执行
+            if datetime.time(1, 0) <= now.time() < datetime.time(7, 0):
+                print_with_timestamp('当前是休息时间（1:00-7:00），跳过本次执行')
                 time.sleep(300)  # 休息5分钟
                 continue
 
@@ -492,9 +492,7 @@ if __name__ == '__main__':
                     try:
                         watcher.driver.get(url)
                         watcher.random_delay(min_delay=1, max_delay=10)
-
                         watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
-
                         if "网球" in str(watcher.driver.page_source):
                             print(f"[1] Processing directly...")
 
