@@ -266,7 +266,7 @@ class IszWatcher:
         for attempt in range(max_retries):
             try:
                 # 设置更短的页面加载超时时间
-                self.driver.set_page_load_timeout(20)
+                self.driver.set_page_load_timeout(30)
                 
                 # 先尝试只加载页面框架
                 self.driver.execute_script("window.stop();")
@@ -471,7 +471,7 @@ if __name__ == '__main__':
                 
                 watcher.random_delay(min_delay=3, max_delay=15)
                 watcher.wait_for_element(By.TAG_NAME, "body", timeout=10)
-                
+
                 cookies, headers = load_cookies_and_headers()
                 if cookies and headers:
                     print(f"使用缓存的 cookies 和 headers 访问页面。")
