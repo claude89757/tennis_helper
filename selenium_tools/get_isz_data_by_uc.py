@@ -239,7 +239,7 @@ def get_working_proxy():
     print(f"开始测试 {len(proxies)} 个代理...")
     
     # 使用线程池并发测试代理
-    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
         future_to_proxy = {executor.submit(test_proxy, proxy): proxy for proxy in proxies}
         for future in concurrent.futures.as_completed(future_to_proxy):
             proxy = future_to_proxy[future]
