@@ -302,7 +302,7 @@ if __name__ == '__main__':
         raise Exception("No working proxy found!")
     
     print(f"使用代理: {working_proxy}")
-    watcher = IszWatcher(headless=False)
+    watcher = IszWatcher(headless=True)
     watcher.setup_driver(proxy=working_proxy)
     
     print("Driver setup complete.")
