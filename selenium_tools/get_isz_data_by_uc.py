@@ -128,7 +128,7 @@ class IszWatcher:
     def setup_driver(self, proxy=None):
         """
         初始化浏览器，使用undetected-chromedriver来规避检测
-        添加反自动化检测参数
+        自动适配当前Chrome版本和显示器大小
         """
         print("开始初始化Chrome驱动...")
 
@@ -136,28 +136,19 @@ class IszWatcher:
         chrome_options = uc.ChromeOptions()
         print("Chrome选项初始化完成")
 
-        # 基础反检测设置 - 减少可能导致问题的参数
-        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-        chrome_options.add_argument('--disable-infobars')
-        
-        # 随机化浏览器指纹 - 使用更保守的设置
-        user_agent = self._get_random_user_agent()
-        chrome_options.add_argument(f'--user-agent={user_agent}')
-        
-        # 基础设置
+        # 基础设置 - 自动适配显示器
         if not self.headless:
+            # 不设置固定大小，让浏览器自动适配显示器
+            chrome_options.add_argument('--window-size=1920,1080')
             chrome_options.add_argument("--start-maximized")
-            print("设置为可视化模式")
+            chrome_options.add_argument("--disable-gpu")
+            print("设置为可视化模式，将自动适配显示器大小")
         else:
-            chrome_options.add_argument("--headless=new")  # 使用新的无头模式参数
+            # 无头模式仍然需要固定大小
+            chrome_options.add_argument("--headless")
             chrome_options.add_argument("--window-size=1920,1080")
             print("设置为无头模式，窗口大小: 1920x1080")
 
-        # 核心性能参数
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--disable-gpu')
-        
         # 代理设置
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
@@ -168,38 +159,37 @@ class IszWatcher:
         # 获取当前系统的Chrome版本
         chrome_version = None
         try:
-            cmd = ['google-chrome', '--version']
+            if os.path.exists('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'):
+                # macOS
+                cmd = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '--version']
+                chrome_path = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+            else:
+                # Linux
+                cmd = ['google-chrome', '--version']
+                chrome_path = '/usr/bin/google-chrome'
+
             result = subprocess.run(cmd, capture_output=True, text=True)
             version_output = result.stdout.strip()
-            chrome_version = int(version_output.split()[2].split('.')[0])
+            chrome_version = int(version_output.split()[2].split('.')[0])  # 提取主版本号
             print(f"检测到Chrome版本: {version_output}")
+
+            # 设置Chrome二进制文件位置
+            chrome_options.binary_location = chrome_path
+
         except Exception as e:
             print(f"获取Chrome版本失败: {str(e)}")
             print("将使用默认版本设置")
 
-        # 创建驱动时使用suppress_welcome参数
         print(f"尝试创建Chrome {chrome_version if chrome_version else '默认'}版本驱动...")
         try:
             self.driver = uc.Chrome(
                 options=chrome_options,
-                version_main=chrome_version,
-                driver_executable_path=None,
-                suppress_welcome=True,  # 添加这个参数
-                use_subprocess=True     # 使用子进程模式
+                version_main=chrome_version,  # 使用检测到的版本号
+                driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
             )
-            
-            # 注入反检测JavaScript - 移到页面加载后执行
             print("Chrome驱动创建成功！")
             print(f"Chrome版本: {self.driver.capabilities['browserVersion']}")
             print(f"ChromeDriver版本: {self.driver.capabilities['chrome']['chromedriverVersion'].split(' ')[0]}")
-            
-            # 初始化后执行一些基本操作
-            self.driver.get("about:blank")
-            time.sleep(1)
-            
-            # 现在注入JavaScript
-            self._inject_stealth_js()
-            
         except Exception as e:
             print("=" * 50)
             print(f"创建Chrome驱动失败")
@@ -212,7 +202,7 @@ class IszWatcher:
             raise Exception("Chrome驱动创建失败，请检查Chrome安装和系统配置")
 
         # 添加随机延迟
-        delay = random.uniform(1, 3)  # 减少延迟时间
+        delay = random.uniform(1, 3)
         print(f"添加随机延迟: {delay:.2f}秒")
         time.sleep(delay)
         print("Chrome驱动初始化完成！")
@@ -265,43 +255,6 @@ class IszWatcher:
             'User-Agent': self.driver.execute_script("return navigator.userAgent;")
         }
         return headers
-
-    def _get_random_user_agent(self):
-        """
-        生成随机的User-Agent
-        """
-        chrome_version = random.randint(90, 120)
-        build_version = random.randint(1000, 9999)
-        return f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome_version}.0.{build_version}.0 Safari/537.36'
-
-    def _inject_stealth_js(self):
-        """
-        注入反检测JavaScript代码
-        """
-        js_script = """
-        // 覆盖webdriver属性
-        Object.defineProperty(navigator, 'webdriver', {
-            get: () => undefined
-        });
-        
-        // 修改navigator属性
-        const newProto = navigator.__proto__;
-        delete newProto.webdriver;
-        navigator.__proto__ = newProto;
-        
-        // 随机化Canvas指纹
-        HTMLCanvasElement.prototype.toDataURL = new Proxy(HTMLCanvasElement.prototype.toDataURL, {
-            apply(target, thisArg, args) {
-                const result = Reflect.apply(target, thisArg, args);
-                const noise = Math.floor(Math.random() * 10);
-                return result.substring(0, result.length - noise) + '=' + noise;
-            }
-        });
-        """
-        try:
-            self.driver.execute_script(js_script)
-        except Exception as e:
-            print(f"注入反检测JavaScript失败: {str(e)}")
 
 
 def load_cookies_and_headers():
