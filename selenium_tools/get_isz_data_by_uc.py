@@ -136,6 +136,70 @@ class IszWatcher:
         # 初始化Chrome选项
         chrome_options = uc.ChromeOptions()
         
+        # 添加反检测功能
+        def add_antidetect_options(options):
+            """添加反检测相关的选项"""
+            # 随机生成浏览器指纹
+            platform_list = ['Win32', 'Win64', 'MacIntel', 'Linux x86_64']
+            vendor_list = ['Google Inc.', 'Apple Computer, Inc.']
+            renderer_list = ['ANGLE (Intel, Intel(R) UHD Graphics Direct3D11 vs_5_0 ps_5_0)']
+            
+            # 随机选择平台和供应商
+            platform = random.choice(platform_list)
+            vendor = random.choice(vendor_list)
+            renderer = random.choice(renderer_list)
+            
+            # JavaScript注入，修改浏览���指纹
+            options.add_argument(f'--js-flags=--platform={platform}')
+            options.add_argument(f'--js-flags=--vendor={vendor}')
+            options.add_argument(f'--js-flags=--renderer={renderer}')
+            
+            # 禁用自动化标志
+            options.add_argument('--disable-blink-features=AutomationControlled')
+            
+            # 随机化 WebGL 指纹
+            options.add_argument('--disable-webgl')
+            options.add_argument('--disable-webgl2')
+            
+            # 随机化 Canvas 指纹
+            options.add_argument('--disable-reading-from-canvas')
+            
+            # 随机化音频指纹
+            options.add_argument('--disable-audio-output')
+            
+            # 添加随机的 User-Agent
+            user_agents = [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+                
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+                
+                'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+                
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0',
+                
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15',
+                
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.6099.119 Mobile/15E148 Safari/604.1',
+                'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.144 Mobile Safari/537.36',
+                
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1',
+                'Mozilla/5.0 (iPad; CPU OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1'
+            ]
+            options.add_argument(f'user-agent={random.choice(user_agents)}')
+            
+            print("已添加反检测选项")
+            return options
+
+        # 添加反检测选项
+        chrome_options = add_antidetect_options(chrome_options)
+        
         # 基础设置 - 自动适配显示器
         if not self.headless:
             # 不设置固定大小，让浏览器自动适配显示器
@@ -313,7 +377,7 @@ def test_proxy(proxy):
 def get_working_proxy():
     """
     获取一个可用的代理
-    如果��地缓存中的代理不足3个或都不可用，则删除缓存文件并重新获取
+    如果地缓存中的代理不足3个或都不可用，则删除缓存文件并重新获取
     """
     proxies = generate_proxies()
     if not proxies:
@@ -342,7 +406,7 @@ def get_working_proxy():
         print("可用代理数量不足3个，删除缓存文件")
         try:
             os.remove(PROXIES_CACHE_FILE)
-            print("缓存文件已删除，尝试重新获取代理")
+            print("缓存文件已���除，尝试重新获取代理")
             return get_working_proxy()  # 递归调用自身，重新获取代理
         except Exception as e:
             print(f"删除缓存文件失败: {str(e)}")
@@ -515,7 +579,7 @@ if __name__ == '__main__':
                                 week_text = date_element.find_element(By.CLASS_NAME, 'week').text
 
                                 date_element.click()
-                                watcher.random_delay(min_delay=2, max_delay=6)
+                                watcher.random_delay(min_delay=3, max_delay=8)
 
                                 print(f"Processing date: {date_text} {week_text}")
 
@@ -620,7 +684,10 @@ if __name__ == '__main__':
                             print_with_timestamp(f"{place_name} 需要验证，跳过处理。")
                             continue
                         else:
-                            print("[3] 未知状态，跳过处理。")
+                            print("[3] 未知状态, 刷新页面, 重新处理")
+                            watcher.driver.refresh()
+                            time.sleep(10)
+                            continue
                     except Exception as error:
                         print_with_timestamp(f"{place_name} failed: {str(error).splitlines()[0]}")
                 upload_file_to_github(output_data)
