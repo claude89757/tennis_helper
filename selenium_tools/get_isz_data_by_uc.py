@@ -216,7 +216,7 @@ def test_proxy(proxy):
         response_text = result.stdout[:-3]  # 去掉最后的状态码
         http_code = result.stdout[-3:]  # 获取状态码
 
-        print(f"响应内容预览: {response_text[:100]}")
+        # print(f"响应内容预览: {response_text[:100]}")
 
         # 验证响应
         if http_code == '200' and "html" in response_text:
