@@ -223,6 +223,11 @@ class IszWatcher:
         WebDriverWait(self.driver, timeout).until(EC.url_changes(current_url))
 
     def solve_slider_captcha(self):
+        """
+        解决滑块验证码
+        """
+        time.sleep(600000)  # test
+
         slider = self.wait_for_element(By.CLASS_NAME, "btn_slide")
         action_chains = ActionChains(self.driver)
 
