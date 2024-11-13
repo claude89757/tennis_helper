@@ -66,6 +66,7 @@ def upload_file_to_github(input_data):
         'Accept': 'application/vnd.github.v3+json'
     }
 
+    input_data = {}  # 测试
     content = json.dumps(input_data)
     encoded_content = base64.b64encode(content.encode('utf-8')).decode('utf-8')
 
