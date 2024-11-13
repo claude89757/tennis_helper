@@ -97,8 +97,9 @@ def upload_file_to_github(input_data):
     content = json.dumps(input_data, ensure_ascii=False, indent=4)
     encoded_content = base64.b64encode(content.encode('utf-8')).decode('utf-8')
 
+    now = datetime.datetime.now()
     data = {
-        'message': f'Update data',
+        'message': f'Update data at {now.strftime("%Y-%m-%d %H:%M:%S")}',
         'content': encoded_content,
         'sha': get_file_sha(url, headers)
     }
