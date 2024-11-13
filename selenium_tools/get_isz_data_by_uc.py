@@ -15,7 +15,6 @@ import requests
 import json
 import base64
 import datetime
-import argparse
 import concurrent.futures
 import subprocess
 
@@ -25,9 +24,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
-from bs4 import BeautifulSoup
+from selenium.common.exceptions import NoSuchElementException
 import undetected_chromedriver as uc
-from selenium.webdriver.common.by import By
 
 FILENAME = "isz_data_infos.json"
 COOKIES_FILE = 'cookies.json'
@@ -93,12 +91,11 @@ def upload_file_to_github(input_data):
         'Accept': 'application/vnd.github.v3+json'
     }
 
-    input_data = {}  # 测试
-    content = json.dumps(input_data)
+    content = json.dumps(input_data, ensure_ascii=False, indent=4)
     encoded_content = base64.b64encode(content.encode('utf-8')).decode('utf-8')
 
     data = {
-        'message': f'Update proxy list by scf',
+        'message': f'Update data',
         'content': encoded_content,
         'sha': get_file_sha(url, headers)
     }
@@ -125,31 +122,31 @@ class IszWatcher:
         self.interaction_timeout = 10
         self.driver = None
         self.headless = headless
-   
+
     def setup_driver(self, proxy=None):
         """
         初始化浏览器，使用undetected-chromedriver来规避检测
         自动适配当前Chrome版本和显示器大小
         """
         print("开始初始化Chrome驱动...")
-        
+
         # 初始化Chrome选项
         chrome_options = uc.ChromeOptions()
         print("Chrome选项初始化完成")
-        
+
         # 基础设置 - 自动适配显示器
         if not self.headless:
             # 不设置固定大小，让浏览器自动适配显示器
             chrome_options.add_argument('--window-size=1920,1080')
-            chrome_options.add_argument("--start-maximized") 
-            chrome_options.add_argument("--disable-gpu") 
+            chrome_options.add_argument("--start-maximized")
+            chrome_options.add_argument("--disable-gpu")
             print("设置为可视化模式，将自动适配显示器大小")
         else:
             # 无头模式仍然需要固定大小
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--window-size=1920,1080")
             print("设置为无头模式，窗口大小: 1920x1080")
-        
+
         # 代理设置
         if proxy:
             chrome_options.add_argument(f'--proxy-server={proxy}')
@@ -168,15 +165,15 @@ class IszWatcher:
                 # Linux
                 cmd = ['google-chrome', '--version']
                 chrome_path = '/usr/bin/google-chrome'
-            
+
             result = subprocess.run(cmd, capture_output=True, text=True)
             version_output = result.stdout.strip()
             chrome_version = int(version_output.split()[2].split('.')[0])  # 提取主版本号
             print(f"检测到Chrome版本: {version_output}")
-            
+
             # 设置Chrome二进制文件位置
             chrome_options.binary_location = chrome_path
-            
+
         except Exception as e:
             print(f"获取Chrome版本失败: {str(e)}")
             print("将使用默认版本设置")
@@ -200,8 +197,8 @@ class IszWatcher:
             print("2. 系统环境变量正确配置")
             print("3. 网络连接正常")
             print("=" * 50)
-            raise Exception("Chrome驱动创建败，请检查Chrome安装和系统配置")
-        
+            raise Exception("Chrome驱动创建失败，请检查Chrome安装和系统配置")
+
         # 添加随机延迟
         delay = random.uniform(1, 3)
         print(f"添加随机延迟: {delay:.2f}秒")
@@ -257,6 +254,7 @@ class IszWatcher:
         }
         return headers
 
+
 def load_cookies_and_headers():
     if os.path.exists(COOKIES_FILE) and os.path.exists(HEADERS_FILE):
         with open(COOKIES_FILE, 'r') as f:
@@ -305,8 +303,6 @@ def test_proxy(proxy):
         response_text = result.stdout[:-3]  # 去掉最后的状态码
         http_code = result.stdout[-3:]  # 获取状态码
 
-        # print(f"响应内容预览: {response_text[:100]}")
-
         # 验证响应
         if http_code == '200' and "html" in response_text:
             print(f"[OK] 代理可用: {proxy}")
@@ -315,23 +311,24 @@ def test_proxy(proxy):
         if http_code == '200' and '"code":-1' in response_text and "签名错误" in response_text:
             print(f"[OK] 代理可用: {proxy}")
             return proxy
-            
+
     except Exception as error:
         print(f"代理测试失败 {proxy}: {str(error)}")
     return None
 
+
 def get_working_proxy():
     """
     获取一个可用的代理
-    如果本地缓存中的代理都不���用，则删除缓存文件并重新获取
+    如果本地缓存中的代理都不可用，则删除缓存文件并重新获取
     """
     proxies = generate_proxies()
     if not proxies:
         print("未获取到任何代理")
         return None
-        
+
     print(f"开始测试 {len(proxies)} 个代理...")
-    
+
     # 使用线程池并发测试代理
     working_proxy_found = False
     with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
@@ -345,7 +342,7 @@ def get_working_proxy():
                     return result
             except Exception as e:
                 print(f"测试代理时发生错误 {proxy}: {str(e)}")
-    
+
     # 如果没有找到可用代理，且使用的是缓存文件，则删除缓存文件并重试
     if not working_proxy_found and os.path.exists(PROXIES_CACHE_FILE):
         print("本地缓存中没有可用代理，删除缓存文件")
@@ -356,8 +353,9 @@ def get_working_proxy():
             return get_working_proxy()
         except Exception as e:
             print(f"删除缓存文件失败: {str(e)}")
-    
+
     return None
+
 
 if __name__ == '__main__':
     """
@@ -369,13 +367,13 @@ if __name__ == '__main__':
             # 检查执行时间
             now = datetime.datetime.now()
             print_with_timestamp(f'开始新的任务循环 - {now}')
-            
+
             # 在凌晨 0 点到 8 点之间跳过执行
             if datetime.time(0, 0) <= now.time() < datetime.time(8, 0):
                 print_with_timestamp('当前是休息时间（0:00-8:00），跳过本次执行')
                 time.sleep(300)  # 休息5分钟
                 continue
-                
+
             start_time = time.time()
 
             # 获取可用代理
@@ -388,10 +386,10 @@ if __name__ == '__main__':
             except Exception as e:
                 print(f"获取代理时出错: {str(e)}，直接开始下一轮")
                 continue
-            
+
             print(f"使用代理: {working_proxy}")
             watcher = None
-            
+
             try:
                 watcher = IszWatcher(headless=False)
                 watcher.setup_driver(proxy=working_proxy)
@@ -491,166 +489,121 @@ if __name__ == '__main__':
                         if "网球" in str(watcher.driver.page_source):
                             print(f"[1] Processing directly...")
 
-                            page_source = watcher.driver.page_source
+                            # 开始优化的部分，使用 Selenium 直接获取数据
+                            date_slider = WebDriverWait(watcher.driver, 10).until(
+                                EC.presence_of_element_located((By.CLASS_NAME, 'slider-box-datetime'))
+                            )
 
-                            date_slider = WebDriverWait(watcher.driver, 10).\
-                                until(EC.presence_of_element_located((By.CLASS_NAME, 'slider-box-datetime')))
                             date_elements = date_slider.find_elements(By.CLASS_NAME, 'new-datetime')
-                            index = 0
-                            for date_element in date_elements:
-                                date_element.click()
-                                watcher.random_delay(min_delay=2, max_delay=6)
+
+                            for index in range(len(date_elements)):
+                                # 重新获取日期元素，防止 StaleElementReferenceException
+                                date_slider = WebDriverWait(watcher.driver, 10).until(
+                                    EC.presence_of_element_located((By.CLASS_NAME, 'slider-box-datetime'))
+                                )
+                                date_elements = date_slider.find_elements(By.CLASS_NAME, 'new-datetime')
+                                date_element = date_elements[index]
 
                                 date_text = date_element.find_element(By.CLASS_NAME, 'datetime').text
                                 week_text = date_element.find_element(By.CLASS_NAME, 'week').text
+
+                                date_element.click()
+                                watcher.random_delay(min_delay=2, max_delay=6)
+
                                 print(f"Processing date: {date_text} {week_text}")
 
-                                time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
-                                price_pattern = re.compile(r'\d+(?:\.\d+)?元')
+                                # 等待表格加载
+                                WebDriverWait(watcher.driver, 10).until(
+                                    EC.presence_of_element_located((By.CSS_SELECTOR, '.schedule-table tbody'))
+                                )
 
-                                page_source = watcher.driver.page_source
-
-                                soup = BeautifulSoup(page_source, 'html.parser')
-
-                                schedule_table_div = soup.find('div', class_='schedule-table text-center')
-
-                                if schedule_table_div:
-                                    tables = schedule_table_div.find_all('table')
-
-                                    if len(tables) >= 2:
-                                        header_table = tables[0]
-                                        body_table = tables[1]
-                                    else:
-                                        print_with_timestamp(f"未找到足够的table元素")
-                                        continue
-                                else:
-                                    print_with_timestamp(f"未找到'schedule-table text-center'的DIV")
-                                    continue
-
-                                venue_names = []
-                                header_row = header_table.find('thead').find('tr')
-                                header_cells = header_row.find_all('th')
-                                for cell in header_cells:
-                                    venue_name = cell.get_text(strip=True)
-                                    if venue_name:
-                                        venue_names.append(venue_name)
+                                # 获取场地名称
+                                header_cells = watcher.driver.find_elements(By.CSS_SELECTOR, '.schedule-table thead th')
+                                venue_names = [cell.text.strip() for cell in header_cells if cell.text.strip()]
+                                print(f"Venue names: {venue_names}")
 
                                 venue_times = {venue: [] for venue in venue_names}
 
+                                # 获取表格行
+                                body_rows = watcher.driver.find_elements(By.CSS_SELECTOR, '.schedule-table tbody tr')
+                                print(f"Number of rows: {len(body_rows)}")
+
+                                num_cols = len(venue_names)
+                                occupied_cells = set()
+
+                                time_pattern = re.compile(r'\d{2}:\d{2}-\d{2}:\d{2}')
+
                                 def expand_cell(row_index, col_index, rowspan, colspan):
-                                    for i in range(rowspan):
-                                        for j in range(colspan):
-                                            key = (row_index + i, col_index + j)
-                                            occupied_cells.add(key)
+                                    for i in range(row_index, row_index + rowspan):
+                                        for j in range(col_index, col_index + colspan):
+                                            occupied_cells.add((i, j))
 
-                                def get_standard_status_class(body_rows):
-                                    """
-                                    分析找出最常用的表示"已预订"状态的class
-                                    """
-                                    span_class_status_infos = {}    
+                                for row_index, row in enumerate(body_rows):
+                                    print(f"Processing row {row_index}")
+                                    col_index = 0
+                                    cells = row.find_elements(By.CSS_SELECTOR, 'td, th')
+                                    print(f"Number of cells in row {row_index}: {len(cells)}")
+                                    cell_index = 0
 
-                                    for row in body_rows:
-                                        first_cell = row.find(['td', 'th'])
-                                        if not first_cell:
-                                            continue
-                                        
-                                        # 获取时间信息
-                                        div = first_cell.find('div')
-                                        if not div:
-                                            continue
-                                        
-                                        time_text = div.get_text(strip=True).split()[0]
-                                        if not time_text or ':' not in time_text:
-                                            continue
+                                    while col_index < num_cols and cell_index < len(cells):
+                                        cell = cells[cell_index]
+                                        while (row_index, col_index) in occupied_cells:
+                                            col_index += 1
 
-                                        # 分析该行所有单元格中的span
-                                        cells = row.find_all(['td', 'th'])
-                                        for cell in cells:
-                                            spans = cell.find_all('span')
+                                        rowspan = int(cell.get_attribute('rowspan') or '1')
+                                        colspan = int(cell.get_attribute('colspan') or '1')
+                                        print(f"Cell at row {row_index}, col {col_index}: rowspan={rowspan}, colspan={colspan}")
+
+                                        if col_index < num_cols:
+                                            venue = venue_names[col_index]
+                                            try:
+                                                div_in_cell = cell.find_element(By.TAG_NAME, 'div')
+                                            except NoSuchElementException:
+                                                print(f"No <div> found in cell at row {row_index}, col {col_index}")
+                                                # 如果没有 <div>，可以选择跳过或处理其他逻辑
+                                                expand_cell(row_index, col_index, rowspan, colspan)
+                                                col_index += colspan
+                                                cell_index += 1
+                                                continue
+
+                                            full_text = div_in_cell.text
+                                            print(f"Cell text at row {row_index}, col {col_index}: {full_text}")
+                                            time_matches = time_pattern.findall(full_text)
+                                            time_slot = '-'.join(time_matches) if time_matches else ''
+                                            print(f"Time slot: {time_slot}")
+
+                                            # 获取状态信息
+                                            spans = div_in_cell.find_elements(By.TAG_NAME, 'span')
+                                            show_status = ''
+                                            real_status = ''
                                             for span in spans:
-                                                # print(f"span: {span}")
-                                                class_name = span.get('class', [''])[0]
-                                                if not class_name:
-                                                    continue
-                                                span_text = span.get_text(strip=True)
-                                                
-                                                class_name_and_text = f"{class_name}|{span_text}"
+                                                show_status = span.text.strip()
+                                                print(f"Show status: {show_status}")
+                                                if "已预订" in show_status:
+                                                    real_status = "已预订"
+                                                    break
+                                                elif "元" in show_status:
+                                                    real_status = "可预订"
+                                                    break
+                                                else:
+                                                    real_status = "已预订"
+                                            print(f"Show status: {show_status}, Real status: {real_status}")
 
-                                                span_class_status_infos[class_name_and_text] = span_class_status_infos.get(class_name_and_text, 0) + 1
-                                
-                                    # print(f"span_class_status_infos: {sorted(span_class_status_infos.items(), key=lambda x: x[1], reverse=True)}")                                         
-                                    class_name_and_text  = max(span_class_status_infos.items(), key=lambda x: x[1])[0]
-                                    # print(f"class_name_and_text: {class_name_and_text}")
-                                    class_name = class_name_and_text.split('|')[0]
-                                    return class_name
-                                 
-                                if body_table:
-                                    tbody = body_table.find('tbody')
-                                    if tbody:
-                                        body_rows = tbody.find_all('tr')
-                                    else:
-                                        body_rows = body_table.find_all('tr')
-                                    
-                                    # 获取标准状态class
-                                    standard_status_class = get_standard_status_class(body_rows)
-                                    print(f"standard_status_class: {standard_status_class}")
-                                    
-                                    num_cols = len(venue_names)
-                                    occupied_cells = set()
-                                    
-                                    for row_index, row in enumerate(body_rows):
-                                        col_index = 0
-                                        cells = row.find_all(['td', 'th'])
-                                        cell_index = 0
-                                        
-                                        while col_index < num_cols and cell_index < len(cells):
-                                            cell = cells[cell_index]
-                                            while (row_index, col_index) in occupied_cells:
-                                                col_index += 1
-                                                
-                                            rowspan = int(cell.get('rowspan', 1))
-                                            colspan = int(cell.get('colspan', 1))
-                                            
-                                            if col_index < num_cols:
-                                                venue = venue_names[col_index]
-                                                div_in_cell = cell.find('div')
-                                                if div_in_cell:
-                                                    # 获取时间信息
-                                                    full_text = div_in_cell.get_text(separator=',', strip=False)
-                                                    time_matches = time_pattern.findall(full_text)
-                                                    time_slot = '-'.join(time_matches) if time_matches else ''
-                                                    
-                                                    # 获取真实状态
-                                                    show_status = "?"
-                                                    spans = div_in_cell.find_all('span')
-                                                    for span in spans:
-                                                        if span.get('class') and standard_status_class in span.get('class'):
-                                                            span_text = span.get_text(strip=True)
-                                                            show_status = span_text
-                                                    if "元" in show_status:
-                                                        real_status = "可预订"
-                                                    else:
-                                                        real_status = "已预定"
-                                                    # 获取原始状态文本
-                                                    temp_text = time_pattern.sub('', full_text)
-                                                    raw_status = temp_text.strip()
-                                                    
-                                                    venue_times[venue].append({
-                                                        'time': time_slot,
-                                                        'status': real_status,
-                                                        'show_status': show_status,                                                  
-                                                        'raw_statut': raw_status,
-                                                    })
-                                                    
-                                            expand_cell(row_index, col_index, rowspan, colspan)
-                                            col_index += colspan
-                                            cell_index += 1
-                                else:
-                                    print_with_timestamp(f"未找到body_table")
-                                    raise Exception("未找到body_table")
+                                            venue_times[venue].append({
+                                                'time': time_slot,
+                                                'status': real_status,
+                                                'show_status': show_status.strip(),
+                                            })
+
+                                        expand_cell(row_index, col_index, rowspan, colspan)
+                                        col_index += colspan
+                                        cell_index += 1
+
                                 place_data['court_infos'][f"{week_text}({date_text})"] = venue_times
-                                index += 1
                                 print_with_timestamp(f"{place_name} Success================================")
+                                print(venue_times)
+                                print_with_timestamp(f"{place_name} Success================================")
+                                
                             output_data[place_name] = place_data
                         elif "验证" in str(watcher.driver.page_source):
                             print(f"[2] Processing by solving slider captcha...")
@@ -678,14 +631,14 @@ if __name__ == '__main__':
             # 计算耗时
             cost_time = time.time() - start_time
             print_with_timestamp(f"本次任务耗时：{cost_time:.2f} 秒")
-            
+
             # 计算需要休息的时间
             # 如果任务执行时间少于5分钟，则休息剩余时间；否则直接开始下一次循环
             sleep_time = max(0, 300 - cost_time)  # 300秒 = 5分钟
             if sleep_time > 0:
                 print_with_timestamp(f"等待 {sleep_time:.2f} 秒后开始下一次任务...")
                 time.sleep(sleep_time)
-                
+
         except Exception as e:
             print_with_timestamp(f"发生意外错误: {str(e)}，直接开始下一轮")
             continue
