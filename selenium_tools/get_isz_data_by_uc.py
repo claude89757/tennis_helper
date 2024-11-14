@@ -158,47 +158,44 @@ class IszWatcher:
             options.add_argument('--disable-blink-features=AutomationControlled')
             
             # 随机化 WebGL 指纹
-            options.add_argument('--disable-webgl')
-            options.add_argument('--disable-webgl2')
+            # options.add_argument('--disable-webgl')
+            # options.add_argument('--disable-webgl2')
             
-            # 随机化 Canvas 指纹
-            options.add_argument('--disable-reading-from-canvas')
+            # # 随机化 Canvas 指纹
+            # options.add_argument('--disable-reading-from-canvas')
             
-            # 随机化音频指纹
-            options.add_argument('--disable-audio-output')
+            # # 随机化音频指纹
+            # options.add_argument('--disable-audio-output')
             
             # 添加随机的 User-Agent
             user_agents = [
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
-                
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
-                
-                'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-                
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0',
-                
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15',
-                
-                'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.6099.119 Mobile/15E148 Safari/604.1',
-                'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.144 Mobile Safari/537.36',
-                
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',                
                 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1',
                 'Mozilla/5.0 (iPad; CPU OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1'
             ]
+            print(f"随机选择一个User-Agent: {random.choice(user_agents)}")
             options.add_argument(f'user-agent={random.choice(user_agents)}')
+
+
+            # 使用 CDP（Chrome DevTools Protocol）覆盖浏览器指纹
+            # options.add_argument("--disable-blink-features=AutomationControlled")
+
+
+            # 添加执行脚本，在每个新页面加载时覆盖浏览器指纹
+            # options.add_argument("--disable-infobars")
+            # options.add_argument("--disable-web-security")
+            # options.add_argument("--allow-running-insecure-content")
+            # options.add_argument("--no-sandbox")
+            # options.add_argument("--disable-setuid-sandbox")
+            # options.add_argument("--remote-debugging-port=9222")
             
             print("已添加反检测选项")
             return options
 
         # 添加反检测选项
-        # chrome_options = add_antidetect_options(chrome_options)
+        chrome_options = add_antidetect_options(chrome_options)
         
         # 基础设置 - 自动适配显示器
         if not self.headless:
@@ -231,12 +228,17 @@ class IszWatcher:
             print(f"获取Chrome版本失败: {str(e)}, 使用Chrome 131")
             chrome_version = 131
 
-        self.driver = uc.Chrome(
-            options=chrome_options,
-            version_main=chrome_version,  # 使用检测到的版本号
-            driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
-        )
-        print("Chrome驱动创建成功！")
+        try:
+            self.driver = uc.Chrome(
+                options=chrome_options,
+                version_main=chrome_version,  # 使用检测到的版本号
+                driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
+            )
+            print("Chrome驱动创建成功！")
+        except Exception as e:
+            print(f"创建Chrome驱动失败: {str(e)}")
+            time.sleep(180)
+
 
         # 减少初始化延迟
         time.sleep(1)
@@ -697,7 +699,31 @@ if __name__ == '__main__':
                         watcher.driver.get(url)
                         watcher.random_delay(min_delay=3, max_delay=10)
                         watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
-                        print(f"Page title: {watcher.driver.title}")      
+                        print(f"Page title: {watcher.driver.title}")
+                        # 如果标题显示加载中,尝试刷新几次
+                        retry_count = 0
+                        while "加载中" in watcher.driver.title and retry_count < 3:
+                            print(f"页面还在加载中,尝试第 {retry_count + 1}/3 次加载...")
+                            
+                            # 尝试不同的加载方法
+                            if retry_count == 0:
+                                # 刷新页面
+                                watcher.driver.refresh()
+                            elif retry_count == 1:
+                                # 执行JavaScript滚动
+                                watcher.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                                watcher.driver.execute_script("window.scrollTo(0, 0);")
+                            else:
+                                # 清除缓存并硬性刷新
+                                watcher.driver.execute_script("window.localStorage.clear();")
+                                watcher.driver.execute_script("window.sessionStorage.clear();")
+                                watcher.driver.execute_script("location.reload(true);")
+                            
+                            # 等待页面加载
+                            watcher.random_delay(min_delay=3, max_delay=10)
+                            # 尝试强制等待DOM加载完成
+                            watcher.driver.execute_script("return document.readyState") == "complete"
+                            retry_count += 1
                         if "网球" in str(watcher.driver.page_source) and "验证" not in str(watcher.driver.page_source):
                             print(f"[1] Processing directly...")
 
