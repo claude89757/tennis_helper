@@ -821,6 +821,7 @@ if __name__ == '__main__':
                             output_data[place_name] = place_data
                         elif "验证" in str(watcher.driver.page_source):
                             print_with_timestamp("[2] 需要验证, 跳过处理")
+                            watcher.solve_slider_captcha()
                             time.sleep(600)
                             break
                         else:
