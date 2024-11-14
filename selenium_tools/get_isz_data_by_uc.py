@@ -819,7 +819,7 @@ if __name__ == '__main__':
                             output_data[place_name] = place_data
                         elif "验证" in str(watcher.driver.page_source):
                             print_with_timestamp("[2] 需要验证, 跳过处理")
-                            time.sleep(180)
+                            time.sleep(10)
                             break
                         else:
                             print_with_timestamp("[3] 未知状态, 跳过处理")
