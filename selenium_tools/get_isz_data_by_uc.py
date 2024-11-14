@@ -697,6 +697,11 @@ if __name__ == '__main__':
                         watcher.driver.get(url)
                         watcher.random_delay(min_delay=1, max_delay=10)
                         watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
+                        print(f"Page title: {watcher.driver.title}")
+                        if "加载中" in watcher.driver.title:
+                            print_with_timestamp(f"{place_name} 加载中，等待180秒")
+                            time.sleep(180)
+                        
                         if "网球" in str(watcher.driver.page_source) and "验证" not in str(watcher.driver.page_source):
                             print(f"[1] Processing directly...")
 
