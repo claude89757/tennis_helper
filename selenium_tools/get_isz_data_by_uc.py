@@ -136,66 +136,8 @@ class IszWatcher:
         # 初始化Chrome选项
         chrome_options = uc.ChromeOptions()
         
-        # 添加反检测功能
-        def add_antidetect_options(options):
-            """添加反检测相关的选项"""
-            # 随机生成浏览器指纹
-            platform_list = ['Win32', 'Win64', 'MacIntel', 'Linux x86_64']
-            vendor_list = ['Google Inc.', 'Apple Computer, Inc.']
-            renderer_list = ['ANGLE (Intel, Intel(R) UHD Graphics Direct3D11 vs_5_0 ps_5_0)']
-            
-            # 随机选择平台和供应商
-            platform = random.choice(platform_list)
-            vendor = random.choice(vendor_list)
-            renderer = random.choice(renderer_list)
-            
-            # JavaScript注入，修改浏览器指纹
-            options.add_argument(f'--js-flags=--platform={platform}')
-            options.add_argument(f'--js-flags=--vendor={vendor}')
-            options.add_argument(f'--js-flags=--renderer={renderer}')
-            
-            # 禁用自动化标志
-            options.add_argument('--disable-blink-features=AutomationControlled')
-            
-            # 随机化 WebGL 指纹
-            # options.add_argument('--disable-webgl')
-            # options.add_argument('--disable-webgl2')
-            
-            # # 随机化 Canvas 指纹
-            # options.add_argument('--disable-reading-from-canvas')
-            
-            # # 随机化音频指纹
-            # options.add_argument('--disable-audio-output')
-            
-            # 添加随机的 User-Agent
-            user_agents = [
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',                
-                'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1',
-                'Mozilla/5.0 (iPad; CPU OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1'
-            ]
-            print(f"随机选择一个User-Agent: {random.choice(user_agents)}")
-            options.add_argument(f'user-agent={random.choice(user_agents)}')
-
-
-            # 使用 CDP（Chrome DevTools Protocol）覆盖浏览器指纹
-            # options.add_argument("--disable-blink-features=AutomationControlled")
-
-
-            # 添加执行脚本，在每个新页面加载时覆盖浏览器指纹
-            # options.add_argument("--disable-infobars")
-            # options.add_argument("--disable-web-security")
-            # options.add_argument("--allow-running-insecure-content")
-            # options.add_argument("--no-sandbox")
-            # options.add_argument("--disable-setuid-sandbox")
-            # options.add_argument("--remote-debugging-port=9222")
-            
-            print("已添加反检测选项")
-            return options
-
         # 添加反检测选项
-        chrome_options = add_antidetect_options(chrome_options)
+        # chrome_options = add_antidetect_options(chrome_options)
         
         # 基础设置 - 自动适配显示器
         if not self.headless:
@@ -234,6 +176,14 @@ class IszWatcher:
                 version_main=chrome_version,  # 使用检测到的版本号
                 driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
             )
+                    # Override navigator.webdriver
+            self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+                "source": """
+                    Object.defineProperty(navigator, 'webdriver', {
+                        get: () => undefined
+                    })
+                """
+            })
             print("Chrome驱动创建成功！")
         except Exception as e:
             print(f"创建Chrome驱动失败: {str(e)}")
@@ -702,7 +652,9 @@ if __name__ == '__main__':
                         print(f"Page title: {watcher.driver.title}")
                         # 如果标题显示加载中,尝试刷新几次
                         retry_count = 0
-                        while "加载中" in watcher.driver.title and retry_count < 3:
+                        while ("加载中" in watcher.driver.title and 
+                               "访问验证" not in watcher.driver.page_source and 
+                               retry_count < 3):
                             print(f"页面还在加载中,尝试第 {retry_count + 1}/3 次加载...")
                             
                             # 尝试不同的加载方法
