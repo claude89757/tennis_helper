@@ -239,8 +239,17 @@ class IszWatcher:
             )
             print("Chrome驱动创建成功！")
         except Exception as e:
-            print(f"创建Chrome驱动失败: {str(e)}")
-            raise
+            try:    
+                print(f"创建Chrome驱动失败: {str(e)}, 重新尝试")
+                self.driver = uc.Chrome(
+                    use_subprocess=False,
+                    options=chrome_options,
+                    driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
+                )
+                print("Chrome驱动创建成功！")
+            except Exception as e:
+                print(f"创建Chrome驱动失败: {str(e)}, 退出")
+                raise
 
         # 减少初始化延迟
         time.sleep(1)
