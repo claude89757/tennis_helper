@@ -168,7 +168,7 @@ class IszWatcher:
             return chrome_options, stealth_js
 
         # 添加反检测选项
-        chrome_options, stealth_js = add_antidetect_options(chrome_options)  # 现在正确获取stealth_js
+        # chrome_options, stealth_js = add_antidetect_options(chrome_options)  # 现在正确获取stealth_js
         
         # 基础设置 - 自动适配显示器
         if not self.headless:
@@ -206,19 +206,6 @@ class IszWatcher:
                 version_main=chrome_version,  # 使用检测到的版本号
                 driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
             )
-
-            # 注入反检测 JavaScript
-            self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-                "source": stealth_js
-            })
-            
-            # 设置存储信息
-            storage_script = """
-                localStorage.setItem('browser_id', Math.random().toString(36).substr(2));
-                localStorage.setItem('first_visit', new Date().toISOString());
-            """
-            self.driver.execute_script(storage_script)
-
             print("Chrome驱动创建成功！")
         except Exception as e:
             print(f"创建Chrome驱动失败: {str(e)}")
@@ -832,7 +819,7 @@ if __name__ == '__main__':
                             output_data[place_name] = place_data
                         elif "验证" in str(watcher.driver.page_source):
                             print_with_timestamp("[2] 需要验证, 跳过处理")
-                            time.sleep(10)
+                            time.sleep(600)
                             break
                         else:
                             print_with_timestamp("[3] 未知状态, 跳过处理")
