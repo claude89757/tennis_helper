@@ -231,23 +231,12 @@ class IszWatcher:
             print(f"获取Chrome版本失败: {str(e)}, 使用Chrome 131")
             chrome_version = 131
 
-        try:
-            self.driver = uc.Chrome(
-                options=chrome_options,
-                version_main=chrome_version,  # 使用检测到的版本号
-                driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
-            )
-            print("Chrome驱动创建成功！")
-        except Exception as e:
-            try:    
-                print(f"创建Chrome驱动失败: {str(e)}, 重新尝试")
-                self.driver = uc.Chrome(
-                    options=chrome_options,
-                )
-                print("Chrome驱动创建成功！")
-            except Exception as e:
-                print(f"创建Chrome驱动失败: {str(e)}, 退出")
-                raise
+        self.driver = uc.Chrome(
+            options=chrome_options,
+            version_main=chrome_version,  # 使用检测到的版本号
+            driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
+        )
+        print("Chrome驱动创建成功！")
 
         # 减少初始化延迟
         time.sleep(1)
