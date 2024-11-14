@@ -27,6 +27,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 import undetected_chromedriver as uc
+from fake_useragent import UserAgent
 
 FILENAME = "isz_data_infos.json"
 COOKIES_FILE = 'cookies.json'
@@ -120,6 +121,8 @@ def get_file_sha(url, headers):
     return None
 
 
+
+
 class IszWatcher:
     def __init__(self, timeout=10, headless: bool = True):
         self.timeout = timeout
@@ -132,12 +135,40 @@ class IszWatcher:
         初始化浏览器，使用undetected-chromedriver来规避检测
         """
         print("开始初始化Chrome驱动...")
-
-        # 初始化Chrome选项
         chrome_options = uc.ChromeOptions()
-        
+
+        def add_antidetect_options(chrome_options):
+            """
+            添加反检测选项 - 简化版
+            """
+            print("添加反检测选项...")
+            
+            # 1. 只保留基本必要的参数
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-gpu')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+            
+            # 2. 随机化 User-Agent
+            ua = UserAgent()
+            random_ua = ua.random
+            print(f"使用随机 User-Agent: {random_ua}")
+            chrome_options.add_argument(f'--user-agent={random_ua}')
+            
+            # 3. 最基本的反检测设置
+            chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+            
+            # 4. 简化的 JavaScript 代码
+            stealth_js = """
+                Object.defineProperty(navigator, 'webdriver', {
+                    get: () => undefined
+                });
+            """
+            
+            print("反检测选项添加完成")
+            return chrome_options, stealth_js
+
         # 添加反检测选项
-        # chrome_options = add_antidetect_options(chrome_options)
+        chrome_options, stealth_js = add_antidetect_options(chrome_options)  # 现在正确获取stealth_js
         
         # 基础设置 - 自动适配显示器
         if not self.headless:
@@ -163,7 +194,6 @@ class IszWatcher:
             else:  # Linux/Windows
                 cmd = ['google-chrome', '--version']
             result = subprocess.run(cmd, capture_output=True, text=True)
-            print(f"result: {result}")
             chrome_version = int(result.stdout.split()[2].split('.')[0])
             print(f"检测到Chrome版本: {chrome_version}")
         except Exception as e:
@@ -176,19 +206,23 @@ class IszWatcher:
                 version_main=chrome_version,  # 使用检测到的版本号
                 driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
             )
-                    # Override navigator.webdriver
+
+            # 注入反检测 JavaScript
             self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-                "source": """
-                    Object.defineProperty(navigator, 'webdriver', {
-                        get: () => undefined
-                    })
-                """
+                "source": stealth_js
             })
+            
+            # 设置存储信息
+            storage_script = """
+                localStorage.setItem('browser_id', Math.random().toString(36).substr(2));
+                localStorage.setItem('first_visit', new Date().toISOString());
+            """
+            self.driver.execute_script(storage_script)
+
             print("Chrome驱动创建成功！")
         except Exception as e:
             print(f"创建Chrome驱动失败: {str(e)}")
             time.sleep(180)
-
 
         # 减少初始化延迟
         time.sleep(1)
@@ -765,7 +799,7 @@ if __name__ == '__main__':
                                             # 获取状态信息
                                             spans = div_in_cell.find_elements(By.TAG_NAME, 'span')
                                             
-                                            # 获取第一个 span 的文本
+                                            # 获取第一个 span ��文本
                                             show_status = spans[0].text.strip()
                                             if "元" in show_status:
                                                 real_status = "可预订"
@@ -815,6 +849,10 @@ if __name__ == '__main__':
                 # print(output_data)
                 # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             except Exception as e:
+                # 打印详细异常
+                import traceback
+                print(traceback.format_exc())
+                raise e
                 print_with_timestamp(f"任务执行出错: {str(e).splitlines()[0]}，直接开始下一轮")
                 continue
             finally:
