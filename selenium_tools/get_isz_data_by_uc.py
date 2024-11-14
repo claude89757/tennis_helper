@@ -121,8 +121,6 @@ def get_file_sha(url, headers):
     return None
 
 
-
-
 class IszWatcher:
     def __init__(self, timeout=10, headless: bool = True):
         self.timeout = timeout
@@ -137,38 +135,42 @@ class IszWatcher:
         print("开始初始化Chrome驱动...")
         chrome_options = uc.ChromeOptions()
 
-        def add_antidetect_options(chrome_options):
-            """
-            添加反检测选项 - 简化版
-            """
-            print("添加反检测选项...")
+        # 添加反检测功能
+        def add_antidetect_options(options):
+            """添加反检测相关的选项"""
+            # 添加随机的 User-Agent
+            user_agents = [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+                # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+                
+                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+                
+                # 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                # 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+                
+                # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
+                # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0',
+                
+                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15',
+                
+                # 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.6099.119 Mobile/15E148 Safari/604.1',
+                # 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.144 Mobile Safari/537.36',
+                
+                # 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1',
+                # 'Mozilla/5.0 (iPad; CPU OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1'
+            ]
+            options.add_argument(f'user-agent={random.choice(user_agents)}')
             
-            # 1. 只保留基本必要的参数
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-gpu')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            
-            # 2. 随机化 User-Agent
-            ua = UserAgent()
-            random_ua = ua.random
-            print(f"使用随机 User-Agent: {random_ua}")
-            chrome_options.add_argument(f'--user-agent={random_ua}')
-            
-            # 3. 最基本的反检测设置
-            chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-            
-            # 4. 简化的 JavaScript 代码
-            stealth_js = """
-                Object.defineProperty(navigator, 'webdriver', {
-                    get: () => undefined
-                });
-            """
-            
-            print("反检测选项添加完成")
-            return chrome_options, stealth_js
+            print("已添加反检测选项")
+            return options
 
         # 添加反检测选项
-        # chrome_options, stealth_js = add_antidetect_options(chrome_options)  # 现在正确获取stealth_js
+        chrome_options = add_antidetect_options(chrome_options)
+        
         
         # 基础设置 - 自动适配显示器
         if not self.headless:
