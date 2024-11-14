@@ -12,3 +12,4 @@ private.env
 *.json
 *.png
 page_source.html
+.env
