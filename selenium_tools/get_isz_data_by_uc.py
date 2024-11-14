@@ -224,11 +224,12 @@ class IszWatcher:
             else:  # Linux/Windows
                 cmd = ['google-chrome', '--version']
             result = subprocess.run(cmd, capture_output=True, text=True)
+            print(f"result: {result}")
             chrome_version = int(result.stdout.split()[2].split('.')[0])
             print(f"检测到Chrome版本: {chrome_version}")
         except Exception as e:
-            print(f"获取Chrome版本失败: {str(e)}")
-            chrome_version = None
+            print(f"获取Chrome版本失败: {str(e)}, 使用Chrome 131")
+            chrome_version = 131
 
         try:
             self.driver = uc.Chrome(
