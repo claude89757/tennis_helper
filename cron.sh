@@ -31,8 +31,16 @@ GIT_TOKEN=""
 
 # check https proxy
 */60 * * * * timeout 3600 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_tools/https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/https_proxy_watcher_$(date +\%Y-\%m-\%d).log 2>&1
-*/60 * * * * timeout 3600 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_tools/isz_https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/isz_https_proxy_watcher_$(date +\%Y-\%m-\%d).log 2>&1
 */60 * * * * timeout 3600 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_tools/isz_https_proxy_watcher_faster.py >> /home/lighthouse/tennis_helper/logs/isz_https_proxy_watcher_faster_$(date +\%Y-\%m-\%d).log 2>&1
+
+# check isz https proxy
+*/10 * * * * timeout 3600 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_tools/isz_https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/isz_https_proxy_watcher_0_$(date +\%Y-\%m-\%d).log 2>&1
+*/20 * * * * timeout 3600 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_tools/isz_https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/isz_https_proxy_watcher_1_$(date +\%Y-\%m-\%d).log 2>&1
+*/30 * * * * timeout 3600 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_tools/isz_https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/isz_https_proxy_watcher_2_$(date +\%Y-\%m-\%d).log 2>&1
+*/40 * * * * timeout 3600 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_tools/isz_https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/isz_https_proxy_watcher_3_$(date +\%Y-\%m-\%d).log 2>&1
+*/50 * * * * timeout 3600 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_tools/isz_https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/isz_https_proxy_watcher_4_$(date +\%Y-\%m-\%d).log 2>&1
+*/60 * * * * timeout 3600 /usr/bin/python3 /home/lighthouse/tennis_helper/proxy_tools/isz_https_proxy_watcher.py >> /home/lighthouse/tennis_helper/logs/isz_https_proxy_watcher_5_$(date +\%Y-\%m-\%d).log 2>&1
+
 
 # update docs for  tennis tools
 */5 * * * *  timeout 1800 /usr/bin/python3 /home/lighthouse/tennis_helper/update_docs.py >> /home/lighthouse/tennis_helper/logs/update_docs_$(date +\%Y-\%m-\%d).log 2>&1
