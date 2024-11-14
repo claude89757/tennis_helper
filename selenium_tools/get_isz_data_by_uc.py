@@ -818,13 +818,6 @@ if __name__ == '__main__':
 
                                 place_data['court_infos'][f"{week_text}({date_text})"] = venue_times
                                 print_with_timestamp(f"{place_name} Success================================")
-                                # 仅打印18点后可预订的时间
-                                for venue, times in venue_times.items():
-                                    available_times = [t for t in times 
-                                                     if t['status'] == '可预订' and int(t['time'].split('-')[0]) >= 18]
-                                    if available_times:
-                                        print(f"{venue}: {available_times}")
-                                print_with_timestamp(f"{place_name} Success================================")
                                 
                             output_data[place_name] = place_data
                         elif "验证" in str(watcher.driver.page_source):
