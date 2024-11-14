@@ -138,32 +138,41 @@ class IszWatcher:
         # 添加反检测功能
         def add_antidetect_options(options):
             """添加反检测相关的选项"""
+            # 禁用自动化控制特征
+            options.add_argument('--disable-blink-features=AutomationControlled')
+            
             # 添加随机的 User-Agent
-            user_agents = [
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-                # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
-                
-                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
-                
-                # 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                # 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-                
-                # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
-                # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0',
-                
-                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
-                # 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15',
-                
-                # 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.6099.119 Mobile/15E148 Safari/604.1',
-                # 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.144 Mobile Safari/537.36',
-                
-                # 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1',
-                # 'Mozilla/5.0 (iPad; CPU OS 17_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.1 Mobile/15E148 Safari/604.1'
-            ]
-            options.add_argument(f'user-agent={random.choice(user_agents)}')
+            user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            options.add_argument(f'user-agent={user_agent}')
+            
+            # 禁用 WebDriver
+            options.add_argument("--disable-blink-features")
+            options.add_argument('--disable-blink-features=AutomationControlled')
+            
+            # 添加指纹随机化
+            options.add_argument('--disable-gpu')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-infobars')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--ignore-certificate-errors')
+            options.add_argument('--ignore-ssl-errors')
+            
+            # 添加随机窗口大小
+            width = random.randint(1024, 1920)
+            height = random.randint(768, 1080)
+            options.add_argument(f'--window-size={width},{height}')
+            
+            # 禁用图片加载以提升速度
+            prefs = {
+                'profile.default_content_setting_values': {
+                    'images': 2,
+                }
+            }
+            options.add_experimental_option('prefs', prefs)
+            
+            # 添加随机语言
+            languages = ['en-US', 'zh-CN', 'zh-TW', 'ja-JP']
+            options.add_argument(f'--lang={random.choice(languages)}')
             
             print("已添加反检测选项")
             return options
@@ -171,16 +180,11 @@ class IszWatcher:
         # 添加反检测选项
         chrome_options = add_antidetect_options(chrome_options)
         
-        
         # 基础设置 - 自动适配显示器
         if not self.headless:
-            # 不设置固定大小，让浏览器自动适配显示器
-            chrome_options.add_argument('--window-size=1024,768')
             chrome_options.add_argument("--start-maximized")
-            chrome_options.add_argument("--disable-gpu")
             print("设置为可视化模式，将自动适配显示器大小")
         else:
-            # 无头模式仍然需要固定大小
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--window-size=1920,1080")
             print("设置为无头模式，窗口大小: 1920x1080")
@@ -199,35 +203,33 @@ class IszWatcher:
             chrome_version = int(result.stdout.split()[2].split('.')[0])
             print(f"检测到Chrome版本: {chrome_version}")
         except Exception as e:
-            print(f"获取Chrome版本失败: {str(e)}, 使用Chrome 131")
-            chrome_version = 131
+            print(f"获取Chrome版本失败: {str(e)}, 使用Chrome 120")
+            chrome_version = 120
 
         try:
+            # 添加随机延迟
+            time.sleep(random.uniform(1, 3))
+            
             self.driver = uc.Chrome(
                 options=chrome_options,
-                version_main=chrome_version,  # 使用检测到的版本号
-                driver_executable_path=None  # 让undetected_chromedriver自动管理驱动
+                version_main=chrome_version,
+                driver_executable_path=None
             )
             print("Chrome驱动创建成功！")
+            
+            # 执行JavaScript来修改WebDriver特征
+            stealth_js = """
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => undefined
+            });
+            """
+            self.driver.execute_script(stealth_js)
+            
         except Exception as e:
             print(f"创建Chrome驱动失败: {str(e)}")
             time.sleep(180)
 
-        # 减少初始化延迟
-        time.sleep(1)
         print("Chrome驱动初始化完成！")
-
-        end_time = time.time()
-        print(f"驱动初始化总耗时: {end_time - start_time:.2f}秒")
-        
-        # 打印系统资源使用情况
-        try:
-            import psutil
-            process = psutil.Process()
-            print(f"内存使用: {process.memory_info().rss / 1024 / 1024:.2f} MB")
-            print(f"CPU使用率: {process.cpu_percent()}%")
-        except ImportError:
-            print("未安装psutil，跳过资源监控")
 
     def teardown_driver(self):
         if self.driver:
@@ -246,28 +248,97 @@ class IszWatcher:
 
     def solve_slider_captcha(self, max_retries=3):
         """
-        处理阿里云滑块验证码
-        
-        Args:
-            max_retries (int): 最大重试次数
-            
-        Returns:
-            bool: 是否成功通过验证
+        处理阿里云滑块验证码，优化后的版本
         """
         print("开始处理阿里云滑块验证码...")
         
-        def get_slider_info():
-            """获取滑块元素和相关信息"""
+        def reset_browser_state():
+            """重置浏览器状态"""
             try:
-                # 等待滑块元素出现
+                print("开始重置浏览器状态...")
+                
+                # 清除所有cookies
+                self.driver.delete_all_cookies()
+                
+                # 清除localStorage和sessionStorage
+                self.driver.execute_script("""
+                    try {
+                        window.localStorage.clear();
+                        window.sessionStorage.clear();
+                    } catch(e) {
+                        console.log('Storage clear failed:', e);
+                    }
+                """)
+                
+                # 清除缓存
+                self.driver.execute_script("""
+                    try {
+                        if (window.caches) {
+                            caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
+                        }
+                    } catch(e) {
+                        console.log('Cache clear failed:', e);
+                    }
+                """)
+                
+                # 重置浏览器指纹，使用try-catch包装每个操作
+                self.driver.execute_script("""
+                    try {
+                        // 清除可能存在的自动化标记
+                        if (window.cdc_adoQpoasnfa76pfcZLmcfl_Array) {
+                            delete window.cdc_adoQpoasnfa76pfcZLmcfl_Array;
+                        }
+                        if (window.cdc_adoQpoasnfa76pfcZLmcfl_Promise) {
+                            delete window.cdc_adoQpoasnfa76pfcZLmcfl_Promise;
+                        }
+                        if (window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol) {
+                            delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;
+                        }
+                    } catch(e) {
+                        console.log('Clear automation marks failed:', e);
+                    }
+                    
+                    try {
+                        // 重置Canvas指纹
+                        if (HTMLCanvasElement.prototype.toDataURL) {
+                            Object.defineProperty(HTMLCanvasElement.prototype, 'toDataURL', {
+                                value: function() {
+                                    return 'data:image/png;base64,';
+                                },
+                                writable: true
+                            });
+                        }
+                    } catch(e) {
+                        console.log('Reset canvas failed:', e);
+                    }
+                    
+                    try {
+                        // 重置网络状态
+                        if (window.navigator.connection) {
+                            Object.defineProperty(navigator.connection, 'type', {
+                                get: function() {
+                                    return 'wifi';
+                                }
+                            });
+                        }
+                    } catch(e) {
+                        console.log('Reset network state failed:', e);
+                    }
+                """)
+                
+                print("浏览器状态重置完成")
+                return True
+            except Exception as e:
+                print(f"重置浏览器状态失败: {str(e)}")
+                return False
+
+        def get_slider_info():
+            try:
                 slider = WebDriverWait(self.driver, 5).until(
                     EC.presence_of_element_located((By.ID, "aliyunCaptcha-sliding-slider"))
                 )
-                
-                # 获取滑块容器
                 slider_container = self.driver.find_element(By.ID, "aliyunCaptcha-sliding-wrapper")
                 
-                # 获取滑块和容器的尺寸位置信息
                 slider_rect = slider.rect
                 container_rect = slider_container.rect
                 
@@ -282,35 +353,45 @@ class IszWatcher:
             except Exception as e:
                 print(f"获取滑块元素失败: {str(e)}")
                 return None
-            
+
         def generate_human_like_track(distance):
-            """生成人性化的滑动轨迹"""
+            """生成更像人类的滑动轨迹"""
             tracks = []
             current = 0
-            mid = distance * 4 / 5  # 减速阈值
-            t = 0.2  # 计算间隔
-            v = 0  # 初速度
+            # 减速阈值
+            mid = distance * 3 / 4
+            # 计算间隔
+            t = 0.2
+            # 初速度
+            v = 0
+            # 抖动幅度
+            shake_amplitude = random.randint(2, 4)
             
             while current < distance:
                 if current < mid:
-                    a = random.uniform(2, 3)  # 加速度为正
+                    # 加速度逐渐减小
+                    a = random.uniform(2.5, 3.5) * (1 - current/distance)
                 else:
-                    a = random.uniform(-1, -0.5)  # 加速度为负
+                    # 减速度逐渐增大
+                    a = -random.uniform(1.5, 2) * (current/distance)
                 
-                # 计算当前轨迹
+                # 当前速度
                 v0 = v
                 v = v0 + a * t
+                # 当前位移
                 move = v0 * t + 1/2 * a * t * t
+                # 加入轨迹
                 current += move
                 
-                # 加入轨迹
-                tracks.append(round(move))
-            
-            # 微调，确保最终距离精确
-            tracks.append(distance - sum(tracks))
-            
+                # 加入随机抖动
+                if current < distance:
+                    shake = random.uniform(-shake_amplitude, shake_amplitude)
+                    tracks.append([round(move), round(shake)])
+                else:
+                    tracks.append([round(distance - sum(x[0] for x in tracks)), 0])
+                    
             return tracks
-            
+
         def perform_slide(info):
             """执行滑动操作"""
             try:
@@ -318,49 +399,68 @@ class IszWatcher:
                 slider = info['slider']
                 
                 # 随机的初始停顿
-                time.sleep(random.uniform(0.1, 0.3))
+                time.sleep(random.uniform(0.5, 1.2))
+                
+                # 移动到滑块
+                action_chains.move_to_element(slider)
+                action_chains.pause(random.uniform(0.2, 0.4))
                 
                 # 按下滑块
-                action_chains.click_and_hold(slider).perform()
-                time.sleep(random.uniform(0.2, 0.3))
+                action_chains.click_and_hold()
+                action_chains.pause(random.uniform(0.3, 0.6))
                 
                 # 生成轨迹
                 tracks = generate_human_like_track(info['max_offset'])
                 
                 # 执行滑动
                 for track in tracks:
-                    action_chains.move_by_offset(track, random.uniform(-0.5, 0.5)).perform()
-                    time.sleep(random.uniform(0.005, 0.01))
-                    
-                # 模拟人手抖动
+                    # x方向移动
+                    action_chains.move_by_offset(track[0], track[1])
+                    action_chains.pause(random.uniform(0.008, 0.012))
+                
+                # 稳定停顿
+                action_chains.pause(random.uniform(0.3, 0.5))
+                
+                # 释放前的微调
                 for _ in range(random.randint(2, 4)):
-                    action_chains.move_by_offset(random.uniform(-2, 2), 0).perform()
-                    time.sleep(random.uniform(0.05, 0.1))
+                    action_chains.move_by_offset(random.uniform(-1, 1), random.uniform(-1, 1))
+                    action_chains.pause(random.uniform(0.1, 0.2))
                 
                 # 释放滑块
-                time.sleep(random.uniform(0.1, 0.2))
-                action_chains.release().perform()
-                time.sleep(random.uniform(0.5, 1))
+                action_chains.release()
+                action_chains.perform()
+                
+                # 等待验证结果
+                time.sleep(random.uniform(0.8, 1.2))
                 
                 return True
                 
             except Exception as e:
                 print(f"滑动操作失败: {str(e)}")
                 return False
-            
+
         def verify_success():
             """验证是否通过"""
             try:
                 # 等待验证结果
-                time.sleep(random.uniform(1, 2))
+                time.sleep(random.uniform(1.5, 2))
                 
                 # 检查错误提示
-                error_tip = self.driver.find_element(By.ID, "aliyunCaptcha-errorTip")
-                fail_tip = self.driver.find_element(By.ID, "aliyunCaptcha-sliding-failTip")
-                
-                if error_tip.is_displayed() or fail_tip.is_displayed():
-                    print("验证未通过")
-                    return False
+                try:
+                    error_tip = self.driver.find_element(By.ID, "aliyunCaptcha-errorTip")
+                    if error_tip.is_displayed():
+                        print("验证未通过: 发现错误提示")
+                        return False
+                except NoSuchElementException:
+                    pass
+                    
+                try:
+                    fail_tip = self.driver.find_element(By.ID, "aliyunCaptcha-sliding-failTip")
+                    if fail_tip.is_displayed():
+                        print("验证未通过: 发现失败提示")
+                        return False
+                except NoSuchElementException:
+                    pass
                     
                 # 检查页面内容变化
                 if "网球" in self.driver.page_source and "验证" not in self.driver.page_source:
@@ -377,19 +477,47 @@ class IszWatcher:
         for attempt in range(max_retries):
             print(f"第 {attempt + 1} 次尝试验证...")
             
+            # 每次重试前重置浏览器状态并刷新页面
+            if attempt > 0:
+                print("重置浏览器状态并刷新页面...")
+                
+                # 重置浏览器状态
+                if not reset_browser_state():
+                    print("重置浏览器状态失败，跳过本次重试")
+                    continue
+                    
+                # 刷新页面
+                try:
+                    self.driver.refresh()
+                    time.sleep(random.uniform(3, 5))  # 刷新后多等待一会
+                    
+                    # 等待页面完全加载
+                    WebDriverWait(self.driver, 10).until(
+                        lambda driver: driver.execute_script("return document.readyState") == "complete"
+                    )
+                    
+                    # 额外等待DOM加载
+                    WebDriverWait(self.driver, 10).until(
+                        EC.presence_of_element_located((By.TAG_NAME, "body"))
+                    )
+                except Exception as e:
+                    print(f"页面刷新失败: {str(e)}")
+                    continue
+            else:
+                # 第一次尝试前也重置浏览器状态
+                if not reset_browser_state():
+                    print("初始重置浏览器状态失败")
+                    continue
+            
             # 获取滑块信息
             slider_info = get_slider_info()
             if not slider_info:
                 print("未找到滑块元素,重试...")
-                self.driver.refresh()
-                time.sleep(random.uniform(2, 3))
                 continue
                 
             # 执行滑动
             if not perform_slide(slider_info):
                 print("滑动操作失败,重试...")
-                self.driver.refresh()
-                time.sleep(random.uniform(2, 3))
                 continue
                 
             # 验证结果
@@ -402,14 +530,14 @@ class IszWatcher:
                 save_cookies_and_headers(cookies, headers)
                 return True
                 
-            # 重试前等待
+            print("验证未通过，准备重试...")
             time.sleep(random.uniform(2, 3))
         
         print(f"验证码处理失败,已重试 {max_retries} 次")
         # 保存失败现场信息
-        screenshot_path = 'captcha_failed_screenshot.png'
+        screenshot_path = f'captcha_failed_screenshot_{int(time.time())}.png'
         self.driver.save_screenshot(screenshot_path)
-        with open("captcha_failed_page.html", "w", encoding='utf-8') as f:
+        with open(f"captcha_failed_page_{int(time.time())}.html", "w", encoding='utf-8') as f:
             f.write(self.driver.page_source)
         return False
 
@@ -575,7 +703,7 @@ if __name__ == '__main__':
 
                 # 开始浏览
                 print("开始访问页面")
-                url = "https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig"
+                url = "https://wxsports.ydmap.cn/venue/"
                 watcher.driver.get(url)
                 time.sleep(10)
                 watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
@@ -594,6 +722,18 @@ if __name__ == '__main__':
                 else:
                     print(f"没有找到缓存，直接访问页面。")
 
+                if "我已知晓" in str(watcher.driver.page_source):
+                    # 点击"我已知晓"按钮
+                    try:
+                        button = WebDriverWait(watcher.driver, 10).until(
+                            EC.presence_of_element_located((By.XPATH, "//button[contains(@class, 'van-dialog__confirm')]//span[text()='我已知晓']"))
+                        )
+                        button.click()
+                        print("成功点击'我已知晓'按钮")
+                        time.sleep(3)
+                    except Exception as e:
+                        print(f"点击'我已知晓'按钮失败: {str(e)}")
+      
                 if "网球" in str(watcher.driver.page_source) or "在线订场" in str(watcher.driver.page_source):
                     print(f"[1] Processing directly...")
                     current_url = watcher.driver.current_url
@@ -696,7 +836,7 @@ if __name__ == '__main__':
                             
                             # 等待页面加载
                             watcher.random_delay(min_delay=3, max_delay=10)
-                            # 尝试强制等待DOM加载完成
+                            # 尝���强制等待DOM加载完成
                             watcher.driver.execute_script("return document.readyState") == "complete"
                             retry_count += 1
                         if "网球" in str(watcher.driver.page_source) and "验证" not in str(watcher.driver.page_source):
@@ -788,7 +928,7 @@ if __name__ == '__main__':
                                             # 获取状态信息
                                             spans = div_in_cell.find_elements(By.TAG_NAME, 'span')
                                             
-                                            # 获取第一个 span ��文本
+                                            # 获取第一个 span 文本
                                             show_status = spans[0].text.strip()
                                             if "元" in show_status:
                                                 real_status = "可预订"
