@@ -3,7 +3,7 @@
 """
 @Time    : 2024-09-13
 @Author  : claude
-@File    : get_data_by_chrome.py
+@File    : get_isz_data_by_uc.py
 @Software: PyCharm
 """
 
