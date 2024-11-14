@@ -703,7 +703,7 @@ if __name__ == '__main__':
 
                 # 开始浏览
                 print("开始访问页面")
-                url = "https://wxsports.ydmap.cn/venue/"
+                url = "https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig"
                 watcher.driver.get(url)
                 time.sleep(10)
                 watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
@@ -721,18 +721,6 @@ if __name__ == '__main__':
                     watcher.wait_for_element(By.TAG_NAME, "body", timeout=60)
                 else:
                     print(f"没有找到缓存，直接访问页面。")
-
-                if "我已知晓" in str(watcher.driver.page_source):
-                    # 点击"我已知晓"按钮
-                    try:
-                        button = WebDriverWait(watcher.driver, 10).until(
-                            EC.presence_of_element_located((By.XPATH, "//button[contains(@class, 'van-dialog__confirm')]//span[text()='我已知晓']"))
-                        )
-                        button.click()
-                        print("成功点击'我已知晓'按钮")
-                        time.sleep(3)
-                    except Exception as e:
-                        print(f"点击'我已知晓'按钮失败: {str(e)}")
       
                 if "网球" in str(watcher.driver.page_source) or "在线订场" in str(watcher.driver.page_source):
                     print(f"[1] Processing directly...")
