@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      2.8
 // @description  拦截调试工具调用，阻止动态函数创建
-// @author       Your Name
+// @author       claude89757 by cursor
 // @match        *://*/*
 // @run-at       document-start
 // @grant        none
@@ -60,16 +60,13 @@
                 if (typeof callback === 'function') {
                     const fnStr = callback.toString();
                     if (isSuspiciousString(fnStr)) {
-                        console.log('[Debugger Blocker] Blocked suspicious setInterval');
                         return -1;
                     }
                 } else if (typeof callback === 'string' && isSuspiciousString(callback)) {
-                    console.log('[Debugger Blocker] Blocked suspicious setInterval string');
                     return -1;
                 }
                 return _setInterval.call(window, callback, delay, ...args);
             };
-            console.log('[Debugger Blocker] SetInterval protection active');
         } catch(e) {
             console.error('[Debugger Blocker] SetInterval protection error:', e);
         }
@@ -83,7 +80,6 @@
                 get() {
                     const stack = new Error().stack || '';
                     
-                    // 允许框架代码正常访问constructor
                     if (isFrameworkCode(stack)) {
                         return safeConstructor;
                     }
@@ -91,7 +87,6 @@
                     return function(...args) {
                         const code = args.join('');
                         if (isSuspiciousString(code)) {
-                            console.log('[Debugger Blocker] Blocked suspicious code');
                             return function() { return {}; };
                         }
                         return safeConstructor.apply(this, args);
@@ -109,7 +104,6 @@
                 },
                 configurable: true
             });
-            console.log('[Debugger Blocker] Constructor protection active');
         } catch(e) {
             console.error('[Debugger Blocker] Constructor protection error:', e);
         }
@@ -118,12 +112,10 @@
         try {
             window.eval = function(code) {
                 if (typeof code === 'string' && isSuspiciousString(code)) {
-                    console.log('[Debugger Blocker] Blocked suspicious eval');
                     return null;
                 }
                 return _eval.call(window, code);
             };
-            console.log('[Debugger Blocker] Eval protection active');
         } catch(e) {
             console.error('[Debugger Blocker] Eval protection error:', e);
         }
@@ -133,13 +125,11 @@
             window.Function = function(...args) {
                 const code = args.join('');
                 if (isSuspiciousString(code)) {
-                    console.log('[Debugger Blocker] Blocked suspicious Function creation');
                     return function() { return {}; };
                 }
                 return _Function.apply(this, args);
             };
             window.Function.prototype = _Function.prototype;
-            console.log('[Debugger Blocker] Function protection active');
         } catch(e) {
             console.error('[Debugger Blocker] Function protection error:', e);
         }
@@ -159,7 +149,6 @@
         script.textContent = code;
         (document.head || document.documentElement).appendChild(script);
         script.remove();
-        console.log('[Debugger Blocker] Script injection completed');
     } catch (e) {
         console.error('[Debugger Blocker] Injection error:', e);
     }
