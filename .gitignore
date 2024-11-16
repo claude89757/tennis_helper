@@ -13,3 +13,4 @@ private.env
 *.png
 page_source.html
 .env
+proxies_cache.txt
