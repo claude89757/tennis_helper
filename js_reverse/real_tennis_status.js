@@ -26,24 +26,37 @@
             };
 
             // 创建弹窗显示场地状态
-            function showVenueStatus(slots) {
-                // 尝试发送系统通知
-                try {
-                    if (Notification.permission === "granted") {
-                        new Notification("6号场地状态更新", {
-                            body: `有${slots.filter(s => s.dealState !== 2).length}个时段可预订`
-                        });
-                    } else if (Notification.permission !== "denied") {
-                        Notification.requestPermission().then(permission => {
-                            if (permission === "granted") {
-                                new Notification("6号场地状态更新", {
-                                    body: `有${slots.filter(s => s.dealState !== 2).length}个时段可预订`
-                                });
-                            }
-                        });
+            function showVenueStatus(allVenueSlots) {
+                // 过滤出6号场地的数据
+                const venueSlots = allVenueSlots.filter(slot => slot.venueId === 102930);
+
+                if (venueSlots.length === 0) {
+                    log('没有找到6号场地的数据');
+                    return;
+                }
+
+                // 检查6号场地的可预订状态并发送通知
+                const availableSlots = venueSlots.filter(s => s.dealState !== 2);
+                if (availableSlots.length > 0) {
+                    try {
+                        if (Notification.permission === "granted") {
+                            new Notification("6号场地可预订提醒", {
+                                body: `6号场地有${availableSlots.length}个时段可预订\n时间: ${new Date(availableSlots[0].startTime).toLocaleTimeString()}-${new Date(availableSlots[availableSlots.length-1].endTime).toLocaleTimeString()}`,
+                                icon: "/favicon.ico"
+                            });
+                        } else if (Notification.permission !== "denied") {
+                            Notification.requestPermission().then(permission => {
+                                if (permission === "granted") {
+                                    new Notification("6号场地可预订提醒", {
+                                        body: `6号场地有${availableSlots.length}个时段可预订\n时间: ${new Date(availableSlots[0].startTime).toLocaleTimeString()}-${new Date(availableSlots[availableSlots.length-1].endTime).toLocaleTimeString()}`,
+                                        icon: "/favicon.ico"
+                                    });
+                                }
+                            });
+                        }
+                    } catch(e) {
+                        log('通知发送失败:', e);
                     }
-                } catch(e) {
-                    log('通知发送失败:', e);
                 }
 
                 // 创建弹窗容器
@@ -58,12 +71,14 @@
                     border-radius: 8px;
                     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
                     z-index: 9999;
-                    min-width: 300px;
+                    min-width: 600px;
+                    max-height: 80vh;
+                    overflow-y: auto;
                 `;
 
                 // 创建标题
                 const title = document.createElement('h3');
-                title.textContent = '6号场地状态';
+                title.textContent = '6号场地预订状态';
                 title.style.cssText = `
                     margin: 0 0 15px 0;
                     padding-bottom: 10px;
@@ -79,7 +94,6 @@
                     margin-bottom: 15px;
                 `;
 
-                // 添加表头
                 const thead = document.createElement('thead');
                 thead.innerHTML = `
                     <tr>
@@ -90,9 +104,8 @@
                 `;
                 table.appendChild(thead);
 
-                // 添加表格内容
                 const tbody = document.createElement('tbody');
-                slots.forEach(slot => {
+                venueSlots.forEach(slot => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td style="padding: 8px; border: 1px solid #ddd;">${new Date(slot.startTime).toLocaleTimeString()}</td>
@@ -148,11 +161,19 @@
                 return null;
             }
 
-            // 劫持组件方法
+            // 组件方法
             function hackComponent(vm) {
                 if(!vm || vm._hacked) return;
 
                 const scheduleTable = vm.$refs.scheduleTable || vm;
+
+                // 保存原始方法
+                const originalMethods = {
+                    isAvailable: scheduleTable.isAvailable,
+                    isAvailableStatic: scheduleTable.isAvailableStatic,
+                    check: scheduleTable.check,
+                    loadSchaduleServerData: scheduleTable.loadSchaduleServerData
+                };
 
                 // 劫持方法
                 const methods = {
@@ -192,31 +213,76 @@
                 const originalOpen = XMLHttpRequest.prototype.open;
                 const originalSend = XMLHttpRequest.prototype.send;
 
+                // 添加定时任务函数
+                function scheduleCheck() {
+                    const today = new Date();
+                    const dateStr = today.toISOString().split('T')[0];
+                    const timeStr = today.toLocaleTimeString();
+                    
+                    log(`[定时任务] ${timeStr} 开始执行场地查询...`);
+
+                    // 查找Vue实例
+                    const vm = findVueInstance();
+                    if (!vm) {
+                        log('[定时任务] 未找到Vue实例，跳过查询');
+                        return;
+                    }
+
+                    // 使用原有的请求方法
+                    try {
+                        // 获取原始请求方法
+                        const originRequest = vm.$refs.scheduleTable?.loadSchaduleServerData;
+
+                        if (typeof originRequest === 'function') {
+                            log('[定时任务] 使用原有请求方法');
+                            originRequest.call(vm.$refs.scheduleTable, () => {
+                                log('[定时任务] 请求完成回调');
+                            });
+                        } else {
+                            log('[定时任务] 未找到原有请求方法');
+                        }
+                    } catch (error) {
+                        log('[定时任务] 执行出错:', error);
+                    }
+                }
+
+                // 设置100秒定时任务
+                log('[系统] 启动定时查询任务 (间隔: 100秒)');
+                const checkInterval = setInterval(scheduleCheck, 100000);
+
+                // 保持原有的请求监听代码
                 XMLHttpRequest.prototype.open = function(method, url, ...rest) {
-                    this._isTargetRequest = url.includes('/pub/sport/venue/getVenueOrderList');
+                    if (url.includes('/pub/sport/venue/getVenueOrderList')) {
+                        this._isTargetRequest = true;
+                        log('[请求监听] 检测到场地查询请求:', { method, url });
+                    }
                     return originalOpen.call(this, method, url, ...rest);
                 };
 
                 XMLHttpRequest.prototype.send = function(body) {
                     if (this._isTargetRequest) {
+                        log('[请求监听] 发送请求数据:', body ? JSON.parse(body) : null);
+                        
                         this.addEventListener('load', function() {
                             try {
                                 const response = JSON.parse(this.responseText);
-                                log('getVenueOrderList响应:', response);
+                                log('[请求监听] 收到响应:', {
+                                    code: response.code,
+                                    message: response.message,
+                                    场地数量: response.data?.length || 0,
+                                    场地详情: response.data?.map(slot => ({
+                                        场地名称: slot.venueName,
+                                        开始时间: new Date(slot.startTime).toLocaleTimeString(),
+                                        结束时间: new Date(slot.endTime).toLocaleTimeString(),
+                                        状态: slot.dealState === 2 ? '已预订' : '可预订'
+                                    }))
+                                });
 
-                                // 过滤出6号场地的数据并显示弹窗
-                                const venueSlots = response.data.filter(s => s.venueId === 102930);
-                                if (venueSlots.length > 0) {
-                                    showVenueStatus(venueSlots);
-                                }
-
-                                // 更新所有场地状态
-                                const vm = findVueInstance();
-                                if (vm && vm.$refs.scheduleTable) {
-                                    hackComponent(vm);
+                                if (response.data && response.data.length > 0) {
+                                    showVenueStatus(response.data);
                                 }
                             } catch (err) {
-                                log('处理响应失败:', err);
+                                log('[请求监听] 处理响应失败:', err);
                             }
                         });
                     }
