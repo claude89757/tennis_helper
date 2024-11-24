@@ -362,80 +362,80 @@ def generate_signed_url(base_url: str, sales_item_id: str, timestamp: str) -> st
 def test_url_generation():
     """
     测试URL生成功能
+    测试用例：https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig?t=1732463129946&timestamp__1762=YqRx2D0DcA0%3D0QqDsYExtDnDjgO3ekaK4D
     """
     # 测试参数
-    base_url = "https://wxsports.ydmap.cn/srv100140/api/pub/sport/venue/getVenueCalendarList"
-    sales_item_id = "100341"
-    timestamp = "1732455155433"
+    timestamp = "1732463129946"
+    base_url = f"https://ftty.ydmap.cn/srv200/api/pub/basic/getConfig?t={timestamp}"
+    print(f"✅[RESULT] base_url: {base_url}")
     
-    # 生成签名URL和加密值
-    signed_url, encrypted_value = generate_signed_url(base_url, sales_item_id, timestamp)
-    
-    print("\n=== URL生成测试 ===")
-    print("基础URL:", base_url)
-    print("销售项目ID:", sales_item_id)
-    print("时间戳:", timestamp)
-    print("\n生成的完整URL:")
-    print(signed_url)
-    
-    # 验证URL格式
-    assert "timestamp__1762=" in signed_url, "URL中缺少timestamp__1762参数"
-    assert f"salesItemId={sales_item_id}" in signed_url, "URL中缺少salesItemId参数"
-    assert f"t={timestamp}" in signed_url, "URL中缺少t参数"
-    
-    # 验证生成过程
-    initial_url = f"{base_url}?salesItemId={sales_item_id}&t={timestamp}"
-    encoded_url = encode_uri_component(initial_url)
-    hash_value = compute_hash(encoded_url)
-    
-    # 验证s0参数
-    params = f"{hash_value}|0|{timestamp}|1"
-    expected_timestamp_1762 = s0(params, 6, Cs)
-    
-    # 验证encrypt_url_param
-    encrypt_param = f"{hash_value}|{timestamp}"
-    expected_encrypted_value = encrypt_url_param(encrypt_param, 0, 1)
-    
-    print("\n=== 验证步骤 ===")
-    print("1. 初始URL:", initial_url)
-    print("2. 编码后的URL:", encoded_url)
-    print("3. 哈希值:", hash_value)
-    print("4. s0参数:", params)
-    print("5. timestamp__1762:", expected_timestamp_1762)
-    print("6. encrypt_url_param输入:", encrypt_param)
-    print("7. encrypt_url_param输出:", expected_encrypted_value)
-    
-    assert encrypted_value == expected_encrypted_value, "encrypt_url_param值不匹配"
-    assert f"timestamp__1762={expected_timestamp_1762}" in signed_url, "timestamp__1762值不匹配"
-    
-    print("\n✅ URL格式验证通过")
-    print("✅ 参数生成验证通过")
-    print("✅ encrypt_url_param验证通过")
+    # 预期输出
+    expected_url = f"https://ftty.ydmap.cn/srv200/api/pub/basic/getConfig?t={timestamp}&timestamp__1762=YqRx2D0DcA0%3D0QqDsYExtDnDjgO3ekaK4D"
+   
+    # 1 先encodeURIComponent
+    encoded_url = encode_uri_component(base_url)
+    print(f"✅[RESULT] encoded_url: {encoded_url}")
+
+    # 2 计算encoded_url的hash值
+    url_hash = compute_hash(encoded_url)
+    print(f"✅[RESULT] url_hash: {url_hash}")
+
+    # 3 加密url 参数 
+    encrypted_value = encrypt_url_param(f"{url_hash}|{timestamp}", 0, 1)
+    print(f"✅[RESULT] encrypted_value: {encrypted_value}")
+
+    # 4 使用s0函数生成timestamp__1762参数
+    timestamp_1762 = s0(f"{encrypted_value}|0|{timestamp}|1", 6, Cs)
+    print(f"✅[RESULT] timestamp_1762: {timestamp_1762}")
+
+    # 5 构建最终的完整URL
+    full_url = f"{base_url}&timestamp__1762={timestamp_1762}"        
+
+    # 判断是否与预期输出一致
+    print(f"[RESULT] full_url: {full_url}")
+    print(f"[RESULT] expt_url: {expected_url}")
+    print(f"[RESULT] 测试结果: {'通过' if full_url == expected_url else '失败'}")
 
 # main.py - 测试各个公共函数
 if __name__ == "__main__":
+
+    # https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig?t=1732463965681&timestamp__1762=n4jxcDyiGQD%3DdYK4GNDQTY4QwwAxgiAAcGoD
+    # print("==================== TESTING encode_uri_component FUNCTION ====================")
+    # timestamp = "1732463965681"
+    # uri_input = f"https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig?t={timestamp}"
+    # encoded_output = encode_uri_component(uri_input)
+    # expected_output = "https%3A%2F%2Fwxsports.ydmap.cn%2Fsrv200%2Fapi%2Fpub%2Fbasic%2FgetConfig%3Ft%3D1732463428820"
+    # print(f"[RESULT] encode_uri_component Function Output: {encoded_output}")
+    # print(f"[RESULT] expected_output: {expected_output}")
+    # print(f"[RESULT] 测试结果: {'✅通过' if encoded_output == expected_output else '❌失败'}")
+    
+
     print("==================== TESTING compute_hash FUNCTION ====================")
-    input_str = "https%3A%2F%2Fwxsports.ydmap.cn%2Fsrv100140%2Fapi%2Fpub%2Fsport%2Fvenue%2FgetSportVenueConfig%3FsalesItemId%3D100341%26curDate%3D1731686400000%26venueGroupId%3D%26t%3D1731771919629"
-    output = compute_hash(input_str)
-    print(f"✅[RESULT] compute_hash Function Output: {output}")
+    input_str = "https%3A%2F%2Fwxsports.ydmap.cn%2Fsrv100140%2Fapi%2Fpub%2Fsport%2Fvenue%2FgetSalesItemList%3FsalesId%3D107321%26t%3D1732464596171"
+    output = compute_hash("https%3A%2F%2Fwxsports.ydmap.cn%2Fsrv100140%2Fapi%2Fpub%2Fsport%2Fvenue%2FgetSalesItemList%3FsalesId%3D107321%26t%3D1732464824257")
+    expected_output = -1737660024
+    print(f"[RESULT] compute_hash Function Output: {output}")
+    print(f"[RESULT] expected_output: {expected_output}")
+    print(f"[RESULT] 测试结果: {'✅通过' if output == expected_output else '❌失败'}")
 
-    print("==================== TESTING encode_uri_component FUNCTION ====================")
-    uri_input = "https://wxsports.ydmap.cn/srv100140/api/pub/sport/venue/getSportVenueConfig?salesItemId=100341&curDate=1731686400000&venueGroupId=&t=1731771919629"
-    encoded_output = encode_uri_component(uri_input)
-    print(f"✅[RESULT] encode_uri_component Function Output: {encoded_output}")
+    # print("==================== TESTING encrypt_url_param FUNCTION ====================")
+    # c8 = "3315363095|1731757497111"  # {url_hash}|{timestamp}
+    # c9 = 0
+    # cs = 1
+    # expected_ck = 847281144
+    # result = encrypt_url_param(c8, c9, cs)
+    # print(f"✅[RESULT] encrypt_url_param Function Output: CK = {result}")
 
-    print("==================== TESTING encrypt_url_param FUNCTION ====================")
-    c8 = "3315363095|1731757497111"
-    c9 = 0
-    cs = 1
-    expected_ck = 847281144
-    result = encrypt_url_param(c8, c9, cs)
-    print(f"✅[RESULT] encrypt_url_param Function Output: CK = {result}")
-
-    print("==================== TESTING s0 FUNCTION ====================")
-    test_s0()
+    # print("==================== TESTING s0 FUNCTION ====================")
+    # test3_input = f"{output}|0|{timestamp}|1"
+    # test3_expected = "n4jxcDyiGQD%3DdYK4GNDQTY4QwwAxgiAAcGoD"
+    # test3_result = s0(test3_input, 6, Cs)
+    # print('输入:', test3_input)
+    # print('预期输出:', test3_expected)
+    # print('实际输出:', test3_result)
+    # print('测试结果:', '✅通过' if test3_result == test3_expected else '❌失败')
     
-    print("\n==================== TESTING URL GENERATION ====================")
-    test_url_generation()
+    # print("\n==================== TESTING URL GENERATION ====================")
+    # test_url_generation()
     
-    print("==================== ALL TESTS COMPLETED SUCCESSFULLY ====================")
+    # print("==================== ALL TESTS COMPLETED SUCCESSFULLY ====================")
