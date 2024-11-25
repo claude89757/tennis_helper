@@ -1,0 +1,122 @@
+# 一个用于url参数加密的函数
+function KI(C8, C9, Cs) {
+    var dg = ND;
+    for (var CK = 0x4 * -0x1f6 + -0xd53 + 0x152b, Cj = C9, CC = C8[dg(Ey.s)], CN = s[dg(Ey.K)](Cs, -0x1da5 + -0x158b + -0x3331 * -0x1); s[dg(Ey.j)](Cj, CC);)
+        CK = s[dg(Ey.C)](s[dg(Ey.N)](CK = s[dg(Ey.I)](s[dg(Ey.D)](CK, -0x17da * 0x1 + -0x1 * 0xc2d + -0xc * -0x301), CK), C8[dg(Ey.Y)](Cj)), 0xe3c * -0x1 + -0x1b8d + 0x29c9),
+        Cj += CN;
+    return CK;
+}
+
+
+下面是断点在KI函数后，从控制台输入命令后，再回显的信息，非常重要的参考
+
+0x4 * -0x1f6 + -0xd53 + 0x152b
+0
+
+C8[dg(Ey.s)]
+24
+
+dg(Ey.s)
+'length'
+
+s[dg(Ey.K)]
+ƒ (I,D){return I||D;}
+
+s[dg(Ey.K)]
+ƒ (I,D){return I||D;}
+
+-0x1da5 + -0x158b + -0x3331 * -0x1
+1
+
+s[dg(Ey.j)]
+ƒ (I,D){return I<D;}
+
+s[dg(Ey.C)]
+ƒ (I,D){return I>>>D;}
+
+s[dg(Ey.N)]
+ƒ (I,D){return I+D;}
+
+s[dg(Ey.I)]
+ƒ (I,D){return I-D;}
+
+s[dg(Ey.D)]
+ƒ (I,D){return I<<D;}
+
+-0x17da * 0x1 + -0x1 * 0xc2d + -0xc * -0x301
+5
+dg(Ey.Y)
+'charCodeAt'
+
+C8[dg(Ey.Y)]
+ƒ charCodeAt() { [native code] }
+
+C8[dg(Ey.s)]
+24
+
+C8[dg(Ey.Y)](Cj)
+49
+
+0xe3c * -0x1 + -0x1b8d + 0x29c9
+0
+
+
+下面浏览器获取的本地变量，用于正确测试用例：
+// 执行完KI函数后， 返回CK的值 {
+//     "C8": "3315363095|1731757497111",
+//     "C9": 0,
+//     "Cs": 1,
+//     "CK": 847281144,  
+//     "Cj": 24,
+//     "CC": 24,
+//     "CN": 1
+// }
+
+
+任务：请根据以上信息，把KI函数还原成python函数，给出完整的代码，需要注释清晰、中间有调试日志打印和测试用例
+
+
+
+==========大模型的返回==========
+
+def KI(C8, C9, Cs):
+    # 将输入参数进行加密处理，用于URL参数加密
+    # 参数:
+    # C8: 字符串，用于加密计算
+    # C9: 整数，初始索引值
+    # Cs: 整数，步进值
+    
+    # 初始化变量
+    CK = 0
+    Cj = C9
+    CC = len(C8)  # C8[dg(Ey.s)] -> 获取字符串C8的长度
+    CN = Cs if Cs else 1  # s[dg(Ey.K)](Cs, 1) -> 如果Cs为0，则CN设为1
+    
+    print(f"Initial values: CK = {CK}, Cj = {Cj}, CC = {CC}, CN = {CN}")
+
+    # 循环遍历，直到Cj >= CC
+    while Cj < CC:  # s[dg(Ey.j)](Cj, CC) -> 判断Cj是否小于CC
+        # 逐步计算CK的值
+        CK = ((CK << 5) - CK + ord(C8[Cj])) & 0xFFFFFFFF  # 保证CK在32位整数范围内
+        print(f"Step: Cj = {Cj}, CK = {CK}, char = {C8[Cj]}")
+        Cj += CN
+    
+    return CK
+
+# 测试用例
+if __name__ == "__main__":
+    # 浏览器获取的本地变量，用于测试
+    C8 = "3315363095|1731757497111"
+    C9 = 0
+    Cs = 1
+    expected_CK = 847281144
+
+    # 调用Python实现的KI函数
+    result = KI(C8, C9, Cs)
+    print(f"Result: CK = {result}")
+    
+    # 检查结果是否与预期一致
+    assert result == expected_CK, f"Test failed: expected {expected_CK}, but got {result}"
+    print("Test passed.")
+
+    # 备注：暂时不知道这个函数用来干嘛。。。。。。
