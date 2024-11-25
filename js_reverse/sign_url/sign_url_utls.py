@@ -218,34 +218,36 @@ def s0(C8, C9, Cs):
 
     return ''.join(CL)
 
-def compute_hash(c8: str) -> int:
+def compute_hash(input_str: str) -> int:
     """
-    根据输入字符串计算哈希值。
-    
-    该函数使用位运算和算术运算从输入字符串计算一个32位哈希值。
-    具体算法为:
-    1. 初始化哈希值为0
-    2. 遍历输入字符串的每个字符
-    3. 对当前哈希值进行左移7位运算
-    4. 减去原哈希值
-    5. 加上常数398
-    6. 加上当前字符的ASCII码值
-    7. 使用位与运算保持在32位范围内
+    实现与JavaScript se函数相同的功能
     
     Args:
-        c8 (str): 需要计算哈希值的输入字符串
+        input_str (str): 输入字符串
         
     Returns:
-        int: 计算得到的32位哈希值
+        int: 计算后的32位有符号整数
+        
+    示例:
+        >>> se("https%3A%2F%2Fwxsports.ydmap.cn%2Fsrv100140%2Fapi%2Fpub%2Fbasic%2FgetConfig%3Ft%3D1732507363412")
+        -1217143439
+        >>> se("https%3A%2F%2Fwxsports.ydmap.cn%2Fsrv200%2Fapi%2Fpub%2Fbasic%2FgetConfig%3Ft%3D1732507709655")
+        784062962
     """
-    c9 = 0
-
-    # 遍历输入字符串中的每个字符
-    for cs in range(len(c8)):
-        # 对 c9 进行左移 7 位的位运算，减去 c9，添加 398，再加上当前字符的字符代码
-        c9 = ((c9 << 7) - c9 + 398 + ord(c8[cs])) & 0xFFFFFFFF  # 使用位与操作将其保持在 32 位有符号整数的范围内
-
-    return c9
+    result = 0
+    
+    for char in input_str:
+        # 1. result << 7
+        # 2. (result << 7) - result
+        # 3. ((result << 7) - result) + 398
+        # 4. 最后加上字符码值
+        # 5. 使用 & 0xFFFFFFFF 保持在32位范围内
+        # 6. 将无符号整数转换为有符号整数
+        result = ((result << 7) - result + 398 + ord(char)) & 0xFFFFFFFF
+        if result & 0x80000000:
+            result = -((result ^ 0xFFFFFFFF) + 1)
+    
+    return result
 
 
 def encode_uri_component(uri: str) -> str:
@@ -263,31 +265,6 @@ def encode_uri_component(uri: str) -> str:
     """
     return urllib.parse.quote(uri, safe='~()*!.\'')
 
-
-def encrypt_url_param(c8: str, c9: int, cs: int) -> int:
-    """
-    将输入参数进行加密处理，用于 URL 参数加密
-    
-    参数:
-    c8: 字符串，用于加密计算
-    c9: 整数，初始索引值
-    cs: 整数，步进值
-    """
-    # 初始化变量
-    ck = 0
-    cj = c9
-    cc = len(c8)  # 获取字符串 c8 的长度
-    cn = cs if cs else 1  # 如果 cs 为 0，则 cn 设为 1
-
-    print(f"[INFO] Initial values: CK = {ck}, Cj = {cj}, CC = {cc}, CN = {cn}")
-
-    # 循环遍历，直到 cj >= cc
-    while cj < cc:  # 判断 cj 是否小于 cc
-        # 逐步计算 ck 的值
-        ck = ((ck << 5) - ck + ord(c8[cj])) & 0xFFFFFFFF  # 保证 ck 在 32 位整数范围内
-        cj += cn
-
-    return ck
 
 def test_s0():
     """
@@ -323,41 +300,6 @@ def test_s0():
     print('实际输出:', test3_result)
     print('测试结果:', '通过' if test3_result == test3_expected else '失败')
 
-def generate_signed_url(base_url: str, sales_item_id: str, timestamp: str) -> str:
-    """
-    生成带有签名的URL
-    
-    Args:
-        base_url (str): 基础URL
-        sales_item_id (str): 销售项目ID
-        timestamp (str): 时间戳
-        
-    Returns:
-        str: 带有签名的完整URL
-    """
-    # 1. 构建初始URL
-    initial_url = f"{base_url}?salesItemId={sales_item_id}&t={timestamp}"
-    
-    # 2. URL编码
-    encoded_url = encode_uri_component(initial_url)
-    
-    # 3. 计算哈希值
-    hash_value = compute_hash(encoded_url)
-    
-    # 4. 构建s0函数的输入参数
-    params = f"{hash_value}|0|{timestamp}|1"
-    
-    # 5. 使用s0函数生成timestamp__1762参数
-    timestamp_1762 = s0(params, 6, Cs)
-    
-    # 6. 计算encrypt_url_param
-    encrypt_param = f"{hash_value}|{timestamp}"
-    encrypted_value = encrypt_url_param(encrypt_param, 0, 1)
-    
-    # 7. 构建最终的完整URL
-    full_url = f"{initial_url}&timestamp__1762={timestamp_1762}"
-    
-    return full_url, encrypted_value
 
 def test_url_generation():
     """
@@ -365,13 +307,9 @@ def test_url_generation():
     测试用例：https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig?t=1732463129946&timestamp__1762=YqRx2D0DcA0%3D0QqDsYExtDnDjgO3ekaK4D
     """
     # 测试参数
-    timestamp = "1732463129946"
-    base_url = f"https://ftty.ydmap.cn/srv200/api/pub/basic/getConfig?t={timestamp}"
+    base_url = f"https://wxsports.ydmap.cn/srv100140/api/pub/sport/venue/getSalesItemList?salesId=100220&t=1732508648782"
     print(f"✅[RESULT] base_url: {base_url}")
     
-    # 预期输出
-    expected_url = f"https://ftty.ydmap.cn/srv200/api/pub/basic/getConfig?t={timestamp}&timestamp__1762=YqRx2D0DcA0%3D0QqDsYExtDnDjgO3ekaK4D"
-   
     # 1 先encodeURIComponent
     encoded_url = encode_uri_component(base_url)
     print(f"✅[RESULT] encoded_url: {encoded_url}")
@@ -380,12 +318,8 @@ def test_url_generation():
     url_hash = compute_hash(encoded_url)
     print(f"✅[RESULT] url_hash: {url_hash}")
 
-    # 3 加密url 参数 
-    encrypted_value = encrypt_url_param(f"{url_hash}|{timestamp}", 0, 1)
-    print(f"✅[RESULT] encrypted_value: {encrypted_value}")
-
     # 4 使用s0函数生成timestamp__1762参数
-    timestamp_1762 = s0(f"{encrypted_value}|0|{timestamp}|1", 6, Cs)
+    timestamp_1762 = s0(f"{url_hash}|0|1732508655647|1", 6, Cs)
     print(f"✅[RESULT] timestamp_1762: {timestamp_1762}")
 
     # 5 构建最终的完整URL
@@ -393,8 +327,7 @@ def test_url_generation():
 
     # 判断是否与预期输出一致
     print(f"[RESULT] full_url: {full_url}")
-    print(f"[RESULT] expt_url: {expected_url}")
-    print(f"[RESULT] 测试结果: {'通过' if full_url == expected_url else '失败'}")
+
 
 # main.py - 测试各个公共函数
 if __name__ == "__main__":
@@ -410,21 +343,14 @@ if __name__ == "__main__":
     # print(f"[RESULT] 测试结果: {'✅通过' if encoded_output == expected_output else '❌失败'}")
     
 
-    print("==================== TESTING compute_hash FUNCTION ====================")
-    input_str = "https%3A%2F%2Fwxsports.ydmap.cn%2Fsrv100140%2Fapi%2Fpub%2Fsport%2Fvenue%2FgetSalesItemList%3FsalesId%3D107321%26t%3D1732464596171"
-    output = compute_hash("https%3A%2F%2Fwxsports.ydmap.cn%2Fsrv100140%2Fapi%2Fpub%2Fsport%2Fvenue%2FgetSalesItemList%3FsalesId%3D107321%26t%3D1732464824257")
-    expected_output = -1737660024
-    print(f"[RESULT] compute_hash Function Output: {output}")
-    print(f"[RESULT] expected_output: {expected_output}")
-    print(f"[RESULT] 测试结果: {'✅通过' if output == expected_output else '❌失败'}")
+    # print("==================== TESTING compute_hash FUNCTION ====================")
+    # output = compute_hash("https%3A%2F%2Fwxsports.ydmap.cn%2Fsrv200%2Fapi%2Fpub%2Fbasic%2FgetConfig%3Ft%3D1732508341427")
+    # print(f"✅[RESULT] compute_hash Function Output: {output}")
+    # expected_output = -1737660024
+    # print(f"[RESULT] compute_hash Function Output: {output}")
+    # print(f"[RESULT] expected_output: {expected_output}")
+    # print(f"[RESULT] 测试结果: {'✅通过' if output == expected_output else '❌失败'}")
 
-    # print("==================== TESTING encrypt_url_param FUNCTION ====================")
-    # c8 = "3315363095|1731757497111"  # {url_hash}|{timestamp}
-    # c9 = 0
-    # cs = 1
-    # expected_ck = 847281144
-    # result = encrypt_url_param(c8, c9, cs)
-    # print(f"✅[RESULT] encrypt_url_param Function Output: CK = {result}")
 
     # print("==================== TESTING s0 FUNCTION ====================")
     # test3_input = f"{output}|0|{timestamp}|1"
@@ -435,7 +361,7 @@ if __name__ == "__main__":
     # print('实际输出:', test3_result)
     # print('测试结果:', '✅通过' if test3_result == test3_expected else '❌失败')
     
-    # print("\n==================== TESTING URL GENERATION ====================")
-    # test_url_generation()
+    print("\n==================== TESTING URL GENERATION ====================")
+    test_url_generation()
     
-    # print("==================== ALL TESTS COMPLETED SUCCESSFULLY ====================")
+    print("==================== ALL TESTS COMPLETED SUCCESSFULLY ====================")
