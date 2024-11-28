@@ -10,10 +10,7 @@ import calendar
 
 from typing import List
 
-# 读取指定环境变量的值
-ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
-SIGN_KEY = os.environ.get("SIGN_KEY")
-KS_TOKEN = os.environ.get("KS_TOKEN")  # 酷尚网球的token可能会过期...
+SIGN_KEY = "1234567890"
 
 
 def gen_nonce(timestamp: int):
@@ -87,15 +84,14 @@ def str_to_timestamp(date_str: str):
 
 
 
-date = "2024-11-16"
-salesItemId = 109166
-check_data = str_to_timestamp(date)
+salesItemId = 100000
+check_data = "1732537485928"
 timestamp = math.trunc(time.time() * 1000)
-nonce = gen_nonce(timestamp)
+nonce = "12f36ea4bc8f4b67ba70f00073b70f6d"
 params = {
-    "salesItemId": 109166,
+    "salesItemId": salesItemId,
     "curDate": str(check_data),
-    "venueGroupId": "",
+    "venueGroupId": "1732537485928",
     "t": str(timestamp)
 }
 # param_str = f"salesItemId={sales_item_id}&curDate={check_data}&venueGroupId=&t={str(timestamp)}"  # 仅用于签名
