@@ -307,7 +307,7 @@ def test_url_generation():
     测试用例：https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig?t=1732463129946&timestamp__1762=YqRx2D0DcA0%3D0QqDsYExtDnDjgO3ekaK4D
     """
     # 测试参数
-    base_url = f"https://wxsports.ydmap.cn/srv100140/api/pub/sport/venue/getSalesItemList?salesId=100220&t=1732508648782"
+    base_url = f"https://wxsports.ydmap.cn/srv200/api/pub/basic/getConfig"
     print(f"✅[RESULT] base_url: {base_url}")
     
     # 1 先encodeURIComponent
@@ -319,7 +319,10 @@ def test_url_generation():
     print(f"✅[RESULT] url_hash: {url_hash}")
 
     # 4 使用s0函数生成timestamp__1762参数
-    timestamp_1762 = s0(f"{url_hash}|0|1732508655647|1", 6, Cs)
+    import time
+    current_time = int(time.time() * 1000)
+    print(current_time)
+    timestamp_1762 = s0(f"{url_hash}|0|{current_time}|1", 6, Cs)
     print(f"✅[RESULT] timestamp_1762: {timestamp_1762}")
 
     # 5 构建最终的完整URL
